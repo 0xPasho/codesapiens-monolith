@@ -25,6 +25,9 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     STRIPE_API_KEY: z.string().min(1),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
+    STRIPE_PRO_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_MAX_MONTHLY_PLAN_ID: z.string().min(1),
 
     SMTP_FROM: z.string().min(1),
     POSTMARK_API_TOKEN: z.string().min(1),
@@ -58,6 +61,9 @@ export const env = createEnv({
     NEXT_PUBLIC_GITHUB_APP_SLUG: process.env.NEXT_PUBLIC_GITHUB_APP_SLUG,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     STRIPE_API_KEY: process.env.STRIPE_API_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    STRIPE_PRO_MONTHLY_PLAN_ID: process.env.STRIPE_PRO_MONTHLY_PLAN_ID,
+    STRIPE_MAX_MONTHLY_PLAN_ID: process.env.STRIPE_MAX_MONTHLY_PLAN_ID,
 
     SMTP_FROM: process.env.SMTP_FROM,
     POSTMARK_API_TOKEN: process.env.POSTMARK_API_TOKEN,

@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { HeaderContent } from "~/app/(app)/_components/header-content";
+import { NextAuthProvider } from "@/components/general/providers/NextAuthProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -87,7 +87,7 @@ export default function RootLayout({
         className={`dark flex min-h-screen flex-col font-sans ${inter.variable}`}
       >
         <TRPCReactProvider headers={headers()}>
-          <>{children}</>
+          <NextAuthProvider>{children}</NextAuthProvider>
         </TRPCReactProvider>
       </body>
     </html>

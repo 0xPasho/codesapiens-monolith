@@ -25,7 +25,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Link from "next/link";
-import { CreateNewOrganizationDialog } from "../account/components/UserFullNameModifier";
+import { CreateNewOrganizationDialog } from "../account/_components/create-new-organization-dialog";
 
 function OrgItem({
   org,
@@ -88,7 +88,7 @@ export default function OrgSwitcher({ orgs }: { orgs: Array<any> }) {
             />
             <AvatarFallback>P</AvatarFallback>
           </Avatar>
-          {selectedOrg.organization.name}
+          {selectedOrg.organization.name ?? "You"}
           <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -99,7 +99,13 @@ export default function OrgSwitcher({ orgs }: { orgs: Array<any> }) {
             <CommandEmpty>No organization found.</CommandEmpty>
             <CommandGroup key={"personal"} heading={"Personal Acount"}>
               <OrgItem
-                org={personalOrg}
+                org={{
+                  ...personalOrg,
+                  organization: {
+                    ...personalOrg.organization,
+                    name: personalOrg.organization.name ?? "You",
+                  },
+                }}
                 onSelect={setSelectedOrg}
                 selectedOrg={selectedOrg}
               />

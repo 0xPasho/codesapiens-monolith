@@ -1,54 +1,73 @@
-"use client";
+import { Metadata } from "next";
+import Image from "next/image";
 
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { SidebarNav } from "./components/sidebar-nav";
 import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
-const menuItems = [
-  { url: "/account", label: "General" },
-  { url: "/account/billing", label: "Billing" },
-  { url: "/account/projects", label: "Projects" },
-  { url: "/account/notifications", label: "Notifications" },
+
+export const metadata: Metadata = {
+  title: "User Settings screen",
+  description: "Screen for user settings",
+};
+
+const sidebarNavItems = [
+  {
+    title: "Profile",
+    href: "/account",
+  },
+  {
+    title: "Billing",
+    href: "/account/billing",
+  },
+  {
+    title: "Appearance",
+    href: "/account/appearance",
+  },
+  {
+    title: "Notifications",
+    href: "/account/notifications",
+  },
+  {
+    title: "Display",
+    href: "/account/display",
+  },
 ];
-export default function AccountLayout({
-  children,
-}: {
+
+interface SettingsLayoutProps {
   children: React.ReactNode;
-}) {
+}
+
+export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <div className="w-full flex-row">
-      <h1 className="py-8 text-center text-2xl md:text-4xl">
-        Personal information
-      </h1>
-      <Separator className="w-full" />
-      <div className="flex w-full justify-center py-6">
-        <div className="flex w-[1024px] max-w-full flex-row">
-          <div className="flex flex-col">
-            <NavigationMenu
-              orientation="vertical"
-              className="flex flex-col justify-start"
-            >
-              <NavigationMenuList className="flex flex-col">
-                {menuItems.map((item) => (
-                  <NavigationMenuItem className="mb-4">
-                    <Link href={item.url} legacyBehavior passHref>
-                      <NavigationMenuLink
-                        className={navigationMenuTriggerStyle()}
-                      >
-                        {item.label}
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
-          <div className="flex flex-1 flex-col px-4">{children}</div>
+    <div className="bg-background overflow-hidden rounded-[0.5rem] border shadow">
+      <div className="md:hidden">
+        <Image
+          src="/examples/forms-light.png"
+          width={1280}
+          height={791}
+          alt="Forms"
+          className="block dark:hidden"
+        />
+        <Image
+          src="/examples/forms-dark.png"
+          width={1280}
+          height={791}
+          alt="Forms"
+          className="hidden dark:block"
+        />
+      </div>
+      <div className="hidden space-y-6 p-10 pb-16 md:block">
+        <div className="space-y-0.5">
+          <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+          <p className="text-muted-foreground">
+            Manage your account settings and set e-mail preferences.
+          </p>
+        </div>
+        <Separator className="my-6" />
+        <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+          <aside className="-mx-4 lg:w-1/5">
+            <SidebarNav items={sidebarNavItems} />
+          </aside>
+          <div className="flex-1 lg:max-w-2xl">{children}</div>
         </div>
       </div>
     </div>

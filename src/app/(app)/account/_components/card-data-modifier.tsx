@@ -15,18 +15,26 @@ export default function CardDataModifier({
   content,
   footer,
   className,
+  header,
 }: {
   title?: string;
   description?: string;
   content?: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
+  header?: React.ReactNode;
 }) {
   return (
     <Card className={`w-full ${className}`}>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        {header ? (
+          header
+        ) : (
+          <>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </>
+        )}
       </CardHeader>
       {content ? <CardContent>{content}</CardContent> : null}
 

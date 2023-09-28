@@ -49,7 +49,7 @@ async function insertDefaultOrganization(user: {
 
   const newOrg = await db.organization.create({
     data: {
-      name: user.name ?? "Default Organization",
+      name: user.name ?? "", // If user has no name, use empty string, Important as in some fields it's going to be filled as "You"
       slug,
       isPersonal: true,
     },
@@ -77,7 +77,6 @@ async function insertDefaultOrganization(user: {
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const data: Payload = await req.json();
-  console.log({ data });
   const userId = data?.userId;
 
   if (!userId) {

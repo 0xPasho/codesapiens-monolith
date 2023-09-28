@@ -29,7 +29,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { validateSlugPattern } from "@/lib/utils";
 
-const slugLength = 80;
+const slugLength = 40;
 
 const FormSchema = z.object({
   name: z

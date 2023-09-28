@@ -2,8 +2,10 @@ import Link from "next/link";
 import { siteConfig } from "~/config/site";
 import OrgSwitcherWrapper from "./org-switcher-wrapper";
 import HeaderProfileButton from "./header-profile-button";
+import { getServerAuthSession } from "~/server/auth";
 
 export async function HeaderContent() {
+  const session = await getServerAuthSession();
   return (
     <header className="border-slate-6 bg-slate-1/5 w-full  border-b backdrop-blur-lg">
       <nav
@@ -48,7 +50,7 @@ export async function HeaderContent() {
           <span className="hidden pr-3 font-bold sm:inline-block">/</span>
           <OrgSwitcherWrapper />
         </div>
-        <HeaderProfileButton />
+        <HeaderProfileButton session={session} />
       </nav>
     </header>
   );
