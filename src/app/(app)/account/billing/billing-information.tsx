@@ -105,7 +105,7 @@ export function BillingForm({ subscriptionPlan, className }: any) {
         </div>
       }
       footer={
-        <div className="align-center flex flex-1 items-center justify-between">
+        <div className="align-center flex flex-1 flex-col items-center justify-between sm:flex-row">
           {subscriptionPlan.isInPlan ? (
             <Button
               variant="ghost"
@@ -120,8 +120,8 @@ export function BillingForm({ subscriptionPlan, className }: any) {
           ) : null}
           {subscriptionPlan.plan.name !== "max" ? (
             <Button
-              type="submit"
               disabled={isLoading}
+              className="mt-4 sm:mt-0 "
               isLoading={isLoading}
               onClick={() => {
                 redirectToStripe(
