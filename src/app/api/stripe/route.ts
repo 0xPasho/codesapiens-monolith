@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const session = await getServerSession(authOptions);
     const user = await api.users.getAuthenticatedUser.query();
 
-    if (!session?.user || !session?.user.email || !user.organizationId) {
+    if (!session?.user || !session?.user.email || !user?.organizationId) {
       return new Response(null, { status: 403, statusText: "UNAUTHORIZED" });
     }
     let subscriptionPlan;

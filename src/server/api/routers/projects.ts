@@ -7,11 +7,18 @@ const GetAllProjectsByOrg = z.object({
   organizationId: z.string(),
 });
 
+const GetAllProjectsBySlug = z.object({
+  slug: z.string(),
+});
+
 const CreateProjectInput = z.object({
   name: z.string(),
   slug: z.string(),
   organizationId: z.string(),
 });
+function timeout(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export const projectsRouter = createTRPCRouter({
   getAllProjectsByOrg: protectedProcedure
@@ -20,6 +27,19 @@ export const projectsRouter = createTRPCRouter({
       return ctx.db.project.findMany({
         where: {
           organizationId: input.organizationId,
+        },
+        include: {
+          organization: true,
+        },
+      });
+    }),
+  getAllProjectsBySlug: protectedProcedure
+    .input(GetAllProjectsBySlug)
+    .query(async ({ ctx, input }) => {
+      await timeout(5000);
+      return ctx.db.project.findMany({
+        where: {
+          slug: input.slug,
         },
         include: {
           organization: true,
