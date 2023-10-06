@@ -17,16 +17,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CreateNewOrganizationDialog } from "./CreateNewOrganizationDialog";
-import { api } from "~/trpc/react";
 import Link from "next/link";
+import { CreateNewOrganizationDialog } from "~/app/(app)/account/_components/create-new-organization-dialog";
 
 type OrgItem = {
   value: string;
   label: string;
 };
 
-export function OrgPicker({ orgMembers: any }) {
+export function OrgPicker({ orgMembers }: { orgMembers: any }) {
   const router = useParams();
   const orgSlug = (router?.orgSlug ?? "") as string;
   const [open, setOpen] = React.useState(false);

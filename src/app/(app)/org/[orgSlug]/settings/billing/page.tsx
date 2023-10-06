@@ -1,21 +1,23 @@
 import { Separator } from "@/components/ui/separator";
 import { api } from "~/trpc/server";
-import { BillingForm } from "./billing-information";
 import { getOrgSubscriptionPlan } from "@/lib/subscription";
 import { stripe } from "@/lib/stripe";
+import { BillingForm } from "~/app/(app)/account/billing/billing-information";
 import { authOptions, getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
 
-export default async function SettingsProfilePage() {
+export default async function BillingProfilePage({
+  params: { orgSlug },
+}: {
+  params: { orgSlug: string };
+}) {
   const user = await getServerAuthSession();
 
   if (!user) {
     redirect(authOptions?.pages?.signIn || "/login");
   }
-  const profileInfo = await api.users.getAuthenticatedUser.query();
-  const subscriptionPlan = await getOrgSubscriptionPlan(
-    profileInfo!.organizationId!,
-  );
+  const orgInfo = await api.organizations.getOrgBySlug.query({ orgSlug });
+  const subscriptionPlan = await getOrgSubscriptionPlan(orgInfo?.id!);
 
   // If user has a pro plan, check cancel status on Stripe.
   let isCanceled = false;
@@ -33,7 +35,7 @@ export default async function SettingsProfilePage() {
       <div>
         <h3 className="text-lg font-medium">Billing</h3>
         <p className="text-sm text-muted-foreground">
-          Manage billing and your subscription plan.
+          Manage billing and the organization subscription plan.
         </p>
       </div>
       <Separator />
@@ -42,7 +44,7 @@ export default async function SettingsProfilePage() {
           ...subscriptionPlan,
           isCanceled,
         }}
-        from="user"
+        from="org"
       />
     </div>
   );

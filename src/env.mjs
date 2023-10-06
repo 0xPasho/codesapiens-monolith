@@ -35,6 +35,7 @@ export const env = createEnv({
     SMTP_FROM: z.string().min(1),
     POSTMARK_API_TOKEN: z.string().min(1),
     POSTMARK_SIGN_IN_TEMPLATE: z.string().min(1),
+    POSTMARK_ORG_INVITATION_TEMPLATE: z.string().min(1),
   },
 
   /**
@@ -75,6 +76,8 @@ export const env = createEnv({
     SMTP_FROM: process.env.SMTP_FROM,
     POSTMARK_API_TOKEN: process.env.POSTMARK_API_TOKEN,
     POSTMARK_SIGN_IN_TEMPLATE: process.env.POSTMARK_SIGN_IN_TEMPLATE,
+    POSTMARK_ORG_INVITATION_TEMPLATE:
+      process.env.POSTMARK_ORG_INVITATION_TEMPLATE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

@@ -9,9 +9,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowUpIcon } from "@radix-ui/react-icons";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import Link from "next/link";
+import { ArrowUp } from "lucide-react";
 
 export interface PromptProps
   extends Pick<UseChatHelpers, "input" | "setInput"> {
@@ -67,7 +67,7 @@ export function PromptForm({
                   size="icon"
                   disabled={isLoading || input === ""}
                 >
-                  <ArrowUpIcon />
+                  <ArrowUp />
                   <span className="sr-only">Send message</span>
                 </Button>
               </TooltipTrigger>

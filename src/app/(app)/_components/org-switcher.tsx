@@ -43,7 +43,6 @@ function OrgItem({
           <AvatarImage
             src={`https://avatar.vercel.sh/${org.organization.slug}.png`}
             alt={org.organization.name}
-            className="grayscale"
           />
           <AvatarFallback>SC</AvatarFallback>
         </Avatar>
@@ -88,7 +87,7 @@ export default function OrgSwitcher({ orgs }: { orgs: Array<any> }) {
             />
             <AvatarFallback>P</AvatarFallback>
           </Avatar>
-          {selectedOrg.organization.name ?? "You"}
+          {selectedOrg.organization.name || "You"}
           <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -103,7 +102,7 @@ export default function OrgSwitcher({ orgs }: { orgs: Array<any> }) {
                   ...personalOrg,
                   organization: {
                     ...personalOrg.organization,
-                    name: personalOrg.organization.name ?? "You",
+                    name: personalOrg.organization.name || "You",
                   },
                 }}
                 onSelect={setSelectedOrg}

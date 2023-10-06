@@ -22,11 +22,13 @@ import { toast } from "@/components/ui/use-toast";
 
 const IS_PREVIEW = process.env.VERCEL_ENV === "preview";
 export interface ChatProps extends React.ComponentProps<"div"> {
-  initialMessages?: Message[];
-  id?: string;
+  projectSlug: string;
+  orgSlug: string;
 }
 
-export function Chat({ id, initialMessages, className }: ChatProps) {
+export function Chat({ orgSlug, projectSlug, className }: ChatProps) {
+  const initialMessages = [] as any;
+  const id = `${orgSlug}/${projectSlug}`;
   const previewToken = "";
   const [previewTokenDialog, setPreviewTokenDialog] = useState(IS_PREVIEW);
   const [previewTokenInput, setPreviewTokenInput] = useState(

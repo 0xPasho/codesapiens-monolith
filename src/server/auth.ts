@@ -38,7 +38,7 @@ declare module "next-auth" {
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: async ({ session, user }) => {
+    session: async ({ session, user, token }) => {
       try {
         const userInformation = await fetch(
           `${env.NEXT_PUBLIC_APP_URL}/api/org-initializator`,
@@ -65,6 +65,23 @@ export const authOptions: NextAuthOptions = {
         throw err;
       }
     },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token = {
+          ...token,
+          id: user.id,
+          //@ts-ignore
+          role: user?.role,
+          //@ts-ignore
+          name: user?.fullName,
+          //@ts-ignore
+          picture: user?.avatar,
+        };
+
+        return token;
+      }
+      return token;
+    },
   },
   pages: {
     signIn: "/login",
@@ -72,10 +89,12 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   providers: [
     GithubProvider({
+      allowDangerousEmailAccountLinking: true,
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
     }),
     GoogleProvider({
+      allowDangerousEmailAccountLinking: true,
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),

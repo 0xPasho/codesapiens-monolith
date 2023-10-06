@@ -13,8 +13,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { Icons } from "@/components/general/icons";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  type?: "login" | "register";
+}
 
 type FormData = z.infer<typeof userAuthSchema>;
 
@@ -22,7 +33,7 @@ export const userAuthSchema = z.object({
   email: z.string().email(),
 });
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
   const {
     register,
     handleSubmit,
@@ -61,79 +72,88 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   }
 
   const areButtonsLoading = isLoading || isGitHubLoading || isGoogleLoading;
+
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={areButtonsLoading}
-              {...register("email")}
-            />
-            {errors?.email && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
+    <Card>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl">
+          {type === "register" ? "Create an account" : "Sign in"}
+        </CardTitle>
+        <CardDescription>
+          {type === "register"
+            ? "Enter your email below to create your account"
+            : "Enter your email below to sign in"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <Button
-            isLoading={isLoading}
-            className={cn(buttonVariants())}
-            disabled={isLoading}
+            variant="outline"
+            onClick={() => {
+              setIsGitHubLoading(true);
+              signIn("github", {
+                redirect: true,
+                callbackUrl: searchParams?.get("from") || "/dashboard",
+              });
+            }}
+            disabled={areButtonsLoading}
+            isLoading={areButtonsLoading}
+          >
+            <Icons.gitHub className="mr-2 h-4 w-4" />
+            Github
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setIsGoogleLoading(true);
+              signIn("google", {
+                redirect: true,
+                callbackUrl: searchParams?.get("from") || "/dashboard",
+              });
+            }}
+            disabled={areButtonsLoading}
+            isLoading={areButtonsLoading}
+          >
+            <Icons.google className="mr-2 h-4 w-4" />
+            Google
+          </Button>
+        </div>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Label className="sr-only" htmlFor="email">
+            Email
+          </Label>
+          <Input
+            id="email"
+            placeholder="name@example.com"
+            type="email"
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect="off"
+            disabled={areButtonsLoading}
+            {...register("email")}
+          />
+          {errors?.email && (
+            <p className="px-1 text-xs text-red-600">{errors.email.message}</p>
+          )}
+          <Button
+            className={"mt-2 w-full"}
+            disabled={areButtonsLoading}
+            isLoading={areButtonsLoading}
           >
             Sign In with Email
           </Button>
-        </div>
-      </form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2">
-            Or continue with
-          </span>
-        </div>
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          setIsGitHubLoading(true);
-          signIn("github", {
-            redirect: true,
-            callbackUrl: searchParams?.get("from") || "/dashboard",
-          });
-        }}
-        disabled={areButtonsLoading}
-        isLoading={areButtonsLoading}
-      >
-        <GitHubLogoIcon /> Sign in with Github
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          setIsGoogleLoading(true);
-          signIn("google", {
-            redirect: true,
-            callbackUrl: searchParams?.get("from") || "/dashboard",
-          });
-        }}
-        disabled={areButtonsLoading}
-        isLoading={areButtonsLoading}
-      >
-        <GitHubLogoIcon /> Sign in with Google
-      </Button>
-    </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

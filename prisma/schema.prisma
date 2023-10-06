@@ -79,11 +79,18 @@ enum OrganizationMemberRole {
   member
 }
 
+enum OrganizationMemberStatus {
+  active
+  pending
+  rejected
+}
+
 model OrganizationMember {
   userId         String
   organizationId String
   role           OrganizationMemberRole
   addedAt        DateTime               @default(now()) @map(name: "added_at")
+  status         OrganizationMemberStatus @default(pending) @map(name: "status")
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])

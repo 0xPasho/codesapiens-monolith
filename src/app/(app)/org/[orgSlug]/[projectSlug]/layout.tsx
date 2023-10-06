@@ -13,23 +13,35 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 const menuItems = [
-  { url: "/p/[projectSlug]", label: "❓ Overview/Ask", id: "overview" },
-  { url: "/p/[projectSlug]/billing", label: "🌍 Wiki", id: "wiki" },
-  { url: "/p/[projectSlug]/settings", label: "🛠️ Settings", id: "settings" },
+  {
+    url: "/org/[orgSlug]/[projectSlug]",
+    label: "❓ Overview/Ask",
+    id: "overview",
+  },
+  {
+    url: "/org/[orgSlug]/[projectSlug]/wiki",
+    label: "🌍 Wiki/Sources",
+    id: "wiki",
+  },
+  {
+    url: "/org/[orgSlug]/[projectSlug]/settings",
+    label: "🛠️ Settings",
+    id: "settings",
+  },
 ];
 export default function ProjectLayout({
   children,
-  params: { projectSlug },
+  params: { projectSlug, orgSlug },
 }: {
   children: React.ReactNode;
-  params: { projectSlug: string };
+  params: { projectSlug: string; orgSlug: string };
 }) {
   const [currentSelectedTab, setCurrentSelectedTab] = useState("overview");
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname?.endsWith("/billing")) {
-      setCurrentSelectedTab("billing");
+    if (pathname?.endsWith("/wiki")) {
+      setCurrentSelectedTab("wiki");
     } else if (pathname?.endsWith("/settings")) {
       setCurrentSelectedTab("settings");
     } else if (currentSelectedTab !== "overview") {
@@ -55,7 +67,9 @@ export default function ProjectLayout({
               >
                 <NavigationMenuItem>
                   <Link
-                    href={item.url.replace("[projectSlug]", projectSlug)}
+                    href={item.url
+                      .replace("[orgSlug]", orgSlug)
+                      .replace("[projectSlug]", projectSlug)}
                     legacyBehavior
                     passHref
                     className="p-0"

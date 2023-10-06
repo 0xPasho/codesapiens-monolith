@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import CardDataModifier from "../_components/card-data-modifier";
 
-export function BillingForm({ subscriptionPlan, className }: any) {
+export function BillingForm({ subscriptionPlan, className, from }: any) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { toast } = useToast();
   const fireErrorMessage = (type?: string) => {

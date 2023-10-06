@@ -13,7 +13,10 @@ export async function HeaderContent() {
         className="flex w-full flex-row justify-between px-12 py-2"
       >
         <div className="flex flex-row items-center">
-          <Link href="/" className="flex flex-row pr-3">
+          <Link
+            href={session ? "/dashboard" : "/"}
+            className="flex flex-row pr-3"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 256 256"

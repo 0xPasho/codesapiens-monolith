@@ -5,12 +5,9 @@ import { Button } from "@/components/ui/button";
 const OrgProjectsLoading = () => (
   <div className="flex flex-col p-10 pb-16">
     <div className="mx-auto justify-center space-y-0.5 pb-4 lg:max-w-2xl">
-      <div className="flex  flex-row justify-center">
-        <h2 className="mr-2 text-center text-2xl font-bold tracking-tight">
-          Projects
-        </h2>
-        <Button disabled>New Project</Button>
-      </div>
+      <h2 className="mr-2 text-center text-2xl font-bold tracking-tight">
+        Projects
+      </h2>
       <p className="text-center text-muted-foreground">
         Your current list of projects in this organization.
       </p>
