@@ -18,7 +18,7 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 const IS_PREVIEW = process.env.VERCEL_ENV === "preview";
 export interface ChatProps extends React.ComponentProps<"div"> {
@@ -27,7 +27,6 @@ export interface ChatProps extends React.ComponentProps<"div"> {
 }
 
 export function Chat({ id, initialMessages, className }: ChatProps) {
-  const { toast } = useToast();
   const previewToken = "";
   const [previewTokenDialog, setPreviewTokenDialog] = useState(IS_PREVIEW);
   const [previewTokenInput, setPreviewTokenInput] = useState(

@@ -5,6 +5,7 @@ import OrgProjectGridItem from "./_components/OrgProjectGridItem";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { EmptyPlaceholder } from "@/components/empty-placeholder";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -33,9 +34,11 @@ export default async function OrgsSlugPage({
           <h2 className="mr-2 text-center text-2xl font-bold tracking-tight">
             Projects
           </h2>
-          <Link href={`/org/${orgSlug}/new-project`}>
-            <Button>New Project</Button>
-          </Link>
+          {projects.length > 0 ? (
+            <Link href={`/org/${orgSlug}/new-project`}>
+              <Button>New Project</Button>
+            </Link>
+          ) : null}
         </div>
         <p className="text-center text-muted-foreground">
           Your current list of projects in this organization.
@@ -43,24 +46,29 @@ export default async function OrgsSlugPage({
       </div>
       <Separator />
       {projects.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {projects.map((project) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project, index) => (
             <OrgProjectGridItem
+              key={`org-item-${project.id}-${index}`}
+              orgSlug={orgSlug}
               description={project.desc ?? "No description"}
-              title={project.name}
               slug={project.slug}
             />
           ))}
         </div>
       ) : (
-        <div className="align-center mx-auto mt-6 justify-center space-y-0.5 lg:max-w-2xl">
-          <h2 className="mr-2 text-center text-2xl font-bold tracking-tight">
-            No projects created yet 🙇‍♂️
-          </h2>
-          <p className="text-center text-muted-foreground">
-            Go ahead and create a new project!
-          </p>
-        </div>
+        <EmptyPlaceholder>
+          <EmptyPlaceholder.Icon name="add" />
+          <EmptyPlaceholder.Title>
+            No projects created yet
+          </EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Description>
+            Go ahead and create a new project! 👇
+          </EmptyPlaceholder.Description>
+          <Link href={`/org/${orgSlug}/new-project`}>
+            <Button>New Project</Button>
+          </Link>
+        </EmptyPlaceholder>
       )}
     </div>
   );

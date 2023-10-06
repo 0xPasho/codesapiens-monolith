@@ -113,6 +113,7 @@ export default function OrgSwitcher({ orgs }: { orgs: Array<any> }) {
             <CommandGroup key={"organizations"} heading={"Organizations"}>
               {otherOrgs.map((org) => (
                 <OrgItem
+                  key={`user-org-item-${org.organization.id}`}
                   org={org}
                   onSelect={setSelectedOrg}
                   selectedOrg={selectedOrg}

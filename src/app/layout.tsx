@@ -6,6 +6,9 @@ import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { NextAuthProvider } from "@/components/general/providers/NextAuthProvider";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/general/theme-provider";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -84,11 +87,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`dark flex min-h-screen flex-col font-sans ${inter.variable}`}
+        className={`flex min-h-screen flex-col font-sans antialiased ${inter.variable}`}
       >
-        <TRPCReactProvider headers={headers()}>
-          <NextAuthProvider>{children}</NextAuthProvider>
-        </TRPCReactProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TRPCReactProvider headers={headers()}>
+            <NextAuthProvider>{children}</NextAuthProvider>
+            <Toaster />
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

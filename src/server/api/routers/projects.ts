@@ -12,13 +12,14 @@ const GetAllProjectsBySlug = z.object({
 });
 
 const CreateProjectInput = z.object({
-  name: z.string(),
-  slug: z.string(),
-  organizationId: z.string(),
+  repoOrgSlug: z.string(),
+  organizationSlug: z.string(),
+  newProjectSlug: z.string(),
+  repoName: z.string(),
+  repoUrl: z.string(),
+  repoBranchName: z.string(),
+  description: z.string(),
 });
-function timeout(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 export const projectsRouter = createTRPCRouter({
   getAllProjectsByOrg: protectedProcedure
@@ -36,10 +37,21 @@ export const projectsRouter = createTRPCRouter({
   getAllProjectsBySlug: protectedProcedure
     .input(GetAllProjectsBySlug)
     .query(async ({ ctx, input }) => {
-      await timeout(5000);
-      return ctx.db.project.findMany({
+      const org = await ctx.db.organization.findFirst({
         where: {
           slug: input.slug,
+        },
+      });
+      if (!org) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
+      }
+
+      return ctx.db.project.findMany({
+        where: {
+          organizationId: org.id,
         },
         include: {
           organization: true,
@@ -51,11 +63,9 @@ export const projectsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const projectFound = await ctx.db.project.findFirst({
         where: {
-          slug: input.slug.toLocaleLowerCase(),
+          slug: input.newProjectSlug.toLocaleLowerCase(),
         },
       });
-
-      console.log({ projectFound });
 
       if (projectFound) {
         throw new TRPCError({
@@ -64,13 +74,43 @@ export const projectsRouter = createTRPCRouter({
         });
       }
 
-      const newProject = await ctx.db.project.create({
-        data: {
-          name: input.name,
-          slug: input.slug.toLocaleLowerCase(),
-          organizationId: input.organizationId,
+      const organizationFound = await ctx.db.organization.findFirst({
+        where: {
+          slug: input.organizationSlug.toLocaleLowerCase(),
         },
       });
+
+      if (!organizationFound) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
+      }
+
+      const newProject = await ctx.db.project.create({
+        data: {
+          slug: input.newProjectSlug.toLocaleLowerCase(),
+          organizationId: organizationFound.id,
+        },
+      });
+
+      const sources = await ctx.db.source.create({
+        data: {
+          repoUrl: input.repoUrl,
+          repoProjectName: input.repoName,
+          projectId: newProject.id,
+          repoBranchName: input.repoBranchName,
+          repoOrganizationName: input.repoOrgSlug,
+          sourceType: "github",
+        },
+      });
+
+      if (!sources) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not create source",
+        });
+      }
 
       return newProject;
     }),

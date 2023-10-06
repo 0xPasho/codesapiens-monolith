@@ -14,6 +14,11 @@ enum OrganizationPlan {
   custom
 }
 
+enum SourceType {
+  manual
+  github
+}
+
 model Organization {
   id   String @id @default(cuid())
   name String
@@ -49,13 +54,24 @@ model User {
 
 model Project {
   id             String       @id @default(cuid())
-  name           String
   slug           String       @unique
   desc           String?
   createdAt      DateTime     @default(now()) @map(name: "created_at")
   updatedAt      DateTime     @default(now()) @map(name: "updated_at")
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
+  sources        Source[]
+}
+
+model Source {
+  id                  String     @id @default(cuid())
+  repoOrganizationName String
+  sourceType          SourceType
+  repoUrl             String
+  repoProjectName     String
+  repoBranchName      String
+  projectId           String
+  project             Project   @relation(fields: [projectId], references: [id])
 }
 
 enum OrganizationMemberRole {

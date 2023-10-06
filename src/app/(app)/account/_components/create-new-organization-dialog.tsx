@@ -26,7 +26,7 @@ import { env } from "~/env.mjs";
 import { Separator } from "@/components/ui/separator";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { validateSlugPattern } from "@/lib/utils";
 
 const slugLength = 40;
@@ -59,7 +59,6 @@ export function CreateNewOrganizationDialog({
 }: {
   children: React.ReactNode;
 }) {
-  const { toast } = useToast();
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
   const [isSlugEditable, setIsSlugEditable] = useState(false);

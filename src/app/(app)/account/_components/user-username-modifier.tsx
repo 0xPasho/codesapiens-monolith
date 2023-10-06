@@ -4,10 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { api } from "~/trpc/react";
 import CardDataModifier from "./card-data-modifier";
 import { validateSlugPattern } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 const slugLength = 40;
 const UsernameSchema = z.object({
@@ -26,7 +26,6 @@ const UsernameSchema = z.object({
 });
 
 const UserUsernameModifier = ({ profileInfo }: { profileInfo: any }) => {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof UsernameSchema>>({

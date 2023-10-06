@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { api } from "~/trpc/react";
 import CardDataModifier from "./card-data-modifier";
 
@@ -23,7 +23,6 @@ const NameSchema = z.object({
 });
 
 const UserFullNameModifier = ({ profileInfo }: { profileInfo: any }) => {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof NameSchema>>({

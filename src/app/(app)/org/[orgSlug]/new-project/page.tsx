@@ -20,7 +20,7 @@ export default async function NewProjectPage({
 }: OrgPageProps) {
   return (
     <div className="flex flex-col">
-      <NewProjectContent />
+      <NewProjectContent orgSlug={orgSlug} />
     </div>
   );
 }

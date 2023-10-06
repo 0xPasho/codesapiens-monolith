@@ -1,133 +1,16 @@
 "use client";
-import { GithubConnectButton } from "@/components/general/github/connect-to-github";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import {
-  CaretSortIcon,
-  CheckIcon,
-  PlusCircledIcon,
-} from "@radix-ui/react-icons";
 import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import GithubOrgRepositories from "./github-org-repositories";
 import { Input } from "@/components/ui/input";
+import GithubOrgPicker from "./github-org-picker";
+import NewProjectBase from "./new-project-base";
+import GithubPermissionsBlock from "./github-permissions-block";
 
-const GithubPermissionsBlock = () => {
-  return (
-    <>
-      <div className="flex-row">
-        <span className="text-md text-gray-500">
-          Missing Git Repository? 👉
-        </span>
-        <GithubConnectButton onPopoverClose={() => {}}>
-          Adjust Github App Permisions
-        </GithubConnectButton>
-      </div>
-    </>
-  );
-};
-
-const GithubOrgPicker = ({
-  selectedOrg,
-  isOpen,
-  onSelect,
-  orgs,
-}: {
-  selectedOrg: any;
-  isOpen: boolean;
-  onSelect: (org: any) => void;
-  orgs: any;
-}) => {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={isOpen}
-          aria-label="Select a Github Organization"
-          className={"w-[200px] justify-between"}
-        >
-          <Avatar className="mr-2 h-5 w-5">
-            <AvatarImage src={selectedOrg?.account?.avatar_url} />
-            <AvatarFallback>GA</AvatarFallback>
-          </Avatar>
-          {selectedOrg?.account?.login}
-          <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Find Github org" />
-          <CommandList>
-            <CommandEmpty>No github org found.</CommandEmpty>
-            <CommandItem>
-              <GithubConnectButton onlyChildren>
-                <div className="flex w-full items-center px-2 py-2">
-                  <PlusCircledIcon className="mr-2 h-4 w-4" />
-                  <span>Connect Github Organization</span>
-                </div>
-              </GithubConnectButton>
-            </CommandItem>
-            <CommandGroup heading="Organizations">
-              {orgs.map((org, index) => (
-                <CommandItem key={`github-org-${index}`} onSelect={onSelect}>
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      alt={org.account.login}
-                      src={org.account.avatar_url}
-                    />
-                    <AvatarFallback>GA</AvatarFallback>
-                  </Avatar>
-                  {`${org.account.login}`}
-                  <CheckIcon
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      selectedOrg?.account?.login === org.account.login
-                        ? "opacity-100"
-                        : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-};
-
-const NewProjectBase = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="mt-8  flex w-full justify-center">
-      <div className="flex w-[850px] max-w-full flex-col">
-        <h1 className="text-center text-4xl">✨ Let's create magic!</h1>
-        <h2 className="mb-12 text-center text-2xl text-gray-400">
-          Bring up your Git repo to start
-        </h2>
-        {children}
-      </div>
-    </div>
-  );
-};
-const NewProjectContent = () => {
+const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [orgsLoading, setOrgsLoading] = useState(true);
   const [reposLoading, setReposLoading] = useState(true);
@@ -203,7 +86,7 @@ const NewProjectContent = () => {
       }
 
       const sortedOrgs = githubRepos?.data?.sort(
-        (a: any, b) => new Date(b.created_at) - new Date(a.created_at),
+        (a: any, b: any) => new Date(b.created_at) - new Date(a.created_at),
       );
 
       setRepos(sortedOrgs);
@@ -240,7 +123,11 @@ const NewProjectContent = () => {
 
   if (orgsLoading) {
     return (
-      <NewProjectBase>
+      <NewProjectBase
+        step={0}
+        title="✨ Let's create magic!"
+        description="Bring up your Git repo to start"
+      >
         <div className="flex flex-col gap-6 rounded-[4px] ">
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-48 w-full" />
@@ -261,7 +148,11 @@ const NewProjectContent = () => {
   });
 
   return (
-    <NewProjectBase>
+    <NewProjectBase
+      step={0}
+      title="✨ Let's create magic!"
+      description="Bring up your Git repo to start"
+    >
       <div className="flex flex-row">
         <GithubOrgPicker
           isOpen={isOpen}
@@ -285,6 +176,7 @@ const NewProjectContent = () => {
         <GithubOrgRepositories
           loading={reposLoading}
           repositories={filteredRepos}
+          orgSlug={orgSlug}
         />
       </div>
       <GithubPermissionsBlock />
