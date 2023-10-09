@@ -6,10 +6,20 @@ import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import CardDataModifier from "../_components/card-data-modifier";
+import { useSearchParams } from "next/navigation";
 
-export function BillingForm({ subscriptionPlan, className, from }: any) {
+export function BillingForm({
+  subscriptionPlan,
+  className,
+  from,
+  orgSlug,
+}: any) {
+  const params = useSearchParams();
+  // st = stripeStatus
+  const stripeStatus = params.get("st");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { toast } = useToast();
+  const errorStripeFired = React.useRef(false);
   const fireErrorMessage = (type?: string) => {
     switch (type) {
       case "UNAUTHORIZED":
@@ -56,9 +66,9 @@ export function BillingForm({ subscriptionPlan, className, from }: any) {
     try {
       // If there's a target plan it will be used to create a checkout session.
       // Otherwise, it will be used to create a portal session.
-      const response = await fetch(
-        `/api/stripe${targetPlan ? `?plan=${targetPlan}` : "?plan="}}`,
-      );
+      const params = `?orgSlug=${orgSlug}&from=${from}&plan=${targetPlan}`;
+      const response = await fetch(`/api/stripe${params}`);
+
       if (!response?.ok) {
         const errorMessages = fireErrorMessage(response.statusText);
 
@@ -87,6 +97,17 @@ export function BillingForm({ subscriptionPlan, className, from }: any) {
     }
   }
 
+  React.useEffect(() => {
+    if (stripeStatus === "fail" && !errorStripeFired.current) {
+      errorStripeFired.current = true;
+      toast({
+        title: "Payment failed",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
+    }
+  }, [stripeStatus]);
+
   return (
     <CardDataModifier
       title="Subscription Plan"
@@ -102,6 +123,12 @@ export function BillingForm({ subscriptionPlan, className, from }: any) {
               {formatDate(subscriptionPlan.stripeCurrentPeriodEnd)}.
             </p>
           ) : null}
+          {stripeStatus === "fail" ? (
+            <p className="text-sm text-red-500">
+              Payment failed or cancelled. If this is an error, please try again
+              or contact support.
+            </p>
+          ) : null}
         </div>
       }
       footer={
@@ -112,21 +139,31 @@ export function BillingForm({ subscriptionPlan, className, from }: any) {
               disabled={isLoading}
               isLoading={isLoading}
               onClick={() => {
-                redirectToStripe();
+                redirectToStripe(
+                  subscriptionPlan.plan.name === "free" ? "pro" : "max",
+                );
               }}
             >
               Manage Subscription
             </Button>
           ) : null}
+
           {subscriptionPlan.plan.name !== "max" ? (
             <Button
               disabled={isLoading}
               className="mt-4 sm:mt-0 "
               isLoading={isLoading}
-              onClick={() => {
-                redirectToStripe(
-                  subscriptionPlan.plan.name === "free" ? "pro" : "max",
-                );
+              onClick={async () => {
+                if (subscriptionPlan.plan.name === "free") {
+                  return redirectToStripe(
+                    subscriptionPlan.plan.name === "free" ? "pro" : "max",
+                  );
+                }
+                setIsLoading(true);
+                const params = `?orgSlug=${orgSlug}&from=${from}&plan=max&actionType=upgrade`;
+                const response = await fetch(`/api/stripe${params}`);
+                console.log({ response });
+                setIsLoading(false);
               }}
             >
               {subscriptionPlan.plan.name === "free"

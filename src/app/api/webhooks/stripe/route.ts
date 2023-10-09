@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { env } from "~/env.mjs";
 import { stripe } from "@/lib/stripe";
 import { db } from "~/server/db";
+import { proPlan } from "~/config/subscription";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -18,7 +19,9 @@ export async function POST(req: Request) {
       env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (error) {
-    return new Response(`Webhook Error: ${error.message}`, { status: 400 });
+    return new Response(`Webhook Error: ${error?.message ?? "Unknown error"}`, {
+      status: 400,
+    });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
@@ -43,6 +46,10 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000,
         ),
+        currentPlan:
+          subscription.items.data[0].price.id === proPlan.stripePriceId
+            ? "pro"
+            : "free",
       },
     });
   }
@@ -63,6 +70,10 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000,
         ),
+        currentPlan:
+          subscription.items.data[0].price.id === proPlan.stripePriceId
+            ? "pro"
+            : "free",
       },
     });
   }

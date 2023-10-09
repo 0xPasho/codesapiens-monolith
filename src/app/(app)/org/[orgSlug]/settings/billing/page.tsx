@@ -40,6 +40,7 @@ export default async function BillingProfilePage({
       </div>
       <Separator />
       <BillingForm
+        orgSlug={orgSlug}
         subscriptionPlan={{
           ...subscriptionPlan,
           isCanceled,

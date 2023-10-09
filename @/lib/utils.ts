@@ -23,3 +23,22 @@ export function formatDate(input: string | number): string {
 export function absoluteUrl(path: string) {
   return `${env.NEXT_PUBLIC_APP_URL}${path}`;
 }
+
+export function stripeSuccessUrl({
+  orgSlug,
+  type,
+}: {
+  type: "org" | "personal";
+  orgSlug?: string;
+}) {
+  const path =
+    type === "org" ? `/org/${orgSlug}/settings/billing` : "/account/billing";
+  return absoluteUrl(path);
+}
+
+export function stripeFailUrl(data: {
+  type: "org" | "personal";
+  orgSlug?: string;
+}) {
+  return stripeSuccessUrl(data) + "?st=fail";
+}

@@ -9,6 +9,7 @@ export async function getOrgSubscriptionPlan(orgId: string) {
   if (!billing) {
     throw new Error("Org not found");
   }
+
   // Check if user is in plan.
   const isInPlan =
     billing.stripePriceId &&
