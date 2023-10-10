@@ -10,12 +10,33 @@ import { MemoizedReactMarkdown } from "@/components/general/markdown";
 import { ChatMessageActions } from "./chat-message-actions";
 import { CodeBlock } from "@/components/ui/codeblock";
 import { ChatHistory } from "@prisma/client";
+import { useEffect, useState } from "react";
 
 export interface ChatMessageProps {
   message: ChatHistory;
 }
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
+  const [displayedMessage, setDisplayedMessage] = useState("");
+
+  useEffect(() => {
+    let index = 0;
+    if (message.type === "assistant") {
+      const timer = setInterval(() => {
+        if (index < message.content.length - 1) {
+          setDisplayedMessage((prev) => prev + message.content[index]);
+          index += 1;
+        } else {
+          clearInterval(timer);
+        }
+      }, 10);
+
+      return () => clearInterval(timer); // Cleanup on component unmount
+    } else {
+      setDisplayedMessage(message.content); // Display full content instantly for non-assistant messages
+    }
+  }, [message]);
+
   return (
     <div
       className={cn("group relative mb-4 flex items-start md:-ml-12")}
@@ -71,7 +92,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             },
           }}
         >
-          {message.content}
+          {displayedMessage}
         </MemoizedReactMarkdown>
         <ChatMessageActions message={message} />
       </div>
