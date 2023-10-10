@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 import { MemoizedReactMarkdown } from "@/components/general/markdown";
 import { ChatMessageActions } from "./chat-message-actions";
 import { CodeBlock } from "@/components/ui/codeblock";
+import { ChatHistory } from "@prisma/client";
 
 export interface ChatMessageProps {
-  message: any;
+  message: ChatHistory;
 }
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
@@ -23,12 +24,12 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
       <div
         className={cn(
           "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow",
-          message.role === "user"
+          message.type === "user"
             ? "bg-background"
             : "bg-primary text-primary-foreground",
         )}
       >
-        {message.role === "user" ? <PersonIcon /> : <GearIcon />}
+        {message.type === "assistant" ? <PersonIcon /> : <GearIcon />}
       </div>
       <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
         <MemoizedReactMarkdown

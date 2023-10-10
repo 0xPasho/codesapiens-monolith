@@ -1,111 +1,106 @@
 "use client";
 
-import { useChat, type Message } from "ai/react";
-
 import { cn } from "@/lib/utils";
 import { ChatPanel } from "./chat-panel";
 import { ChatList } from "./chat-list";
 import { EmptyScreen } from "./empty-chat-message";
 import { ChatScrollAnchor } from "./chat-scroll-anchor";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
+import { ChatProvider } from "./chat-context-provider";
+import { useChat as useChatProvider } from "./chat-context-provider";
+import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
+import { ChatHistory } from "@prisma/client";
 
-const IS_PREVIEW = process.env.VERCEL_ENV === "preview";
 export interface ChatProps extends React.ComponentProps<"div"> {
   projectSlug: string;
   orgSlug: string;
 }
 
-export function Chat({ orgSlug, projectSlug, className }: ChatProps) {
-  const initialMessages = [] as any;
-  const id = `${orgSlug}/${projectSlug}`;
-  const previewToken = "";
-  const [previewTokenDialog, setPreviewTokenDialog] = useState(IS_PREVIEW);
-  const [previewTokenInput, setPreviewTokenInput] = useState(
-    previewToken ?? "",
-  );
-  const { messages, append, reload, stop, isLoading, input, setInput } =
-    useChat({
-      initialMessages,
-      id,
-      body: {
-        id,
-        previewToken,
-      },
-      onResponse(response) {
-        if (response.status === 401) {
-          toast({ description: response.statusText });
-        }
-      },
+function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
+  const {
+    addMessage,
+    state,
+    setChatIsLoading,
+    setChatId,
+    setConversationHistory,
+  } = useChatProvider();
+  const { data: sessionData } = useSession();
+
+  const createChatAnswer = api.chat.createChatAnswer.useMutation({
+    onSuccess(data) {
+      console.log({ data });
+      if (!state.chatId) {
+        setChatId(data.chatId!);
+      }
+      const newMessages: ChatHistory[] = [...state.messages];
+      const fakeMsgIndex = newMessages.findIndex(
+        (msg) => msg.id === "the-new-msg",
+      );
+
+      if (fakeMsgIndex !== -1) {
+        newMessages[fakeMsgIndex] = data.userMessage as ChatHistory;
+      }
+      newMessages.push(data.assistanceMessage as ChatHistory);
+      setConversationHistory(newMessages);
+      setChatIsLoading(false);
+    },
+    onError: ({ data }) => {
+      console.log(data);
+      setChatIsLoading(false);
+    },
+  });
+
+  const handleNewMessage = async (data: { prompt: string }) => {
+    setChatIsLoading(true);
+    addMessage({
+      id: "the-new-msg",
+      content: data.prompt,
+      type: "user",
+      userId: sessionData?.user.id ?? "",
+      createdAt: new Date(),
+      feedback: null,
+      chatId: state.chatId ?? "",
     });
+
+    createChatAnswer.mutate({
+      project_slug: projectSlug,
+      prompt: data.prompt,
+    });
+  };
+
+  const reload = () => {
+    console.log("reload");
+  };
+  const stop = () => {
+    console.log("stop");
+  };
+
   return (
     <>
       <div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
-        {messages.length ? (
+        {state.messages.length ? (
           <>
-            <ChatList messages={messages} />
-            <ChatScrollAnchor trackVisibility={isLoading} />
+            <ChatList messages={state.messages} />
+            <ChatScrollAnchor trackVisibility={state.isLoading} />
           </>
         ) : (
-          <EmptyScreen setInput={setInput} />
+          <EmptyScreen />
         )}
       </div>
       <ChatPanel
-        id={id}
-        isLoading={isLoading}
         stop={stop}
-        append={append}
         reload={reload}
-        messages={messages}
-        input={input}
-        setInput={setInput}
+        messages={state.messages}
+        onNewMessage={handleNewMessage}
       />
-
-      <Dialog open={previewTokenDialog} onOpenChange={setPreviewTokenDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Enter your OpenAI Key</DialogTitle>
-            <DialogDescription>
-              If you have not obtained your OpenAI API key, you can do so by{" "}
-              <a
-                href="https://platform.openai.com/signup/"
-                className="underline"
-              >
-                signing up
-              </a>{" "}
-              on the OpenAI website. This is only necessary for preview
-              environments so that the open source community can test the app.
-              The token will be saved to your browser&apos;s local storage under
-              the name <code className="font-mono">ai-token</code>.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            value={previewTokenInput}
-            placeholder="OpenAI API key"
-            onChange={(e) => setPreviewTokenInput(e.target.value)}
-          />
-          <DialogFooter className="items-center">
-            <Button
-              onClick={() => {
-                //setPreviewToken(previewTokenInput);
-                setPreviewTokenDialog(false);
-              }}
-            >
-              Save Token
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
+  );
+}
+
+export function Chat(props: ChatProps) {
+  return (
+    <ChatProvider initialChatId="">
+      <ChatWithoutProvider {...props} />
+    </ChatProvider>
   );
 }

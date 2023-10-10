@@ -1,40 +1,31 @@
-import { type UseChatHelpers } from "ai/react";
-
 import { Button } from "@/components/ui/button";
 import { GearIcon, StopIcon } from "@radix-ui/react-icons";
 import { ButtonScrollToBottom } from "../buttom-scroll-to-bottom";
 import { PromptForm } from "./prompt-form";
+import { useChat } from "./chat-context-provider";
+import { ChatHistory } from "@prisma/client";
 
-export interface ChatPanelProps
-  extends Pick<
-    UseChatHelpers,
-    | "append"
-    | "isLoading"
-    | "reload"
-    | "messages"
-    | "stop"
-    | "input"
-    | "setInput"
-  > {
-  id?: string;
+export interface ChatPanelProps {
+  onNewMessage: (data: { prompt: string }) => Promise<void>;
+  messages: ChatHistory[];
+  stop: () => void;
+  reload: () => void;
 }
 
 export function ChatPanel({
-  id,
-  isLoading,
   stop,
-  append,
+  onNewMessage,
   reload,
-  input,
-  setInput,
   messages,
 }: ChatPanelProps) {
+  const { state } = useChat();
+
   return (
     <div className="fixed inset-x-0 bottom-0 bg-gradient-to-b from-muted/10 from-10% to-muted/30 to-50%">
       <ButtonScrollToBottom />
       <div className="mx-auto sm:max-w-2xl sm:px-4">
         <div className="flex h-10 items-center justify-center">
-          {isLoading ? (
+          {state.isLoading ? (
             <Button
               variant="outline"
               onClick={() => stop()}
@@ -59,15 +50,11 @@ export function ChatPanel({
         <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
           <PromptForm
             onSubmit={async (value) => {
-              await append({
-                id,
-                content: value,
-                role: "user",
+              onNewMessage({
+                prompt: value,
               });
             }}
-            input={input}
-            setInput={setInput}
-            isLoading={isLoading}
+            isLoading={state.isLoading}
           />
         </div>
       </div>

@@ -1,14 +1,13 @@
 "use client";
 
-import { type Message } from "ai";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
+import { ChatHistory } from "@prisma/client";
 
 interface ChatMessageActionsProps extends React.ComponentProps<"div"> {
-  message: Message;
+  message: ChatHistory;
 }
 
 export function ChatMessageActions({

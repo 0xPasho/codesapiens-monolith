@@ -1,9 +1,9 @@
-import { Message } from "ai";
 import { Separator } from "@/components/ui/separator";
 import { ChatMessage } from "@/components/general/chat/chat-message";
+import { ChatHistory } from "@prisma/client";
 
 export interface ChatList {
-  messages: Message[];
+  messages: ChatHistory[];
 }
 
 export function ChatList({ messages }: ChatList) {

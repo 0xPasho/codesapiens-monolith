@@ -36,6 +36,8 @@ export const env = createEnv({
     POSTMARK_API_TOKEN: z.string().min(1),
     POSTMARK_SIGN_IN_TEMPLATE: z.string().min(1),
     POSTMARK_ORG_INVITATION_TEMPLATE: z.string().min(1),
+    CONVOS_API_URL: z.string().min(1),
+    CONVOS_CROSS_ORIGIN_SERVICE_SECRET: z.string().min(1),
   },
 
   /**
@@ -78,6 +80,9 @@ export const env = createEnv({
     POSTMARK_SIGN_IN_TEMPLATE: process.env.POSTMARK_SIGN_IN_TEMPLATE,
     POSTMARK_ORG_INVITATION_TEMPLATE:
       process.env.POSTMARK_ORG_INVITATION_TEMPLATE,
+    CONVOS_API_URL: process.env.CONVOS_API_URL,
+    CONVOS_CROSS_ORIGIN_SERVICE_SECRET:
+      process.env.CONVOS_CROSS_ORIGIN_SERVICE_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

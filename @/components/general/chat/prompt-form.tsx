@@ -1,4 +1,3 @@
-import { UseChatHelpers } from "ai/react";
 import * as React from "react";
 import Textarea from "react-textarea-autosize";
 
@@ -12,19 +11,15 @@ import {
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import Link from "next/link";
 import { ArrowUp } from "lucide-react";
+import { useChat } from "./chat-context-provider";
 
-export interface PromptProps
-  extends Pick<UseChatHelpers, "input" | "setInput"> {
+export interface PromptProps {
   onSubmit: (value: string) => Promise<void>;
   isLoading: boolean;
 }
 
-export function PromptForm({
-  onSubmit,
-  input,
-  setInput,
-  isLoading,
-}: PromptProps) {
+export function PromptForm({ onSubmit, isLoading }: PromptProps) {
+  const { state, setPromptInput } = useChat();
   const { formRef, onKeyDown } = useEnterSubmit();
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -38,11 +33,11 @@ export function PromptForm({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (!input?.trim()) {
+        if (!state.promptInput?.trim()) {
           return;
         }
-        setInput("");
-        await onSubmit(input);
+        await onSubmit(state.promptInput);
+        setPromptInput("");
       }}
       ref={formRef}
     >
@@ -52,8 +47,8 @@ export function PromptForm({
           tabIndex={0}
           onKeyDown={onKeyDown}
           rows={1}
-          value={input}
-          onChange={(e: any) => setInput(e.target.value)}
+          value={state.promptInput}
+          onChange={(e: any) => setPromptInput(e.target.value)}
           placeholder="Send a message."
           spellCheck={false}
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
@@ -65,7 +60,7 @@ export function PromptForm({
                 <Button
                   type="submit"
                   size="icon"
-                  disabled={isLoading || input === ""}
+                  disabled={isLoading || state.promptInput === ""}
                 >
                   <ArrowUp />
                   <span className="sr-only">Send message</span>
