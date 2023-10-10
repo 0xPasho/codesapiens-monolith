@@ -14,7 +14,7 @@ enum OrganizationPlan {
   custom
 }
 
-enum SourceType {
+enum RepositoryType {
   manual
   github
 }
@@ -35,39 +35,43 @@ enum MessageType {
   assistant
 }
 
-enum BillingType {
-  question
-  file_processed
+enum DocumentStatus {
+  deleted
+  active
 }
 
 model Chat {
-  id          String        @id @default(cuid())
-  status      ChatStatus
-  userId      String
-  projectId   String
-  createdAt   DateTime      @default(now()) @map(name: "created_at")
-  updatedAt   DateTime      @updatedAt @map(name: "updated_at")
-  chatHistory ChatHistory[]
-  project     Project       @relation(fields: [projectId], references: [id])
+  id               String            @id @default(cuid())
+  status           ChatStatus
+  userId           String
+  projectId        String
+  createdAt        DateTime          @default(now()) @map(name: "created_at")
+  updatedAt        DateTime          @updatedAt @map(name: "updated_at")
+  chatHistory      ChatHistory[]
+  project          Project           @relation(fields: [projectId], references: [id])
+  billingQuestions BillingQuestions[] 
 }
+
 
 model ChatHistory {
   id        String      @id @default(cuid())
   userId    String
   content   String
-  chatId    String // Changed from projectId to chatId
+  chatId    String
   feedback  Feedback?
   type      MessageType
   createdAt DateTime    @default(now()) @map(name: "created_at")
-  chat      Chat        @relation(fields: [chatId], references: [id]) // Updated relation
+  chat      Chat        @relation(fields: [chatId], references: [id])
 }
 
-model Billing {
+model BillingFile {
   id        String      @id @default(cuid())
-  type      BillingType
   userId    String
   projectId String
+  documentId String
+  metadata  Json
   createdAt DateTime    @default(now()) @map(name: "created_at")
+  document  Document    @relation(fields: [documentId], references: [id])
   project   Project     @relation(fields: [projectId], references: [id])
 }
 
@@ -105,27 +109,39 @@ model User {
 }
 
 model Project {
-  id             String       @id @default(cuid())
-  slug           String       @unique
-  desc           String?
-  createdAt      DateTime     @default(now()) @map(name: "created_at")
-  updatedAt      DateTime     @default(now()) @map(name: "updated_at")
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  sources        Source[]
-  chats          Chat[]
-  billings       Billing[]
+  id               String             @id @default(cuid())
+  slug             String             @unique
+  desc             String?
+  createdAt        DateTime           @default(now()) @map(name: "created_at")
+  updatedAt        DateTime           @default(now()) @map(name: "updated_at")
+  organizationId   String
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  repositories     Repository[]
+  chats            Chat[]
+  billingFiles     BillingFile[]
+  billingQuestions BillingQuestions[] 
 }
 
-model Source {
-  id                   String     @id @default(cuid())
+model Document {
+  id             String         @id @default(cuid())
+  content        String
+  status         DocumentStatus
+  sync_fail_reason String
+  synced         Boolean
+  latest_sync_date String
+  path           String
+  billingFiles   BillingFile[]
+}
+
+model Repository {
+  id                   String         @id @default(cuid())
   repoOrganizationName String
-  sourceType           SourceType
+  repositoryType       RepositoryType
   repoUrl              String
   repoProjectName      String
   repoBranchName       String
   projectId            String
-  project              Project    @relation(fields: [projectId], references: [id])
+  project              Project        @relation(fields: [projectId], references: [id])
 }
 
 enum OrganizationMemberRole {
@@ -150,6 +166,17 @@ model OrganizationMember {
   organization Organization @relation(fields: [organizationId], references: [id])
 
   @@id([userId, organizationId]) // Composite primary key
+}
+
+model BillingQuestions {
+  id          String    @id @default(cuid())
+  tokens_used Int
+  question    String
+  created_at  DateTime  @default(now())
+  projectId   String
+  chatId      String
+  project     Project   @relation(fields: [projectId], references: [id])
+  chat        Chat      @relation(fields: [chatId], references: [id])
 }
 
 model Account {

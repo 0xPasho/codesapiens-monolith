@@ -9,6 +9,14 @@ type ChatState = {
   isLoading: boolean;
 };
 
+const EMPTY_STATE: ChatState = {
+  messages: [],
+  chatId: "",
+  currentStatus: "new",
+  promptInput: "",
+  isLoading: false,
+};
+
 type ChatContextType = {
   state: ChatState;
   addMessage: (message: ChatHistory) => void;
@@ -17,6 +25,7 @@ type ChatContextType = {
   setChatId: (id: string) => void;
   setPromptInput: (input: string) => void;
   setChatIsLoading: (isLoading: boolean) => void;
+  reset: () => void;
 };
 type ChatAction =
   | { type: "ADD_MESSAGE"; payload: ChatHistory }
@@ -24,8 +33,11 @@ type ChatAction =
   | { type: "SET_CHAT_ID"; payload: string }
   | { type: "SET_PROMPT_INPUT"; payload: string }
   | { type: "SET_CHAT_LOADING"; payload: boolean }
-  | { type: "SET_CONVERSATION_HISTORY"; payload: ChatHistory[] };
-
+  | {
+      type: "SET_CONVERSATION_HISTORY";
+      payload: ChatHistory[];
+    }
+  | { type: "RESET" };
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
@@ -42,6 +54,8 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return { ...state, isLoading: action.payload };
     case "SET_CONVERSATION_HISTORY":
       return { ...state, messages: action.payload };
+    case "RESET":
+      return EMPTY_STATE;
     default:
       return state;
   }
@@ -57,11 +71,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   initialChatId,
 }) => {
   const initialState: ChatState = {
-    messages: [],
+    ...EMPTY_STATE,
     chatId: initialChatId,
-    currentStatus: "stale",
-    promptInput: "",
-    isLoading: false,
   };
 
   const [state, dispatch] = useReducer(chatReducer, initialState);
@@ -90,6 +101,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     dispatch({ type: "SET_CONVERSATION_HISTORY", payload: history });
   };
 
+  const reset = () => {
+    dispatch({ type: "RESET" });
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -100,6 +115,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         setPromptInput,
         setChatIsLoading,
         setConversationHistory,
+        reset,
       }}
     >
       {children}

@@ -127,21 +127,21 @@ export const projectsRouter = createTRPCRouter({
         },
       });
 
-      const sources = await ctx.db.source.create({
+      const repo = await ctx.db.repository.create({
         data: {
           repoUrl: input.repoUrl,
           repoProjectName: input.repoName,
           projectId: newProject.id,
           repoBranchName: input.repoBranchName,
           repoOrganizationName: input.repoOrgSlug,
-          sourceType: "github",
+          repositoryType: "github",
         },
       });
 
-      if (!sources) {
+      if (!repo) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Could not create source",
+          message: "Could not create repository",
         });
       }
 

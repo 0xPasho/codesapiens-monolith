@@ -10,6 +10,7 @@ import { useChat as useChatProvider } from "./chat-context-provider";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 import { ChatHistory } from "@prisma/client";
+import { useEffect, useRef } from "react";
 
 export interface ChatProps extends React.ComponentProps<"div"> {
   projectSlug: string;
@@ -23,8 +24,16 @@ function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
     setChatIsLoading,
     setChatId,
     setConversationHistory,
+    reset,
   } = useChatProvider();
   const { data: sessionData } = useSession();
+  const storeCleared = useRef(false);
+
+  useEffect(() => {
+    if (storeCleared.current) return;
+    storeCleared.current = true;
+    reset();
+  }, []);
 
   const createChatAnswer = api.chat.createChatAnswer.useMutation({
     onSuccess(data) {
