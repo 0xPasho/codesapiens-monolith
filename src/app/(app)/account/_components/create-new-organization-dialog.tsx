@@ -89,7 +89,7 @@ export function CreateNewOrganizationDialog({
 
   const appOrganizationUrl = useMemo(() => {
     const url = env.NEXT_PUBLIC_APP_URL;
-    return url.replace("https://", "").replace("http://", "") + "/p/";
+    return url.replace("https://", "").replace("http://", "") + "/org/";
   }, [env.NEXT_PUBLIC_APP_URL]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -148,7 +148,7 @@ export function CreateNewOrganizationDialog({
                 control={form.control}
                 name="slug"
                 render={({ field }) => {
-                  const slugToShow = field.value ?? `<your-slug>`;
+                  const slugToShow = field.value || `<your-slug>`;
                   if (!isSlugEditable) {
                     return (
                       <div>

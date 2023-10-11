@@ -60,6 +60,7 @@ async function insertDefaultOrganization(user: {
       role: "owner",
       organizationId: newOrg.id,
       userId: user.id,
+      status: "active",
     },
   });
 

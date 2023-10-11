@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import LandingDefaultContent from "./_components/landing-content";
+import LandingDefaultContent from "../_components/landing-content";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

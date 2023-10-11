@@ -124,24 +124,34 @@ model Project {
 
 model Document {
   id             String         @id @default(cuid())
-  content        String
+  title         String
+  content        String?
+  content_obj   Json?
   status         DocumentStatus
-  sync_fail_reason String
+  sync_fail_reason String?
   synced         Boolean
-  latest_sync_date String
-  path           String
+  repositoryId       String
+  isFolder      Boolean    @default(false) 
+  pathName      String?
+  latest_sync_date DateTime?
+  path           String?
   billingFiles   BillingFile[]
+  repository         Repository       @relation(fields: [repositoryId], references: [id])
 }
 
 model Repository {
   id                   String         @id @default(cuid())
-  repoOrganizationName String
+  repoOrganizationName String?
+  title                String?
   repositoryType       RepositoryType
-  repoUrl              String
-  repoProjectName      String
-  repoBranchName       String
+  repoUrl              String?
+  repoProjectName      String?
+  repoBranchName       String?
+  last_synced_commit   DateTime?
+  documents             Document[]
   projectId            String
   project              Project        @relation(fields: [projectId], references: [id])
+  isDefault            Boolean       @default(false) 
 }
 
 enum OrganizationMemberRole {

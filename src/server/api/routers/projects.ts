@@ -135,6 +135,7 @@ export const projectsRouter = createTRPCRouter({
           repoBranchName: input.repoBranchName,
           repoOrganizationName: input.repoOrgSlug,
           repositoryType: "github",
+          title: input.repoName,
         },
       });
 
@@ -142,6 +143,22 @@ export const projectsRouter = createTRPCRouter({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Could not create repository",
+        });
+      }
+
+      const defaultRepo = await ctx.db.repository.create({
+        data: {
+          title: "Default repository",
+          repositoryType: "manual",
+          projectId: newProject.id,
+          isDefault: true,
+        },
+      });
+
+      if (!defaultRepo) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not create default repository",
         });
       }
 

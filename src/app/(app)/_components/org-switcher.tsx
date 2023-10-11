@@ -59,16 +59,22 @@ function OrgItem({
     </Link>
   );
 }
-export default function OrgSwitcher({ orgs }: { orgs: Array<any> }) {
+export default function OrgSwitcher({
+  orgs,
+  selectedOrg: selectedOrgProp,
+}: {
+  orgs: Array<any>;
+  selectedOrg: any;
+}) {
   const [open, setOpen] = React.useState(false);
   const personalOrg = React.useMemo(() => {
-    return orgs.find((org) => org.organization.isPersonal);
+    return orgs.find((org) => org.organization!.isPersonal);
   }, [orgs]);
 
-  const [selectedOrg, setSelectedOrg] = React.useState<any>(personalOrg);
+  const [selectedOrg, setSelectedOrg] = React.useState<any>(selectedOrgProp);
 
   const otherOrgs = React.useMemo(() => {
-    return orgs.filter((org) => !org.organization.isPersonal);
+    return orgs.filter((org) => !org.organization!.isPersonal);
   }, [orgs]);
 
   return (

@@ -2,8 +2,7 @@ import React from "react";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
-import OrgProjectGridItem from "./_components/OrgProjectGridItem";
-import { Separator } from "@/components/ui/separator";
+import OrgProjectGridItem from "./_components/org-project-grid-item";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { EmptyPlaceholder } from "@/components/empty-placeholder";
@@ -63,60 +62,77 @@ export default async function OrgsSlugPage({
 
   const org = await api.organizations.getOrgBySlug.query({ orgSlug });
 
+  const getTitle = () => {
+    if (org?.isPersonal) {
+      return `Hello ${org?.name}`;
+    }
+    return `${org?.name ?? orgSlug} dashboard`;
+  };
+
+  const getDescription = () => {
+    if (org?.isPersonal) {
+      return "Your dashboard";
+    }
+    return `Organization dashboard`;
+  };
+
   return (
-    <div className="flex flex-col p-10 pb-16">
-      <div className="mx-auto mt-2 justify-center space-y-0.5 pb-4 lg:max-w-2xl">
-        <div className="flex  flex-row justify-center">
-          <h2 className="mr-2 text-center text-2xl font-bold tracking-tight">
-            {org?.name ?? orgSlug}
-          </h2>
+    <div className="mt-14  flex w-full justify-center">
+      <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-0">
+        <div className="flex w-full flex-col sm:flex-row ">
+          <div className="flex flex-1 flex-col">
+            <div className="flex  flex-row">
+              <h2 className="mr-2 text-4xl font-bold tracking-tight">
+                {getTitle()}
+              </h2>
+            </div>
+            <p className="mb-2  text-muted-foreground">{getDescription()}</p>
+            {currentOrgMember?.role === "owner" && !org?.isPersonal ? (
+              <Link href={`/org/${orgSlug}/settings`}>
+                <Button variant={"ghost"} className="mr-2 px-2 ">
+                  <SettingsIcon className="mr-1 h-4 w-4" /> Settings
+                </Button>
+              </Link>
+            ) : null}
+          </div>
+          <div className="flex flex-row items-center">
+            {projects.length > 0 ? (
+              <Link href={`/org/${orgSlug}/new-project`}>
+                <Button className="w-32 px-0">
+                  <PlusIcon className="mr-1 h-4 w-4" /> New Project
+                </Button>
+              </Link>
+            ) : null}
+          </div>
         </div>
-        <p className="mb-2 text-center text-muted-foreground">
-          The organization profile.
-        </p>
-        <div className="flex justify-center">
-          {currentOrgMember?.role === "owner" ? (
-            <Link href={`/org/${orgSlug}/settings`}>
-              <Button variant={"ghost"} className="mr-2 px-2">
-                <SettingsIcon className="mr-1 h-4 w-4" /> Settings
-              </Button>
-            </Link>
-          ) : null}
-          {projects.length > 0 ? (
+        {projects.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {projects.map((project, index) => (
+              <OrgProjectGridItem
+                key={`org-item-${project.id}-${index}`}
+                orgSlug={orgSlug}
+                description={project.desc ?? "No description"}
+                slug={project.slug}
+                createdAt={project.createdAt}
+                projectId={project.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyPlaceholder>
+            <EmptyPlaceholder.Icon name="add" />
+            <EmptyPlaceholder.Title>
+              No projects created yet
+            </EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Description>
+              Go ahead and create a new project! 👇
+            </EmptyPlaceholder.Description>
             <Link href={`/org/${orgSlug}/new-project`}>
-              <Button className="px-2">
-                <PlusIcon className="mr-1 h-4 w-4" /> New Project
-              </Button>
+              <Button>New Project</Button>
             </Link>
-          ) : null}
-        </div>
+          </EmptyPlaceholder>
+        )}
       </div>
-      <Separator />
-      {projects.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, index) => (
-            <OrgProjectGridItem
-              key={`org-item-${project.id}-${index}`}
-              orgSlug={orgSlug}
-              description={project.desc ?? "No description"}
-              slug={project.slug}
-            />
-          ))}
-        </div>
-      ) : (
-        <EmptyPlaceholder>
-          <EmptyPlaceholder.Icon name="add" />
-          <EmptyPlaceholder.Title>
-            No projects created yet
-          </EmptyPlaceholder.Title>
-          <EmptyPlaceholder.Description>
-            Go ahead and create a new project! 👇
-          </EmptyPlaceholder.Description>
-          <Link href={`/org/${orgSlug}/new-project`}>
-            <Button>New Project</Button>
-          </Link>
-        </EmptyPlaceholder>
-      )}
     </div>
   );
 }

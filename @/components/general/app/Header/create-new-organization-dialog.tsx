@@ -87,7 +87,7 @@ export function OrgPicker({ orgMembers }: { orgMembers: any }) {
                   </CreateNewOrganizationDialog>
                 </CommandItem>
                 {orgOptions.map((org, index) => (
-                  <Link href={`/p/${org.value}`}>
+                  <Link href={`/org/${org.value}`}>
                     <CommandItem
                       key={`org-${org.value}-${index}`}
                       onSelect={(value) => {

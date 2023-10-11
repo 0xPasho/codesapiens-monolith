@@ -1,7 +1,7 @@
-import CardDataModifierLoading from "../../account/_components/card-data-modifier-loading";
 import { Skeleton } from "@/components/ui/skeleton";
+import CardDataModifierLoading from "~/app/(app)/account/_components/card-data-modifier-loading";
 
-const OrgProjectsLoading = () => (
+const RepositoryLoadingPage = () => (
   <div className="mt-14  flex w-full justify-center">
     <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-0">
       <div className="flex w-full flex-col sm:flex-row ">
@@ -21,4 +21,4 @@ const OrgProjectsLoading = () => (
   </div>
 );
 
-export default OrgProjectsLoading;
+export default RepositoryLoadingPage;

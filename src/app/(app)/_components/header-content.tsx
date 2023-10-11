@@ -3,8 +3,9 @@ import { siteConfig } from "~/config/site";
 import OrgSwitcherWrapper from "./org-switcher-wrapper";
 import HeaderProfileButton from "./header-profile-button";
 import { getServerAuthSession } from "~/server/auth";
+import QuickActionsButton from "./quick-actions-button";
 
-export async function HeaderContent() {
+export async function HeaderContent({ orgSlug }: { orgSlug: string }) {
   const session = await getServerAuthSession();
   return (
     <header className="border-slate-6 bg-slate-1/5 w-full  border-b backdrop-blur-lg">
@@ -51,9 +52,13 @@ export async function HeaderContent() {
             </span>
           </Link>
           <span className="hidden pr-3 font-bold sm:inline-block">/</span>
-          <OrgSwitcherWrapper />
+          <OrgSwitcherWrapper orgSlug={orgSlug} />
         </div>
-        <HeaderProfileButton session={session} />
+        <div className="flex flex-row">
+          <QuickActionsButton orgSlug={orgSlug} />
+
+          <HeaderProfileButton session={session} />
+        </div>
       </nav>
     </header>
   );

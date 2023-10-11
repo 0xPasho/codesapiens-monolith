@@ -19,6 +19,7 @@ import {
   ExitIcon,
   PersonIcon,
 } from "@radix-ui/react-icons";
+import { HelpCircleIcon } from "lucide-react";
 
 export default function HeaderProfileButton() {
   const { data: sessionData } = useSession();
@@ -55,14 +56,14 @@ export default function HeaderProfileButton() {
                 Billing<DropdownMenuShortcut>💸</DropdownMenuShortcut>
               </DropdownMenuItem>
             </Link>
-            <Link href="/account/projects">
-              <DropdownMenuItem>
-                Projects
-                <DropdownMenuShortcut>
-                  <CardStackIcon />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </Link>
+            {/* <Link href="/account/projects">
+            <DropdownMenuItem>
+              Projects
+              <DropdownMenuShortcut>
+                <CardStackIcon />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </Link> */}
             <Link href="/account/notifications">
               <DropdownMenuItem>
                 Notifications
@@ -75,14 +76,17 @@ export default function HeaderProfileButton() {
           <DropdownMenuSeparator />
           <Link href="https://twitter.com/codesapiens.ai">
             <DropdownMenuItem>
-              Support<DropdownMenuShortcut>📬</DropdownMenuShortcut>
+              Support
+              <DropdownMenuShortcut>
+                <HelpCircleIcon className="h-4 w-4" />
+              </DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
               signOut().then(() => {
-                router.push("/");
+                window.location.href = "/";
               });
             }}
           >
