@@ -12,6 +12,10 @@ import { env } from "~/env.mjs";
 import { absoluteUrl } from "@/lib/utils";
 import { WikiDocumentHeader } from "../_components/wiki-document-header";
 import { DashboardTableOfContents } from "../_components/wiki-toc";
+import { useWikiContext } from "../_components/wiki-context";
+import { api } from "~/trpc/server";
+import { EmptyPlaceholder } from "@/components/empty-placeholder";
+import { Editor } from "../../../../new-doc/_components/editor";
 
 interface DocPageProps {
   params: {
@@ -75,23 +79,30 @@ async function getDocFromParams(params) {
 // }
 
 export default async function DocPage({ params }: DocPageProps) {
-  const doc = await getDocFromParams(params);
-  console.log({ params });
-  console.log({ doc });
-  console.log({ doc });
-  console.log({ doc });
-  console.log({ doc });
-  // if (!doc) {
-  //   notFound();
-  // }
-
   //const toc = await getTableOfContents(doc.body.raw);
+  const doc = await api.document.getSpecificFileByPath.query({
+    pathName: params.slug?.[0]?.replace?.("%20", " ") ?? "",
+    folderPath: "/",
+  });
 
+  console.log({ doc });
+  if (!doc) {
+    return (
+      <EmptyPlaceholder className="border-none">
+        <EmptyPlaceholder.Icon name="page" />
+        <EmptyPlaceholder.Title>Nothing to show</EmptyPlaceholder.Title>
+        <EmptyPlaceholder.Description>
+          Looks like this wiki page is broken, please click on other wiki page.
+        </EmptyPlaceholder.Description>
+      </EmptyPlaceholder>
+    );
+  }
   return (
     <main className="relative py-6 lg:gap-10 lg:py-10 xl:grid xl:grid-cols-[1fr_300px]">
       <div className="mx-auto w-full min-w-0">
-        {/* <WikiDocumentHeader heading={doc.title} text={doc.description} /> */}
-        {/* <Mdx code={doc.body.code} /> */}
+        <WikiDocumentHeader heading={doc.title} />
+        <Editor documentId={doc.id} readOnly content={doc.content_obj} />
+
         <hr className="my-4 md:my-6" />
         {/* {<DocsPager doc={doc} />} */}
       </div>

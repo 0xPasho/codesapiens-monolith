@@ -38,6 +38,11 @@ const GetDocumentByIdInput = z.object({
   documentId: z.string(),
 });
 
+const GetSpecificFileByPath = z.object({
+  folderPath: z.string(),
+  pathName: z.string(),
+});
+
 type BlockType = {
   type: "header" | "paragraph" | "list" | "code" | "table";
   data: {
@@ -86,22 +91,24 @@ export const documentRouter = createTRPCRouter({
           content,
           content_obj: input.content,
           title: input.title,
-          path: "",
+          path: "/",
           status: "active",
           synced: false,
           repositoryId: input.repositoryId,
+          pathName: input.title,
         },
       });
-      const idDoc = newDoc.id;
-      const newDocPath = `/${input.folderPath}/${idDoc}`;
+      //const idDoc = newDoc.id;
+      //const newDocPath = `/${input.folderPath}/${idDoc}`;
 
-      await ctx.db.document.update({
-        where: { id: idDoc },
-        data: {
-          path: newDocPath,
-        },
-      });
-      return { ...newDoc, path: newDocPath };
+      // await ctx.db.document.update({
+      //   where: { id: idDoc },
+      //   data: {
+      //     path: newDocPath,
+      //   },
+      // });
+      // return { ...newDoc, path: newDocPath };
+      return newDoc;
     }),
   updateDocument: protectedProcedure
     .input(UpdateDocumentInput)
@@ -144,10 +151,19 @@ export const documentRouter = createTRPCRouter({
         },
       });
     }),
+  getSpecificFileByPath: protectedProcedure
+    .input(GetSpecificFileByPath)
+    .query(async ({ ctx, input }) => {
+      return ctx.db.document.findFirst({
+        where: {
+          pathName: input.pathName,
+          path: input.folderPath,
+        },
+      });
+    }),
   getDocumentsById: publicProcedure
     .input(GetDocumentsByIdInput)
     .query(async ({ ctx, input }) => {
-      console.log({ todos: "xdxddd" });
       console.log({ todos: "xdxddd" });
       console.log({ todos: "xdxddd" });
       console.log({ todos: "xdxddd" });

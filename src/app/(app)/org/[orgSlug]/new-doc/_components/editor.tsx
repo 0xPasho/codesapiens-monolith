@@ -22,7 +22,8 @@ interface EditorProps {
   documentId?: string;
   title?: string;
   content?: any;
-  orgSlug: string;
+  orgSlug?: string;
+  readOnly?: boolean;
 }
 
 export const DocumentPatchSchema = z.object({
@@ -34,7 +35,13 @@ export const DocumentPatchSchema = z.object({
 
 type FormData = z.infer<typeof DocumentPatchSchema>;
 
-export function Editor({ documentId, title, content, orgSlug }: EditorProps) {
+export function Editor({
+  documentId,
+  title,
+  content,
+  orgSlug,
+  readOnly,
+}: EditorProps) {
   const { register, handleSubmit } = useForm<FormData>({
     resolver: zodResolver(DocumentPatchSchema),
   });
@@ -88,6 +95,7 @@ export function Editor({ documentId, title, content, orgSlug }: EditorProps) {
         placeholder: "Type here to write your document...",
         inlineToolbar: true,
         data: content, //body.content,
+        readOnly,
         tools: {
           header: Header,
           linkTool: LinkTool,
@@ -142,40 +150,46 @@ export function Editor({ documentId, title, content, orgSlug }: EditorProps) {
   }
 
   return (
-    <div className="mt-8  flex w-full justify-center">
+    <div className={`mt-8  flex w-full ${readOnly ? "" : "justify-center"} `}>
       <div className="flex w-[850px] max-w-full flex-col">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid w-full gap-10">
-            <div className="flex w-full items-center justify-between">
-              <div className="flex items-center space-x-10">
-                <Link
-                  href=".."
-                  className={cn(buttonVariants({ variant: "ghost" }))}
+            {!readOnly ? (
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center space-x-10">
+                  <Link
+                    href=".."
+                    className={cn(buttonVariants({ variant: "ghost" }))}
+                  >
+                    <>
+                      <Icons.chevronLeft className="mr-2 h-4 w-4" />
+                      Back
+                    </>
+                  </Link>
+                </div>
+                <Button
+                  isLoading={isSaving}
+                  type="submit"
+                  className={cn(buttonVariants())}
+                  disabled={!editorIsReady}
                 >
-                  <>
-                    <Icons.chevronLeft className="mr-2 h-4 w-4" />
-                    Back
-                  </>
-                </Link>
+                  <span>Save</span>
+                </Button>
               </div>
-              <Button
-                isLoading={isSaving}
-                type="submit"
-                className={cn(buttonVariants())}
-                disabled={!editorIsReady}
-              >
-                <span>Save</span>
-              </Button>
-            </div>
+            ) : null}
             <div className="prose prose-stone dark:prose-invert mx-auto w-[800px]">
-              <TextareaAutosize
-                autoFocus
-                id="title"
-                placeholder="Post title"
-                className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
-                {...register("title")}
-                defaultValue={title}
-              />
+              {!readOnly ? (
+                <TextareaAutosize
+                  autoFocus
+                  id="title"
+                  placeholder="Post title"
+                  className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
+                  {...register("title")}
+                  defaultValue={title}
+                />
+              ) : (
+                false
+              )}
               <div
                 id="editor"
                 className={` ${editorIsReady ? "min-h-[500px]" : "h-0"}`}

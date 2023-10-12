@@ -97,6 +97,7 @@ const NewProjectInformationForm = ({
   });
 
   function onSubmit(data: ProjectFormValues) {
+    setIsLoading(true);
     createProject.mutate({
       newProjectSlug: data.slug.toLowerCase(),
       organizationSlug: orgSlug,

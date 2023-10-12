@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { useWikiContext } from "./wiki-context";
@@ -31,9 +31,21 @@ export function WikiSidebarNav({
   repositorySlug,
   slug,
 }: WikiSidebarNavProps) {
-  const { menuItems, setMenuItems, updateLeafById } = useWikiContext();
+  console.log(slug?.[slug.length - 1]);
+  console.log(slug?.[slug.length - 1]);
+  console.log(slug?.[slug.length - 1]);
+  console.log(slug);
+  console.log(slug);
+  console.log(slug);
+  const {
+    menuItems,
+    setMenuItems,
+    updateLeafById,
+    setCurrentSelectedMenuItem,
+  } = useWikiContext();
   const [leafLoading, setLeafLoading] = useState<string | undefined>(undefined);
   const pathname = slug?.join("/") || "";
+  const router = useRouter();
   let goBackPathname = "";
   const firstCallMade = useRef(false);
   if (pathname) {
@@ -78,6 +90,14 @@ export function WikiSidebarNav({
     const hierarchy = await getDocumentsByPathAsync();
     console.log({ hierarchy });
     setMenuItems(hierarchy.data ?? []);
+    // setCurrentSelectedMenuItem(hierarchy.data?.[0]);
+    if (slug || slug[0]) return;
+    console.log({
+      shallow: `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${hierarchy.data?.[0].path}${hierarchy.data?.[0].pathName}`,
+    });
+    router.replace(
+      `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${hierarchy.data?.[0].path}${hierarchy.data?.[0].pathName}`,
+    );
   };
 
   useEffect(() => {
@@ -88,66 +108,20 @@ export function WikiSidebarNav({
 
   return menuItems.length ? (
     <div className="w-full px-4">
-      {(pathname && currentSelectedMenuItem?.isFolder) ||
-      (!currentSelectedMenuItem?.isFolder && slug?.length > 1) ? (
-        <div className="mb-2">
-          <Link
-            href={`/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}/${goBackPathname}`}
-          >
-            <Button variant="ghost" className="w-full px-1">
-              <ArrowLeftIcon className="mr-2 h-4 w-4" /> Go back
-            </Button>
-          </Link>
-        </div>
-      ) : null}
-
       <Tree
         data={menuItems}
         className="h-[460px] w-[200px] flex-shrink-0 border-[1px]"
-        initialSlelectedItemId="f12"
-        onSelectChange={(item) => getHierarchyFromLeaf(item)}
+        initialSlelectedItemId={slug ? slug[0] : menuItems[0]?.id}
+        onSelectChange={(item) => {
+          getHierarchyFromLeaf(item);
+          router.push(
+            `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${item.path}${item.pathName}`,
+          );
+        }}
         folderIcon={Folder}
         itemIcon={Workflow}
         leafLoading={leafLoading}
       />
     </div>
   ) : null;
-}
-
-export function WikiDocsSidebarNavItem({
-  orgSlug,
-  projectSlug,
-  repositorySlug,
-  item,
-  onClickItem,
-}: {
-  orgSlug: string;
-  projectSlug: string;
-  repositorySlug: string;
-  item: Document;
-  onClickItem?: (item: Document) => void;
-}) {
-  const { currentSelectedMenuItem, setCurrentSelectedMenuItem } =
-    useWikiContext();
-
-  const remainingSlug = `${item.path ? `${item.path}/` : ""}${item.pathName}`;
-  return (
-    <Link
-      href={`/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}/${remainingSlug}`}
-      onClick={() => {
-        setCurrentSelectedMenuItem(item);
-        onClickItem?.(item);
-      }}
-      className={`flex w-full items-center rounded-md p-2 hover:underline ${
-        currentSelectedMenuItem?.id === item.id ? "bg-muted" : ""
-      }`}
-    >
-      {item.isFolder ? (
-        <FolderIcon className="mr-2 h-4 w-4" />
-      ) : (
-        <FileIcon className="color-gray-500 mr-2 h-4 w-4" />
-      )}{" "}
-      {item.title}
-    </Link>
-  );
 }
