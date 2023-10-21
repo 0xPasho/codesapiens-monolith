@@ -77,8 +77,8 @@ export default async function OrgsSlugPage({
   };
 
   return (
-    <div className="mt-14  flex w-full justify-center">
-      <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-0">
+    <div className="mt-14 flex w-full justify-center">
+      <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-12 lg:px-12 xl:px-0">
         <div className="flex w-full flex-col sm:flex-row ">
           <div className="flex flex-1 flex-col">
             <div className="flex  flex-row">
@@ -87,7 +87,7 @@ export default async function OrgsSlugPage({
               </h2>
             </div>
             <p className="mb-2  text-muted-foreground">{getDescription()}</p>
-            {currentOrgMember?.role === "owner" && !org?.isPersonal ? (
+            {currentOrgMember?.role === "owner" ? (
               <Link href={`/org/${orgSlug}/settings`}>
                 <Button variant={"ghost"} className="mr-2 px-2 ">
                   <SettingsIcon className="mr-1 h-4 w-4" /> Settings

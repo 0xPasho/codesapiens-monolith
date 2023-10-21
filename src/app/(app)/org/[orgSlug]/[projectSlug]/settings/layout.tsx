@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 import { OrganizationSidebarNav } from "../../settings/_components/organization-sidenav";
+import { Building2Icon, FileScanIcon, HandIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "User Settings screen",
@@ -12,20 +13,19 @@ export const metadata: Metadata = {
 
 const sidebarNavItems = [
   {
-    title: "Information",
+    title: "General",
     href: "/org/[orgSlug]/[projectSlug]/settings",
+    icon: <Building2Icon className="mr-2 w-2 w-4" />,
+  },
+  {
+    title: "Files Sync Settings",
+    href: "/org/[orgSlug]/[projectSlug]/settings/chat",
+    icon: <FileScanIcon className="mr-2 flex w-2 w-4" />,
   },
   {
     title: "Usage",
     href: "/org/[orgSlug]/[projectSlug]/settings/usage",
-  },
-  {
-    title: "Wiki",
-    href: "/org/[orgSlug]/[projectSlug]/wiki",
-  },
-  {
-    title: "Ask",
-    href: "/org/[orgSlug]/[projectSlug]",
+    icon: <HandIcon className="mr-2 w-2 w-4" />,
   },
 ];
 

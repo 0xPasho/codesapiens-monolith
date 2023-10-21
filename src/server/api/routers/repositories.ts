@@ -18,8 +18,6 @@ export const repositoriesRouter = createTRPCRouter({
   getManualRepositoriesByProject: protectedProcedure
     .input(GetManualRepositoriesByProject)
     .query(({ ctx, input }) => {
-      console.log("input", input);
-      console.log("input", input);
       return ctx.db.repository.findMany({
         where: {
           projectId: input.projectId,

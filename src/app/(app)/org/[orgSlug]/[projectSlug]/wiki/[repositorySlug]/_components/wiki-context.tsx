@@ -57,7 +57,7 @@ export const WikiProvider: React.FC<WikiProviderProps> = ({ children }) => {
   ): Document[] => {
     return items.map((item) => {
       if (item.id === id) {
-        return updatedLeaf;
+        return { ...item, children: updatedLeaf };
       }
       if (item.children) {
         return {

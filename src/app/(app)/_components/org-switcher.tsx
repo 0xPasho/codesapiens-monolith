@@ -46,7 +46,9 @@ function OrgItem({
           />
           <AvatarFallback>SC</AvatarFallback>
         </Avatar>
+
         {org.organization.name}
+
         <CheckIcon
           className={cn(
             "ml-auto h-4 w-4",
@@ -62,9 +64,11 @@ function OrgItem({
 export default function OrgSwitcher({
   orgs,
   selectedOrg: selectedOrgProp,
+  from,
 }: {
   orgs: Array<any>;
   selectedOrg: any;
+  from: "mobile" | "desktop";
 }) {
   const [open, setOpen] = React.useState(false);
   const personalOrg = React.useMemo(() => {
@@ -85,7 +89,11 @@ export default function OrgSwitcher({
           role="combobox"
           aria-expanded={open}
           aria-label="Select an organization"
-          className={"w-[200px] justify-between"}
+          className={`justify-between  sm:flex ${
+            from === "desktop"
+              ? "hidden w-[200px] sm:flex"
+              : "flex w-full sm:hidden"
+          }`}
         >
           <Avatar className="mr-2 h-5 w-5">
             <AvatarImage
@@ -93,7 +101,9 @@ export default function OrgSwitcher({
             />
             <AvatarFallback>P</AvatarFallback>
           </Avatar>
-          {selectedOrg.organization.name || "You"}
+          <span className="truncate">
+            {selectedOrg.organization.name || "You"}
+          </span>
           <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

@@ -73,7 +73,7 @@ async function insertDefaultOrganization(user: {
     },
   });
 
-  return { organizationId: newOrg.id };
+  return { organizationId: newOrg.id, orgSlug: newOrg.slug };
 }
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -105,10 +105,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   if (!user?.organizationId) {
     try {
-      const { organizationId } = await insertDefaultOrganization(user);
+      const { organizationId, orgSlug } = await insertDefaultOrganization(user);
 
       return NextResponse.json({
         organizationId,
+        orgSlug,
       });
     } catch (error) {
       return new Response(null, {
@@ -120,5 +121,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   return NextResponse.json({
     organizationId: user.organizationId,
+    orgSlug: user.defaultOrganization?.slug ?? "",
   });
 }

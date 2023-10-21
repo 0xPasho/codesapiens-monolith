@@ -26,7 +26,6 @@ export function InviteMemberBlock({ orgSlug }: { orgSlug: string }) {
 
   const addMembersMutation = api.organizations.addMembers.useMutation({
     onSuccess(data) {
-      console.log({ data });
       toast({
         title: "Invitations sent",
         description:

@@ -4,7 +4,20 @@ import Stripe from "stripe";
 import { env } from "~/env.mjs";
 import { stripe } from "@/lib/stripe";
 import { db } from "~/server/db";
-import { proPlan } from "~/config/subscription";
+import { customPlan, freePlan, maxPlan, proPlan } from "~/config/subscription";
+import { OrganizationPlan } from "@prisma/client";
+import { SubscriptionPlan } from "types";
+
+const getDataByPriceId = (priceId: string): SubscriptionPlan => {
+  if (priceId === proPlan.stripePriceId) {
+    return proPlan;
+  } else if (priceId === maxPlan.stripePriceId) {
+    return maxPlan;
+  } else if (priceId) {
+    return customPlan;
+  }
+  return freePlan;
+};
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -19,18 +32,22 @@ export async function POST(req: Request) {
       env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (error) {
-    return new Response(`Webhook Error: ${error?.message ?? "Unknown error"}`, {
+    return new Response(`Webhook Error: ${error?.message || "Unknown error"}`, {
       status: 400,
     });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
-
   if (event.type === "checkout.session.completed") {
     // Retrieve the subscription details from Stripe.
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string,
     );
+    if (!subscription?.items.data[0]) {
+      return new Response("No data from subscription", { status: 500 });
+    }
+    const priceId = subscription.items.data[0].price.id;
+    let currPlan = getDataByPriceId(priceId);
 
     // Update the user stripe into in our database.
     // Since this is the initial subscription, we need to update
@@ -46,10 +63,10 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000,
         ),
-        currentPlan:
-          subscription.items.data[0].price.id === proPlan.stripePriceId
-            ? "pro"
-            : "free",
+        currentPlan: currPlan.name as OrganizationPlan,
+        planMaxProcessedFiles: currPlan.maxFilesProcessed,
+        planMaxSeats: currPlan.maxSeats,
+        planMaxQuestions: currPlan.maxQuestions,
       },
     });
   }
@@ -59,6 +76,12 @@ export async function POST(req: Request) {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string,
     );
+    if (!subscription?.items.data[0]) {
+      return new Response("No data from subscription", { status: 500 });
+    }
+
+    const priceId = subscription.items.data[0].price.id;
+    let currPlan = getDataByPriceId(priceId);
 
     // Update the price id and set the new period end.
     await db.organization.update({
@@ -70,10 +93,10 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000,
         ),
-        currentPlan:
-          subscription.items.data[0].price.id === proPlan.stripePriceId
-            ? "pro"
-            : "free",
+        currentPlan: currPlan.name as OrganizationPlan,
+        planMaxProcessedFiles: currPlan.maxFilesProcessed,
+        planMaxSeats: currPlan.maxSeats,
+        planMaxQuestions: currPlan.maxQuestions,
       },
     });
   }

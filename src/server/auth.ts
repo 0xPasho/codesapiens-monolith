@@ -57,6 +57,7 @@ export const authOptions: NextAuthOptions = {
             ...session.user,
             id: user.id,
             organizationId: userInformation.organizationId,
+            orgSlug: userInformation.orgSlug,
           },
         };
       } catch (err) {

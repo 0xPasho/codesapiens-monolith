@@ -13,11 +13,13 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ChatBubbleIcon } from "@radix-ui/react-icons";
 import {
+  ArrowLeftIcon,
   HistoryIcon,
   SearchCodeIcon,
   Settings2Icon,
   WholeWordIcon,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ProjectLayout({
   children,
@@ -77,16 +79,28 @@ export default function ProjectLayout({
   return (
     <div className="w-full">
       <div
-        className="justify-star flex w-full px-8 pt-2"
+        className="flex w-full overflow-x-auto px-8 pt-2"
         style={{ justifyContent: "start" }}
       >
         <NavigationMenu className="flex">
           <NavigationMenuList>
+            <Link
+              href={`/org/${orgSlug}`}
+              legacyBehavior
+              passHref
+              className="p-0"
+            >
+              <NavigationMenuLink
+                className={cn(navigationMenuTriggerStyle(), "mr-2 px-2")}
+              >
+                <ArrowLeftIcon />
+              </NavigationMenuLink>
+            </Link>
             {menuItems.map((item) => (
               <div
                 className={`border-b border-b-2 ${
                   currentSelectedTab === item.id
-                    ? "border-b-white"
+                    ? "border-b-black dark:border-b-white"
                     : "border-b-transparent"
                 } pb-1`}
               >

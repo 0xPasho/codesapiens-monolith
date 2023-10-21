@@ -15,7 +15,6 @@ export function OrgMembers({
 }: {
   orgMembers: OrganizationMember[];
 }) {
-  console.log({ orgMembers });
   return (
     <Card>
       <CardHeader>

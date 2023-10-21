@@ -9,20 +9,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { ChevronDownIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, GroupIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { CreateNewOrganizationDialog } from "../account/_components/create-new-organization-dialog";
 
 const QuickActionsButton = ({ orgSlug }: { orgSlug: string }) => {
   return (
-    <div className="mr-2 flex items-center space-x-1 rounded-md bg-secondary text-secondary-foreground">
+    <div className="mr-2 flex hidden items-center space-x-1 rounded-md bg-secondary text-secondary-foreground md:flex">
       <Link href={`/org/${orgSlug}/new-doc`}>
         <Button variant="secondary" className="px-2 shadow-none">
           <PlusIcon className="mr-2 h-4 w-4" />
           New document
         </Button>
       </Link>
-      <Separator orientation="vertical" className="h-[38px] bg-gray-600" />
+      <Separator
+        orientation="vertical"
+        className="h-[38px] bg-gray-300 dark:bg-gray-800"
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" className="px-2 shadow-none">

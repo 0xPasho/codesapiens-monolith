@@ -3,6 +3,8 @@ import Image from "next/image";
 
 import { SidebarNav } from "./components/sidebar-nav";
 import { Separator } from "@/components/ui/separator";
+import { FaceIcon, PersonIcon } from "@radix-ui/react-icons";
+import { BellIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "User Settings screen",
@@ -13,23 +15,27 @@ const sidebarNavItems = [
   {
     title: "Profile",
     href: "/account",
+    icon: <PersonIcon className="mr-2 h-4 w-4" />,
   },
   {
     title: "Billing",
     href: "/account/billing",
+    icon: <span className="mr-2 w-2 w-4 text-xs">💸</span>,
   },
   {
     title: "Appearance",
     href: "/account/appearance",
+    icon: <FaceIcon className="mr-2 w-2 w-4" />,
   },
   {
     title: "Notifications",
     href: "/account/notifications",
+    icon: <BellIcon className="mr-2 w-2 w-4" />,
   },
-  {
-    title: "Display",
-    href: "/account/display",
-  },
+  // {
+  //   title: "Display",
+  //   href: "/account/display",
+  // },
 ];
 
 interface SettingsLayoutProps {
@@ -38,29 +44,13 @@ interface SettingsLayoutProps {
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <div className="bg-background overflow-hidden rounded-[0.5rem] border shadow">
-      {/*<div className="md:hidden">
-        <Image
-          src="/examples/forms-light.png"
-          width={1280}
-          height={791}
-          alt="Forms"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/forms-dark.png"
-          width={1280}
-          height={791}
-          alt="Forms"
-          className="hidden dark:block"
-        />
-  </div>*/}
-      <div className=" space-y-6 p-10 pb-16 md:block">
+    <div className="overflow-hidden rounded-[0.5rem] border bg-background shadow">
+      <div className=" space-y-6 p-2 pb-16 sm:p-10 md:block">
         <div className="mx-auto justify-center space-y-0.5 lg:max-w-2xl">
           <h2 className="text-center text-2xl font-bold tracking-tight">
             Settings
           </h2>
-          <p className="text-muted-foreground text-center">
+          <p className="text-center text-muted-foreground">
             Manage your account settings, billing and set e-mail preferences.
           </p>
         </div>

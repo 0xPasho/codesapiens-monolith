@@ -17,8 +17,8 @@ export default function CardDataModifier({
   className,
   header,
 }: {
-  title?: string;
-  description?: string;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
   content?: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;

@@ -91,7 +91,7 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
 
       setRepos(sortedOrgs);
     } catch (error) {
-      console.log(error);
+      console.log({ error });
       toast({
         title: "Something went wrong.",
         description: "Please refresh the page and try again.",
@@ -112,7 +112,6 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
     // only add the event listener when the dropdown is opened
     if (!isOpen) return;
     function handleClick(event) {
-      console.log({ isOpen });
       if (event.target.id !== "orgs-button") {
         setIsOpen(false);
       }

@@ -84,8 +84,11 @@ model Organization {
   stripeSubscriptionId   String?          @unique @map(name: "stripe_subscription_id")
   stripePriceId          String?          @map(name: "stripe_price_id")
   stripeCurrentPeriodEnd DateTime?        @map(name: "stripe_current_period_end")
+  currentPlanStartedAt   DateTime?
   currentPlan            OrganizationPlan @default(free) @map(name: "current_plan")
-
+  planMaxSeats           Int?
+  planMaxQuestions       Int?
+  planMaxProcessedFiles  Int?
   isPersonal          Boolean              @default(false)
   createdAt           DateTime             @default(now()) @map(name: "created_at")
   updatedAt           DateTime             @default(now()) @map(name: "updated_at")
@@ -123,20 +126,23 @@ model Project {
 }
 
 model Document {
-  id             String         @id @default(cuid())
-  title         String
-  content        String?
-  content_obj   Json?
-  status         DocumentStatus
+  id               String         @id @default(cuid())
+  title            String
+  content          String?
+  content_obj      Json?
+  status           DocumentStatus
   sync_fail_reason String?
-  synced         Boolean
-  repositoryId       String
-  isFolder      Boolean    @default(false) 
-  pathName      String?
+  synced           Boolean
+  repositoryId     String
+  isFolder         Boolean    @default(false) 
+  pathName         String?
   latest_sync_date DateTime?
-  path           String?
-  billingFiles   BillingFile[]
-  repository         Repository       @relation(fields: [repositoryId], references: [id])
+  path             String?
+  parentId         String?   
+  parent           Document?      @relation("DocumentToDocument", fields: [parentId], references: [id])
+  children         Document[]     @relation("DocumentToDocument") // This line is now explicit about the relation
+  billingFiles     BillingFile[]
+  repository       Repository     @relation(fields: [repositoryId], references: [id])
 }
 
 model Repository {

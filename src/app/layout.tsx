@@ -8,7 +8,6 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { NextAuthProvider } from "@/components/general/providers/NextAuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/general/theme-provider";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 const inter = Inter({
   subsets: ["latin"],

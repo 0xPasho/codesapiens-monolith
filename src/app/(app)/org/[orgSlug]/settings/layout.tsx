@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { OrganizationSidebarNav } from "./_components/organization-sidenav";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
+import { AppWindowIcon, Building2Icon, GridIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "User Settings screen",
@@ -12,20 +13,24 @@ export const metadata: Metadata = {
 
 const sidebarNavItems = [
   {
-    title: "Information",
+    title: "General",
     href: "/org/[orgSlug]/settings",
+    icon: <Building2Icon className="mr-2 w-2 w-4" />,
   },
   {
     title: "Billing",
     href: "/org/[orgSlug]/settings/billing",
+    icon: <span className="mr-2 w-2 w-4 text-xs">💸</span>,
   },
   {
     title: "Members",
     href: "/org/[orgSlug]/settings/members",
+    icon: <AppWindowIcon className="mr-2 w-2 w-4" />,
   },
   {
     title: "Projects",
     href: "/org/[orgSlug]",
+    icon: <GridIcon className="mr-2 w-2 w-4" />,
   },
 ];
 
@@ -53,7 +58,7 @@ export default async function OrgSettingsLayout({
 
   return (
     <div className="overflow-hidden rounded-[0.5rem] border bg-background shadow">
-      <div className=" space-y-6 p-10 pb-16 md:block">
+      <div className=" space-y-6  p-6 pb-16 sm:p-10 md:block">
         <div className="mx-auto justify-center space-y-0.5 lg:max-w-2xl">
           <h2 className="text-center text-2xl font-bold tracking-tight">
             Organization Settings

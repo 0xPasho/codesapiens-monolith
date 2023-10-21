@@ -20,12 +20,12 @@ export default async function OrgSwitcherWrapper({
   return (
     <Suspense
       fallback={
-        <div className="w-[200px]">
+        <div className="hidden w-[200px] sm:flex">
           <Skeleton />
         </div>
       }
     >
-      <OrgSwitcher orgs={orgs ?? []} selectedOrg={selectedOrg} />
+      <OrgSwitcher orgs={orgs ?? []} selectedOrg={selectedOrg} from="desktop" />
     </Suspense>
   );
 }

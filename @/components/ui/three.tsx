@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ArrowLeftIcon, FileIcon, ChevronDown, FolderIcon } from "lucide-react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import useResizeObserver from "use-resize-observer";
@@ -14,19 +15,11 @@ interface TreeDataItem extends Document {
   leafLoading?: string;
 }
 
-// interface TreeDataItem {
-//   id: string;
-//   name: string;
-//   icon?: LucideIcon;
-//   children?: TreeDataItem[];
-// }
-
 type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
   data: TreeDataItem[] | TreeDataItem;
-  initialSlelectedItemId?: string;
+  initialSelectedItemId?: string;
   onSelectChange?: (item: TreeDataItem | undefined) => void;
   expandAll?: boolean;
-  folderIcon?: LucideIcon;
   itemIcon?: LucideIcon;
   leafLoading?: string;
 };
@@ -35,11 +28,9 @@ const Tree = React.forwardRef<HTMLDivElement, TreeProps>(
   (
     {
       data,
-      initialSlelectedItemId,
+      initialSelectedItemId,
       onSelectChange,
       expandAll,
-      folderIcon,
-      itemIcon,
       className,
       leafLoading,
       ...props
@@ -48,7 +39,7 @@ const Tree = React.forwardRef<HTMLDivElement, TreeProps>(
   ) => {
     const [selectedItemId, setSelectedItemId] = React.useState<
       string | undefined
-    >(initialSlelectedItemId);
+    >(initialSelectedItemId);
 
     const handleSelectChange = React.useCallback(
       (item: TreeDataItem | undefined) => {
@@ -61,7 +52,7 @@ const Tree = React.forwardRef<HTMLDivElement, TreeProps>(
     );
 
     const expandedItemIds = React.useMemo(() => {
-      if (!initialSlelectedItemId) {
+      if (!initialSelectedItemId) {
         return [] as string[];
       }
 
@@ -87,15 +78,22 @@ const Tree = React.forwardRef<HTMLDivElement, TreeProps>(
         }
       }
 
-      walkTreeItems(data, initialSlelectedItemId);
+      walkTreeItems(data, initialSelectedItemId);
       return ids;
-    }, [data, initialSlelectedItemId]);
+    }, [data, initialSelectedItemId]);
 
     const { ref: refRoot, width, height } = useResizeObserver();
 
     return (
       <div ref={refRoot} className={cn("overflow-hidden", className)}>
-        <div className="overflow-auto" style={{ width, height }}>
+        <div
+          className="overflow-auto"
+          style={
+            {
+              /*width, height*/
+            }
+          }
+        >
           <div className="relative p-2">
             <TreeItem
               data={data}
@@ -103,8 +101,7 @@ const Tree = React.forwardRef<HTMLDivElement, TreeProps>(
               selectedItemId={selectedItemId}
               handleSelectChange={handleSelectChange}
               expandedItemIds={expandedItemIds}
-              FolderIcon={folderIcon}
-              ItemIcon={itemIcon}
+              leafLoading={leafLoading}
               {...props}
             />
           </div>
@@ -118,8 +115,6 @@ type TreeItemProps = TreeProps & {
   selectedItemId?: string;
   handleSelectChange: (item: TreeDataItem | undefined) => void;
   expandedItemIds: string[];
-  FolderIcon?: LucideIcon;
-  ItemIcon?: LucideIcon;
 };
 
 const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
@@ -130,8 +125,6 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
       selectedItemId,
       handleSelectChange,
       expandedItemIds,
-      FolderIcon,
-      ItemIcon,
       leafLoading,
       ...props
     },
@@ -150,6 +143,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                   >
                     <AccordionPrimitive.Item value={item.id}>
                       <AccordionTrigger
+                        isFolder={item.isFolder}
                         className={cn(
                           "px-2 before:absolute before:left-0 before:-z-10 before:h-[1.75rem] before:w-full before:bg-muted/80 before:opacity-0 hover:before:opacity-100",
                           selectedItemId === item.id &&
@@ -158,14 +152,13 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                         isLoading={leafLoading === item.id}
                         onClick={() => handleSelectChange(item)}
                       >
-                        {item.icon && (
-                          <item.icon
+                        {item.isFolder ? (
+                          <FolderIcon
                             className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50"
                             aria-hidden="true"
                           />
-                        )}
-                        {!item.icon && FolderIcon && (
-                          <FolderIcon
+                        ) : (
+                          <FileIcon
                             className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50"
                             aria-hidden="true"
                           />
@@ -180,8 +173,6 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                           selectedItemId={selectedItemId}
                           handleSelectChange={handleSelectChange}
                           expandedItemIds={expandedItemIds}
-                          FolderIcon={FolderIcon}
-                          ItemIcon={ItemIcon}
                         />
                       </AccordionContent>
                     </AccordionPrimitive.Item>
@@ -191,7 +182,6 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                     item={item}
                     isSelected={selectedItemId === item.id}
                     onClick={() => handleSelectChange(item)}
-                    Icon={ItemIcon}
                   />
                 )}
               </li>
@@ -202,7 +192,6 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                 item={data}
                 isSelected={selectedItemId === data.id}
                 onClick={() => handleSelectChange(data)}
-                Icon={ItemIcon}
               />
             </li>
           )}
@@ -217,9 +206,8 @@ const Leaf = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement> & {
     item: TreeDataItem;
     isSelected?: boolean;
-    Icon?: LucideIcon;
   }
->(({ className, item, isSelected, Icon, ...props }, ref) => {
+>(({ className, item, isSelected, ...props }, ref) => {
   return (
     <div
       ref={ref}
@@ -231,14 +219,13 @@ const Leaf = React.forwardRef<
       )}
       {...props}
     >
-      {item.icon && (
-        <item.icon
+      {item.isFolder ? (
+        <FolderIcon
           className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50"
           aria-hidden="true"
         />
-      )}
-      {!item.icon && Icon && (
-        <Icon
+      ) : (
+        <FileIcon
           className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50"
           aria-hidden="true"
         />
@@ -250,23 +237,27 @@ const Leaf = React.forwardRef<
 
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, isLoading, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & {
+    isLoading: boolean;
+    isFolder: boolean;
+  }
+>(({ className, isLoading, isFolder, children, ...props }, ref) => (
   <AccordionPrimitive.Header>
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex w-full flex-1 items-center py-2 transition-all last:[&[data-state=open]>svg]:rotate-90",
+        "flex w-full flex-1 items-center py-2 transition-all",
         className,
+        isFolder && "last:[&[data-state=open]>svg]:rotate-90",
       )}
       {...props}
     >
       {children}
       {isLoading ? (
-        <Icons.spinner className="h-4 w-4" />
-      ) : (
+        <Icons.spinner className="ml-auto h-4 w-4 shrink-0 text-accent-foreground/50 " />
+      ) : isFolder ? (
         <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-accent-foreground/50 transition-transform duration-200" />
-      )}
+      ) : null}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));

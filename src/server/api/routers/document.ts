@@ -25,7 +25,7 @@ const GetDocumentQuantityByProjectInput = z.object({
 });
 
 const GetDocumentsByPathInput = z.object({
-  slugs: z.array(z.string()).optional(),
+  documentSlug: z.string(),
   repositorySlug: z.string(),
 });
 
@@ -39,8 +39,7 @@ const GetDocumentByIdInput = z.object({
 });
 
 const GetSpecificFileByPath = z.object({
-  folderPath: z.string(),
-  pathName: z.string(),
+  documentId: z.string(),
 });
 
 type BlockType = {
@@ -156,27 +155,18 @@ export const documentRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.document.findFirst({
         where: {
-          pathName: input.pathName,
-          path: input.folderPath,
+          id: input.documentId,
         },
       });
     }),
   getDocumentsById: publicProcedure
     .input(GetDocumentsByIdInput)
     .query(async ({ ctx, input }) => {
-      console.log({ todos: "xdxddd" });
-      console.log({ todos: "xdxddd" });
-      console.log({ todos: "xdxddd" });
-      console.log({ todos: "xdxddd" });
-      console.log({ todos: "xdxddd" });
       const docs = await ctx.db.document.findMany({
         where: {
           id: input.documentId,
         },
       });
-      console.log({ manyu: "z xcjizx czx o" });
-      console.log({ manyu: "z xcjizx czx o" });
-      console.log({ manyu: "z xcjizx czx o" });
 
       let tempDocs = [];
       for (const doc of docs) {
@@ -194,9 +184,6 @@ export const documentRouter = createTRPCRouter({
       ) => {
         const slugsTemp = allSlugsTemp.slice(0, currentPosition);
         const searchPath = slugsTemp.join("/") + "/";
-        console.log({ searchPath });
-        console.log({ searchPath });
-        console.log({ slugsTemp });
         const files = await ctx.db.document.findMany({
           where: {
             path: searchPath,

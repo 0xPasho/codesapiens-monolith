@@ -12,6 +12,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
     href: string;
     title: string;
+    icon: React.ReactNode;
   }[];
 }
 
@@ -27,7 +28,7 @@ export function OrganizationSidebarNav({
   return (
     <nav
       className={cn(
-        "flex space-x-2 overflow-auto lg:flex-col lg:space-x-0 lg:space-y-1",
+        "flex space-x-2 overflow-x-auto lg:flex-col lg:space-x-0 lg:space-y-1",
         className,
       )}
       {...props}
@@ -46,10 +47,11 @@ export function OrganizationSidebarNav({
               pathname === link
                 ? "bg-muted hover:bg-muted"
                 : "hover:bg-transparent hover:underline",
-              "justify-start",
+              "h-auto justify-start px-2 py-0 md:h-9 md:px-4",
             )}
           >
-            {item.title}
+            {item.icon}
+            <span className="flex-1">{item.title}</span>
           </Link>
         );
       })}

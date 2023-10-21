@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useWikiContext } from "./wiki-context";
 import { api } from "~/trpc/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeftIcon,
   FileIcon,
@@ -15,89 +15,75 @@ import {
   Workflow,
 } from "lucide-react";
 import { Document } from "@prisma/client";
-import { Button } from "@/components/ui/button";
 import { Tree } from "@/components/ui/three";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface WikiSidebarNavProps {
   orgSlug: string;
   projectSlug: string;
   repositorySlug: string;
-  slug: Array<string>;
+  documentSlugs: string[];
 }
 
 export function WikiSidebarNav({
   orgSlug,
   projectSlug,
   repositorySlug,
-  slug,
+  documentSlugs,
 }: WikiSidebarNavProps) {
-  console.log(slug?.[slug.length - 1]);
-  console.log(slug?.[slug.length - 1]);
-  console.log(slug?.[slug.length - 1]);
-  console.log(slug);
-  console.log(slug);
-  console.log(slug);
+  const documentSlug = documentSlugs?.[0];
   const {
     menuItems,
     setMenuItems,
     updateLeafById,
     setCurrentSelectedMenuItem,
+    initialLoadDone,
+    setInitialLoadDone,
   } = useWikiContext();
   const [leafLoading, setLeafLoading] = useState<string | undefined>(undefined);
-  const pathname = slug?.join("/") || "";
-  const router = useRouter();
-  let goBackPathname = "";
-  const firstCallMade = useRef(false);
-  if (pathname) {
-    const pathArray = pathname.split("/");
-    pathArray.pop();
-    goBackPathname = pathArray.join("/");
-  }
-  const fileNameOrFolderFromUrl = slug?.[slug.length - 1] || "";
-  const currentSelectedMenuItem = menuItems.find(
-    (item) => item.pathName === fileNameOrFolderFromUrl,
-  );
-  const { refetch: getDocumentsByPathAsync } =
-    api.document.getDocumentsByPath.useQuery(
-      {
-        slugs: slug,
-        repositorySlug,
-      },
-      {
-        refetchOnMount: false,
-        retry: false,
-        refetchOnReconnect: false,
-        refetchOnWindowFocus: false,
-        refetchInterval: false,
-        refetchIntervalInBackground: false,
-      },
-    );
 
+  const firstCallMade = useRef(false);
   const getHierarchyFromLeaf = async (document: Document) => {
     setLeafLoading(document.id);
-    const wikiNavigatorList = await fetch("/api/wiki-navigator-list", {
-      method: "POST",
-      body: JSON.stringify({
-        projectSlug,
-        docId: document.id,
-      }),
-    });
-    const hierarchy = await wikiNavigatorList.json();
-    updateLeafById(document.id, hierarchy.documents);
+    try {
+      const wikiNavigatorList = await fetch("/api/wiki-navigator-list", {
+        method: "POST",
+        body: JSON.stringify({
+          repositorySlug,
+          docId: document.id,
+        }),
+      });
+      const hierarchy = await wikiNavigatorList.json();
+      updateLeafById(document.id, hierarchy.documents);
+      setLeafLoading(undefined);
+    } catch (e) {}
   };
 
   const getHierarchy = async () => {
-    const hierarchy = await getDocumentsByPathAsync();
-    console.log({ hierarchy });
-    setMenuItems(hierarchy.data ?? []);
-    // setCurrentSelectedMenuItem(hierarchy.data?.[0]);
-    if (slug || slug[0]) return;
-    console.log({
-      shallow: `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${hierarchy.data?.[0].path}${hierarchy.data?.[0].pathName}`,
-    });
-    router.replace(
-      `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${hierarchy.data?.[0].path}${hierarchy.data?.[0].pathName}`,
-    );
+    try {
+      const wikiNavigatorList = await fetch("/api/wiki-recursive-navigation", {
+        method: "POST",
+        body: JSON.stringify({
+          repositorySlug,
+          documentSlug,
+        }),
+      });
+      const hierarchyResponse = await wikiNavigatorList.json();
+      //    const hierarchy = await getDocumentsByPathAsync();
+      setMenuItems(hierarchyResponse.hierarchy ?? []);
+      // Only redirect if no documentSlug is provided
+      if (documentSlug) return;
+
+      // console.log({
+      //   shallow: `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${hierarchy.data?.[0].path}${hierarchy.data?.[0].pathName}`,
+      // });
+      // router.replace(
+      //   `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${hierarchy.data?.[0].path}${hierarchy.data?.[0].pathName}`,
+      // );
+    } catch (e) {
+    } finally {
+      setInitialLoadDone(true);
+    }
   };
 
   useEffect(() => {
@@ -106,22 +92,39 @@ export function WikiSidebarNav({
     getHierarchy();
   }, [getHierarchy]);
 
+  const initialSelectedItem = useMemo(() => {
+    const readme = menuItems.find(
+      (item) => item.pathName?.toLowerCase()?.startsWith("readme"),
+    );
+    if (readme) return readme.id;
+    return documentSlug || menuItems[0]?.id;
+  }, [menuItems]);
+
+  if (initialLoadDone) {
+    return (
+      <div className="px-4">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <Skeleton className={`${i > 0 ? "mt-4" : ""} h-6 w-full`} />
+        ))}
+      </div>
+    );
+  }
   return menuItems.length ? (
-    <div className="w-full px-4">
-      <Tree
-        data={menuItems}
-        className="h-[460px] w-[200px] flex-shrink-0 border-[1px]"
-        initialSlelectedItemId={slug ? slug[0] : menuItems[0]?.id}
-        onSelectChange={(item) => {
-          getHierarchyFromLeaf(item);
-          router.push(
-            `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}${item.path}${item.pathName}`,
-          );
-        }}
-        folderIcon={Folder}
-        itemIcon={Workflow}
-        leafLoading={leafLoading}
-      />
-    </div>
-  ) : null;
+    <Tree
+      data={menuItems}
+      initialSelectedItemId={initialSelectedItem}
+      onSelectChange={(item) => {
+        if (!item) throw "no item";
+        getHierarchyFromLeaf(item);
+        if (item.isFolder) return;
+        setCurrentSelectedMenuItem(item);
+        // router.push(
+        //   `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}/${item.id}`,
+        // );
+      }}
+      leafLoading={leafLoading}
+    />
+  ) : (
+    <div>no items</div>
+  );
 }

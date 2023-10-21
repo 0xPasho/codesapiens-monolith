@@ -77,7 +77,6 @@ export async function GET(req: NextRequest) {
       subscriptionPlan.isInPlan &&
       subscriptionPlan.billing.stripeCustomerId
     ) {
-      console.log({ entered: true });
       try {
         const stripeSession = await stripe.billingPortal.sessions.create({
           customer: subscriptionPlan.billing.stripeCustomerId,
