@@ -33,6 +33,7 @@ interface EmptyPlaceholderIconProps
 EmptyPlaceholder.Icon = function EmptyPlaceHolderIcon({
   name,
   className,
+  ref,
   ...props
 }: EmptyPlaceholderIconProps) {
   const Icon = Icons[name];
