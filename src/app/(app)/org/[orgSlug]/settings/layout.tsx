@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { OrganizationSidebarNav } from "./_components/organization-sidenav";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
-import { AppWindowIcon, Building2Icon, GridIcon } from "lucide-react";
+import { AppWindowIcon, Building2Icon, GridIcon, HandIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "User Settings screen",
@@ -26,6 +26,11 @@ const sidebarNavItems = [
     title: "Members",
     href: "/org/[orgSlug]/settings/members",
     icon: <AppWindowIcon className="mr-2 w-2 w-4" />,
+  },
+  {
+    title: "Usage",
+    href: "/org/[orgSlug]/settings/usage",
+    icon: <HandIcon className="mr-2 w-2 w-4" />,
   },
   {
     title: "Projects",

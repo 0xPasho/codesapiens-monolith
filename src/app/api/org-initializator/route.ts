@@ -52,6 +52,9 @@ async function insertDefaultOrganization(user: {
       name: user.name ?? "", // If user has no name, use empty string, Important as in some fields it's going to be filled as "You"
       slug,
       isPersonal: true,
+      planMaxQuestions: 3,
+      planMaxSeats: 1,
+      planMaxProcessedFiles: 5,
     },
   });
 

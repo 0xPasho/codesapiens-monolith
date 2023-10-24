@@ -1,11 +1,11 @@
 import { authOptions, getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
-import UsageSSRContent from "./_components/usage-ssr-content";
+import UsageSSRContent from "../../[projectSlug]/settings/usage/_components/usage-ssr-content";
 
 export default async function ProjectUsageSettingsPage({
-  params: { orgSlug, projectSlug },
+  params: { orgSlug },
 }: {
-  params: { orgSlug: string; projectSlug: string };
+  params: { orgSlug: string };
 }) {
   const user = await getServerAuthSession();
 
@@ -15,9 +15,9 @@ export default async function ProjectUsageSettingsPage({
   return (
     <UsageSSRContent
       orgSlug={orgSlug}
-      projectSlug={projectSlug}
-      title="Project Usage"
-      description="This is amount of questions asked by this project"
+      title="Org Usage"
+      description="This is the usage of the org"
+      type="org"
     />
   );
 }

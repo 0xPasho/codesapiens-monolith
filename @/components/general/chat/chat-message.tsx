@@ -10,7 +10,8 @@ import { MemoizedReactMarkdown } from "@/components/general/markdown";
 import { ChatMessageActions } from "./chat-message-actions";
 import { CodeBlock } from "@/components/ui/codeblock";
 import { ChatHistory } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { BrainIcon, UserIcon } from "lucide-react";
 
 export interface ChatMessageProps {
   message: ChatHistory;
@@ -18,20 +19,29 @@ export interface ChatMessageProps {
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
   const [displayedMessage, setDisplayedMessage] = useState("");
+  const running = useRef(false);
 
+  const typer = (pos: number) => {
+    running.current = true;
+    const timer = setTimeout(() => {
+      if (pos < message.content.length) {
+        console.log({
+          current: pos,
+          msg: message.content[pos],
+        });
+        setDisplayedMessage((prev) => prev + message.content[pos]);
+        typer(pos + 1);
+        //indexRef.current += 1; // Increment the ref's current value
+      } else {
+        clearTimeout(timer);
+        running.current = false;
+      }
+    }, 10);
+  };
   useEffect(() => {
-    let index = 0;
     if (message.type === "assistant") {
-      const timer = setInterval(() => {
-        if (index < message.content.length - 1) {
-          setDisplayedMessage((prev) => prev + message.content[index]);
-          index += 1;
-        } else {
-          clearInterval(timer);
-        }
-      }, 10);
-
-      return () => clearInterval(timer); // Cleanup on component unmount
+      if (running.current) return;
+      typer(0);
     } else {
       setDisplayedMessage(message.content); // Display full content instantly for non-assistant messages
     }
@@ -50,7 +60,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             : "bg-primary text-primary-foreground",
         )}
       >
-        {message.type === "assistant" ? <PersonIcon /> : <GearIcon />}
+        {message.type === "assistant" ? <BrainIcon /> : <UserIcon />}
       </div>
       <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
         <MemoizedReactMarkdown

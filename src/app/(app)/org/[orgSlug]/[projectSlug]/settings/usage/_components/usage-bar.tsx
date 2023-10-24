@@ -58,7 +58,7 @@ const UsageBarChart = ({
             fill={
               currItemIsUnprocessed
                 ? unprocessedItemColor
-                : projectSlug !== key
+                : projectSlug && projectSlug !== key
                 ? groupingColor
                 : colorsArray[index % colorsArray.length]
             }

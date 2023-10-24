@@ -4,7 +4,7 @@ import Image from "next/image";
 import { SidebarNav } from "./components/sidebar-nav";
 import { Separator } from "@/components/ui/separator";
 import { FaceIcon, PersonIcon } from "@radix-ui/react-icons";
-import { BellIcon } from "lucide-react";
+import { BellIcon, HandIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "User Settings screen",
@@ -28,10 +28,15 @@ const sidebarNavItems = [
     icon: <FaceIcon className="mr-2 w-2 w-4" />,
   },
   {
-    title: "Notifications",
-    href: "/account/notifications",
-    icon: <BellIcon className="mr-2 w-2 w-4" />,
+    title: "Usage",
+    href: "/account/usage",
+    icon: <HandIcon className="mr-2 w-2 w-4" />,
   },
+  // {
+  //   title: "Notifications",
+  //   href: "/account/notifications",
+  //   icon: <BellIcon className="mr-2 w-2 w-4" />,
+  // },
   // {
   //   title: "Display",
   //   href: "/account/display",

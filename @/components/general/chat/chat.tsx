@@ -11,6 +11,7 @@ import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 import { ChatHistory } from "@prisma/client";
 import { useEffect, useRef } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 export interface ChatProps extends React.ComponentProps<"div"> {
   projectSlug: string;
@@ -37,21 +38,32 @@ function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
 
   const createChatAnswer = api.chat.createChatAnswer.useMutation({
     onSuccess(data) {
-      console.log({ data });
-      if (!state.chatId) {
-        setChatId(data.chatId!);
-      }
-      const newMessages: ChatHistory[] = [...state.messages];
-      const fakeMsgIndex = newMessages.findIndex(
-        (msg) => msg.id === "the-new-msg",
-      );
+      try {
+        console.log({ data });
+        if (!state.chatId) {
+          // router.push(
+          //   `/org/${orgSlug}/${projectSlug}/chat/${data.chatId}`,
+          //   undefined,
+          //   { shallow: true },
+          // );
 
-      if (fakeMsgIndex !== -1) {
-        newMessages[fakeMsgIndex] = data.userMessage as ChatHistory;
+          setChatId(data.chatId!);
+        }
+        const newMessages: ChatHistory[] = [...state.messages];
+        const fakeMsgIndex = newMessages.findIndex(
+          (msg) => msg.id === "the-new-msg",
+        );
+
+        if (fakeMsgIndex !== -1) {
+          newMessages[fakeMsgIndex] = data.userMessage as ChatHistory;
+        }
+        newMessages.push(data.assistanceMessage as ChatHistory);
+        setConversationHistory(newMessages);
+        setChatIsLoading(false);
+      } catch (e) {
+        toast({ title: "Something went wrong" });
+        console.log(e);
       }
-      newMessages.push(data.assistanceMessage as ChatHistory);
-      setConversationHistory(newMessages);
-      setChatIsLoading(false);
     },
     onError: ({ data }) => {
       console.log(data);

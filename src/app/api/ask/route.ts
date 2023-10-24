@@ -1,55 +1,125 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { OpenAIEmbeddings } from "langchain/embeddings";
+// import { OpenAIEmbeddings } from "langchain/embeddings";
 import { SupabaseVectorStore } from "langchain/vectorstores";
-import { openai } from "@/utils/openai-client";
-import { supabaseClient } from "@/utils/supabase-client";
-import { makeChain } from "@/utils/makechain";
+import { NextRequest, NextResponse } from "next/server";
+import { OpenAIEmbeddings } from "langchain/embeddings";
+import { db } from "~/server/db";
+// import { makeChain } from "~/server/ask/makechain";
+// import { supabaseClient } from "~/server/ask/supabase-client";
+import { env } from "~/env.mjs";
+import { createClient } from "@supabase/supabase-js";
+import { PassThrough } from "stream";
+function iteratorToStream(iterator: any) {
+  return new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await iterator.next();
 
-export default async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const { question, history } = req.body;
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value);
+      }
+    },
+  });
+}
+
+function sleep(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
+
+const encoder = new TextEncoder();
+
+async function* makeIterator() {
+  yield encoder.encode("<p>One</p>");
+  await sleep(5500);
+  yield encoder.encode("<p>Two</p>");
+  await sleep(1500);
+  yield encoder.encode("<p>Three</p>");
+}
+
+export async function POST(req: NextRequest, res: NextResponse) {
+  const { question, projectSlug } = await req.json();
 
   if (!question) {
-    return res.status(400).json({ message: "No question in the request" });
+    return NextResponse.json({ message: "No question in the request" });
   }
-  // OpenAI recommends replacing newlines with spaces for best results
-  const sanitizedQuestion = question.trim().replaceAll("\n", " ");
+  const project = await db.project.findFirst({
+    where: {
+      slug: projectSlug,
+    },
+  });
+  const client = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
-  /* create vectorstore*/
   const vectorStore = await SupabaseVectorStore.fromExistingIndex(
-    supabaseClient,
-    new OpenAIEmbeddings(),
+    client, //supabaseClient,
+    new OpenAIEmbeddings({ openAIApiKey: env.OPENAI_API_KEY }),
   );
+  vectorStore.tableName = "DocumentEmbeedingChunk";
+  vectorStore.queryName = "match_documents";
+  const funcFilterProject = (rpc) =>
+    rpc.filter("metadata->>projectId", "eq", project.id);
+  const resultB = await vectorStore.similaritySearch(
+    question,
+    4,
+    funcFilterProject,
+  );
+  console.log({ resultB });
+  console.log({ resultB });
+  console.log({ resultB });
+  //   res.writeHead(200, {
+  //     "Content-Type": "text/event-stream",
+  //     "Cache-Control": "no-cache, no-transform",
+  //     Connection: "keep-alive",
+  //   });
+  const iterator = makeIterator();
+  const stream = iteratorToStream(iterator);
 
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache, no-transform",
-    Connection: "keep-alive",
-  });
+  return new Response(stream);
+  // OpenAI recommends replacing newlines with spaces for best results
+  //   const sanitizedQuestion = question.trim().replaceAll("\n", " ");
 
-  const sendData = (data: string) => {
-    res.write(`data: ${data}\n\n`);
-  };
+  //   /* create vectorstore*/
+  //   const vectorStore = await SupabaseVectorStore.fromExistingIndex(
+  //     null, //supabaseClient,
+  //     new OpenAIEmbeddings({ openAIApiKey: env.OPENAI_API_KEY }),
+  //   );
+  //   vectorStore.tableName = "DocumentEmbeedingChunk";
+  //   vectorStore.queryName = "match_documents";
 
-  sendData(JSON.stringify({ data: "" }));
+  //   res.writeHead(200, {
+  //     "Content-Type": "text/event-stream",
+  //     "Cache-Control": "no-cache, no-transform",
+  //     Connection: "keep-alive",
+  //   });
 
-  const model = openai;
-  // create the chain
-  const chain = makeChain(vectorStore, (token: string) => {
-    sendData(JSON.stringify({ data: token }));
-  });
+  //   const sendData = (data: string) => {
+  //     res.write(`data: ${data}\n\n`);
+  //   };
+  //   console.log(JSON.stringify({ data: "" }));
+  //   console.log(JSON.stringify({ data: "" }));
+  //   console.log(JSON.stringify({ data: "" }));
 
-  try {
-    //Ask a question
-    const response = await chain.call({
-      question: sanitizedQuestion,
-      chat_history: history || [],
-    });
+  //   sendData(JSON.stringify({ data: "" }));
 
-    console.log("response", response);
-  } catch (error) {
-    console.log("error", error);
-  } finally {
-    sendData("[DONE]");
-    res.end();
-  }
+  //   // create the chain
+  //   const chain = makeChain(vectorStore, (token: string) => {
+  //     console.log({ token });
+  //     sendData(JSON.stringify({ data: token }));
+  //   });
+
+  //   try {
+  //     //Ask a question
+  //     const response = await chain.call({
+  //       question: sanitizedQuestion,
+  //       chat_history: history || [],
+  //     });
+
+  //     console.log("response", response);
+  //   } catch (error) {
+  //     console.log("error", error);
+  //   } finally {
+  //     sendData("[DONE]");
+  //     res.end();
+  //   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import UsageBarChart from "./UsageBar";
+import UsageBarChart from "./usage-bar";
 import CardDataModifier from "~/app/(app)/account/_components/card-data-modifier";
 
 export default async function OrgUsageContent({
