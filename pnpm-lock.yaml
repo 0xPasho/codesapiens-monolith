@@ -41,9 +41,6 @@ dependencies:
   '@mdx-js/react':
     specifier: ^2.3.0
     version: 2.3.0(react@18.2.0)
-  '@mdx-js/tag':
-    specifier: ^0.20.3
-    version: 0.20.3(react@18.2.0)
   '@microsoft/fetch-event-source':
     specifier: ^2.0.1
     version: 2.0.1
@@ -1029,14 +1026,6 @@ packages:
     dependencies:
       '@types/mdx': 2.0.8
       '@types/react': 18.2.22
-      react: 18.2.0
-    dev: false
-
-  /@mdx-js/tag@0.20.3(react@18.2.0):
-    resolution: {integrity: sha512-Co3gUFmNDv9z2LjuvLTpTj2NaOSHFxuoZjohcG0YK/KfECO+Ns9idzThMYjfEDe1vAf4c824rqlBYseedJdFNw==}
-    peerDependencies:
-      react: ^0.14.x || ^15.x || ^16.x
-    dependencies:
       react: 18.2.0
     dev: false
 
