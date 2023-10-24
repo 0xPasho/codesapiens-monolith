@@ -39,7 +39,6 @@ const config = {
   },
   pageExtensions: ["ts", "tsx"],
   experimental: {
-    appDir: true,
     serverComponentsExternalPackages: ["@prisma/client"],
   },
 };

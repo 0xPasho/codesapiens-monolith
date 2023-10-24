@@ -3,7 +3,7 @@ import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
 import { env } from "~/env.mjs";
 
-const privateKey = fs.readFileSync("github-app-private-key.pem", "utf-8");
+const privateKey = fs.readFileSync("github-app-private-key-prod.pem", "utf-8");
 
 const appId =
   typeof env.GITHUB_APP_ID_NUMBER === "number"
