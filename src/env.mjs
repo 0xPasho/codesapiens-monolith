@@ -38,6 +38,7 @@ export const env = createEnv({
     POSTMARK_ORG_INVITATION_TEMPLATE: z.string().min(1),
     CONVOS_API_URL: z.string().min(1),
     CONVOS_CROSS_ORIGIN_SERVICE_SECRET: z.string().min(1),
+    GITHUB_WEBHOOK_SECRET: z.string().min(1),
   },
 
   /**
@@ -83,6 +84,7 @@ export const env = createEnv({
     CONVOS_API_URL: process.env.CONVOS_API_URL,
     CONVOS_CROSS_ORIGIN_SERVICE_SECRET:
       process.env.CONVOS_CROSS_ORIGIN_SERVICE_SECRET,
+    GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

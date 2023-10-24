@@ -57,16 +57,6 @@ function RepositoryGridItemFooter({
             <div>Synced {formatDate(repository.last_synced_commit)}</div>
           </div>
         ) : null}
-        <div className="flex space-x-4 text-sm text-muted-foreground">
-          <div className="flex items-center">
-            <FileIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
-            {docsQuantity} docs
-          </div>
-          <div>
-            {repository.repositoryType === "github" ? "Imported" : "Created"}{" "}
-            {formatDate(repository?.createdAt)}
-          </div>
-        </div>
       </>
     );
   }
@@ -82,6 +72,7 @@ export default async function RepositoryGridItem({
 }) {
   const docsQuantity = await api.document.getDocumentQuantityByProject.query({
     projectId: repository.projectId,
+    repositoryId: repository.id,
   });
   return (
     <Link href={`/org/${orgSlug}/${projectSlug}/wiki/${repository.id}`}>

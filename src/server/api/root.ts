@@ -7,6 +7,7 @@ import { githubRouter } from "./routers/github";
 import { chatRouter } from "./routers/chat";
 import { documentRouter } from "./routers/document";
 import { repositoriesRouter } from "./routers/repositories";
+import { processesRouter } from "./routers/processes";
 
 /**
  * This is the primary router for your server.
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   chat: chatRouter,
   document: documentRouter,
   repositories: repositoriesRouter,
+  processes: processesRouter,
 });
 
 // export type definition of API

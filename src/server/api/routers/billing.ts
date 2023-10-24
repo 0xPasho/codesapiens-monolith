@@ -49,12 +49,7 @@ export const billingRouter = createTRPCRouter({
           id: true,
           slug: true,
           // Aggregate tokens used for questions in each project
-          billingQuestions: {
-            ...billingSearchParams,
-            select: {
-              tokens_used: true,
-            },
-          },
+          billingQuestions: billingSearchParams,
           // Count files for each project
           billingFiles: {
             ...billingSearchParams,

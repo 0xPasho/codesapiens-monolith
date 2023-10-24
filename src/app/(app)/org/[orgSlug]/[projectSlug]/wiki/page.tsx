@@ -4,6 +4,7 @@ import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { Repository } from "@prisma/client";
 import RepositoryGridItem from "./[repositorySlug]/_components/repository-grid-item";
+import SyncFilesButton from "./_components/sync-files-button";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -40,6 +41,9 @@ export default async function RepositoriesByProjectPage({
         <h2 className="mr-2 text-4xl font-bold tracking-tight">
           Wiki by repository
         </h2>
+        <div className="mt-4">
+          <SyncFilesButton projectSlug={projectSlug} />
+        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {repositories.map((repository: Repository, index: number) => (
             <RepositoryGridItem

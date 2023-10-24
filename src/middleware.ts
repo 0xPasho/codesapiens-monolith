@@ -11,9 +11,20 @@ async function middleware(request: NextRequest) {
 
   const session = await getSession({ req: requestForNextAuth });
 
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
+  console.log({ rivh: request.nextUrl.pathname });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
+  console.log({ isAuthPage });
+  console.log({ isAuthPage });
+  console.log({ isAuthPage });
 
   if (!session) {
     let from = request.nextUrl.pathname;
@@ -21,11 +32,13 @@ async function middleware(request: NextRequest) {
       from += request.nextUrl.search;
     }
     const absoluteFrom = `${env.NEXT_PUBLIC_APP_URL}/${from}`;
-    return NextResponse.redirect(
-      `${env.NEXT_PUBLIC_APP_URL}/login?from=${encodeURIComponent(
-        absoluteFrom,
-      )}`,
-    );
+    if (!isAuthPage) {
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/login?from=${encodeURIComponent(
+          absoluteFrom,
+        )}`,
+      );
+    }
   } else if (isAuthPage) {
     return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/dashboard`);
   }
@@ -43,5 +56,11 @@ async function middleware(request: NextRequest) {
 export default middleware;
 
 export const config = {
-  matcher: ["/dashboard", "/org/:path*", "/account/:path*"],
+  matcher: [
+    "/dashboard",
+    "/org/:path*",
+    "/account/:path*",
+    "/login",
+    "/register",
+  ],
 };

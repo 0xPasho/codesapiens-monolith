@@ -4,16 +4,16 @@ import { useChat } from "./chat-context-provider";
 
 const exampleMessages = [
   {
-    heading: "Explain technical concepts",
-    message: `What is a "serverless function"?`,
+    heading: "How do I run this the project?",
+    message: `How do I run the project?`,
   },
   {
-    heading: "Get help with a command",
-    message: "Create a request for authentication: \n",
+    heading: "What is the purpose of this project?",
+    message: "What is the purpose of this project?",
   },
   {
-    heading: "Draft code",
-    message: `Create code based in your server structure: \n`,
+    heading: "How do I deploy this project?",
+    message: `How do I deploy this project?`,
   },
 ];
 
@@ -22,7 +22,7 @@ export function EmptyScreen() {
   return (
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8">
-        <h1 className="mb-2 text-lg font-semibold">Welcome to CodeSapiens!</h1>
+        <h1 className="mb-2 text-lg font-semibold">Hey, ask me anything!</h1>
         <p className="leading-normal text-muted-foreground">
           You can start a conversation here or try the following examples:
         </p>

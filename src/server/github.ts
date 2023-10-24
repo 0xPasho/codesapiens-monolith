@@ -17,7 +17,7 @@ const getApp = async (installationId?: number) => {
     installationId?: number;
   } = {
     appId,
-    privateKey: privateKey,
+    privateKey,
   };
   if (installationId) {
     // needed as was causing error if assigned directly

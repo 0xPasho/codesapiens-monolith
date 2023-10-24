@@ -11,9 +11,10 @@ const UpdateUserUsernameInput = z.object({
   slug: z.string(),
 });
 
-function delay(t) {
-  return new Promise((resolve) => setTimeout(resolve, t));
-}
+const updateUserGithubInstallationIdInput = z.object({
+  installationId: z.string(),
+});
+
 export const usersRouter = createTRPCRouter({
   updateUserFullName: protectedProcedure
     .input(UpdateUserFullNameInput)
@@ -94,4 +95,18 @@ export const usersRouter = createTRPCRouter({
       },
     });
   }),
+  updateUserGithubInstallationId: protectedProcedure
+    .input(updateUserGithubInstallationIdInput)
+    .mutation(async ({ ctx, input }) => {
+      const updatedUser = await ctx.db.user.update({
+        data: {
+          githubInstallationId: input.installationId,
+        },
+        where: {
+          id: ctx.session.user.id,
+        },
+      });
+
+      return updatedUser;
+    }),
 });

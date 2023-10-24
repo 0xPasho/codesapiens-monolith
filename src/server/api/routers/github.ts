@@ -4,53 +4,95 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getApp } from "~/server/github";
 
 const GetGithubReposByOrg = z.object({
-  githubOrgSlug: z.string(),
+  // githubOrgSlug: z.string(),
 });
 
 export const githubRouter = createTRPCRouter({
-  getGithubOrgsByUser: protectedProcedure.query(async () => {
+  getGithubOrgsByUser: protectedProcedure.query(async ({ ctx }) => {
+    return [];
     const octokitApp = await getApp();
-
-    const newappAuthentication: any = await octokitApp.auth({ type: "app" });
-    const orgsResponse = await octokitApp.request("GET /app/installations", {
-      headers: {
-        authorization: `Bearer ${newappAuthentication.token}`,
-        accept: "application/vnd.github.machine-man-preview+json",
+    const currentUser = await ctx.db.user.findFirst({
+      where: {
+        id: ctx.session.user.id,
       },
     });
-    return orgsResponse.data;
+
+    const appAuthentication: any = await octokitApp.auth({
+      type: "app",
+    });
+    const installationResponse = await octokitApp.request(
+      `GET /app/installations/${currentUser!.githubInstallationId!}`,
+      {
+        headers: {
+          authorization: `Bearer ${appAuthentication.token}`,
+          accept: "application/vnd.github.machine-man-preview+json",
+        },
+      },
+    );
+    if (!installationResponse.data) {
+      throw new Error("Installation not found for the user.");
+    }
+    console.log({ installationResponseda: installationResponse.data.account });
+    console.log({ installationResponseda: installationResponse.data.account });
+
+    const orgOrUser = installationResponse.data.account;
+
+    return [orgOrUser];
   }),
   getGithubReposByOrg: protectedProcedure
     .input(GetGithubReposByOrg)
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      const currentUser = await ctx.db.user.findFirst({
+        where: {
+          id: ctx.session.user.id,
+        },
+      });
       const octokitApp = await getApp();
-      const newappAuthentication: any = await octokitApp.auth({ type: "app" });
+      const appAuthentication: any = await octokitApp.auth({ type: "app" });
 
-      const appInstallations = await octokitApp.request(
-        "GET /app/installations",
+      // const appInstallations = await octokitApp.request(
+      //   "GET /app/installations",
+      //   {
+      //     headers: {
+      //       authorization: `Bearer ${newappAuthentication.token}`,
+      //       accept: "application/vnd.github.machine-man-preview+json",
+      //     },
+      //   },
+      // );
+      console.log({ lol: "true" });
+      console.log({ lol: "true" });
+      console.log({ lol: "true" });
+      console.log({ lol: "true" });
+      console.log({ lol: "true" });
+
+      const installationResponse = await octokitApp.request(
+        `GET /app/installations/${currentUser!.githubInstallationId!}`,
         {
           headers: {
-            authorization: `Bearer ${newappAuthentication.token}`,
+            authorization: `Bearer ${appAuthentication.token}`,
             accept: "application/vnd.github.machine-man-preview+json",
           },
         },
       );
 
-      const installationResponse = appInstallations.data.find(
-        (installation: any) =>
-          installation.account.login === input.githubOrgSlug,
-      );
-
+      console.log({ installationResponse });
+      console.log({ installationResponse });
+      console.log({ installationResponse });
+      console.log({ installationResponse });
+      console.log({ installationResponse });
       if (!installationResponse) {
         return [];
       }
+      //return installationResponse.data.repositories;
 
       const installationAccessToken: any = await octokitApp.auth({
         type: "installation",
-        installationId: installationResponse.id,
+        installationId: currentUser!.githubInstallationId!,
       });
 
-      const octokitInstallation = await getApp(installationResponse.id);
+      const octokitInstallation = await getApp(
+        parseInt(currentUser!.githubInstallationId!, 10),
+      );
 
       // Use the installation access token to get the repositories
       const repos = await octokitInstallation.request(

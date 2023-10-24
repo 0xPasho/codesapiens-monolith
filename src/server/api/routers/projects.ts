@@ -12,12 +12,9 @@ const GetAllProjectsBySlug = z.object({
 });
 
 const CreateProjectInput = z.object({
-  repoOrgSlug: z.string(),
   organizationSlug: z.string(),
   newProjectSlug: z.string(),
-  repoName: z.string(),
-  repoUrl: z.string(),
-  repoBranchName: z.string(),
+  repositories: z.array(z.any()),
   description: z.string(),
 });
 
@@ -126,24 +123,22 @@ export const projectsRouter = createTRPCRouter({
           organizationId: organizationFound.id,
         },
       });
-
-      const repo = await ctx.db.repository.create({
-        data: {
-          repoUrl: input.repoUrl,
-          repoProjectName: input.repoName,
-          projectId: newProject.id,
-          repoBranchName: input.repoBranchName,
-          repoOrganizationName: input.repoOrgSlug,
-          repositoryType: "github",
-          title: input.repoName,
-        },
-      });
-
-      if (!repo) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Could not create repository",
+      for (const tempRepo of input.repositories) {
+        const repo = await ctx.db.repository.create({
+          data: {
+            repoUrl: tempRepo.url,
+            repoProjectName: tempRepo.repo,
+            projectId: newProject.id,
+            repoBranchName: tempRepo.branch,
+            repoOrganizationName: tempRepo.org,
+            repositoryType: "github",
+            title: tempRepo.repo,
+          },
         });
+
+        if (!repo) {
+          console.log({ error: "Error creating a repo" });
+        }
       }
 
       const defaultRepo = await ctx.db.repository.create({

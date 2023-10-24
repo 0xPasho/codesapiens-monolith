@@ -47,19 +47,19 @@ export default function ProjectLayout({
   const menuItems = [
     {
       url: "/org/[orgSlug]/[projectSlug]",
-      label: "Overview/Ask",
+      label: "Ask the Docs",
       id: "overview",
       icon: <ChatBubbleIcon className="mr-2 h-4 w-4" />,
     },
     {
       url: "/org/[orgSlug]/[projectSlug]/wiki",
-      label: "Wiki/Repositories",
+      label: "Wiki and Repositories",
       id: "wiki",
       icon: <SearchCodeIcon className="mr-2 h-4 w-4" />,
     },
     {
       url: "/org/[orgSlug]/[projectSlug]/history",
-      label: "History",
+      label: "Chat History",
       id: "history",
       icon: <HistoryIcon className="mr-2 h-4 w-4" />,
     },

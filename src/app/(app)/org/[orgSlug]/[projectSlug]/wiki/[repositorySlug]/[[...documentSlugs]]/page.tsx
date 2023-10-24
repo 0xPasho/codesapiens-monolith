@@ -17,6 +17,6 @@ interface DocPageProps {
   };
 }
 
-export default function DocPage({ params }: DocPageProps) {
+export default async function DocPage({ params }: DocPageProps) {
   return <DocsPageMainComponent params={params} />;
 }

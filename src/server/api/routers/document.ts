@@ -22,6 +22,7 @@ const UpdateDocumentInput = z.object({
 
 const GetDocumentQuantityByProjectInput = z.object({
   projectId: z.string(),
+  repositoryId: z.string().optional(),
 });
 
 const GetDocumentsByPathInput = z.object({
@@ -84,30 +85,31 @@ export const documentRouter = createTRPCRouter({
   createDocument: protectedProcedure
     .input(CreateDocumentInput)
     .mutation(async ({ ctx, input }) => {
-      const content = processBlocksToText(input.content);
-      const newDoc = await ctx.db.document.create({
-        data: {
-          content,
-          content_obj: input.content,
-          title: input.title,
-          path: "/",
-          status: "active",
-          synced: false,
-          repositoryId: input.repositoryId,
-          pathName: input.title,
-        },
-      });
-      //const idDoc = newDoc.id;
-      //const newDocPath = `/${input.folderPath}/${idDoc}`;
-
-      // await ctx.db.document.update({
-      //   where: { id: idDoc },
-      //   data: {
-      //     path: newDocPath,
-      //   },
-      // });
-      // return { ...newDoc, path: newDocPath };
-      return newDoc;
+      try {
+        const content = processBlocksToText(input.content);
+        const repository = await ctx.db.repository.findFirst({
+          where: {
+            id: input.repositoryId,
+          },
+        });
+        const newDoc = await ctx.db.document.create({
+          data: {
+            content,
+            content_obj: input.content,
+            title: input.title,
+            path: "/",
+            status: "active",
+            synced: false,
+            repositoryId: input.repositoryId,
+            pathName: input.title,
+            projectId: repository!.projectId!,
+          },
+        });
+        return newDoc;
+      } catch (err) {
+        console.log({ err });
+      }
+      return null;
     }),
   updateDocument: protectedProcedure
     .input(UpdateDocumentInput)
@@ -131,12 +133,14 @@ export const documentRouter = createTRPCRouter({
   getDocumentQuantityByProject: protectedProcedure
     .input(GetDocumentQuantityByProjectInput)
     .query(async ({ ctx, input }) => {
+      const extraSearch = input.repositoryId ? { id: input.repositoryId } : {};
       return ctx.db.document.count({
         where: {
           repository: {
             project: {
               id: input.projectId,
             },
+            ...extraSearch,
           },
         },
       });

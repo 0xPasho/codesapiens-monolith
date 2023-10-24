@@ -18,8 +18,8 @@ const sidebarNavItems = [
     icon: <Building2Icon className="mr-2 w-2 w-4" />,
   },
   {
-    title: "Files Sync Settings",
-    href: "/org/[orgSlug]/[projectSlug]/settings/chat",
+    title: "Documents Sync History",
+    href: "/org/[orgSlug]/[projectSlug]/settings/sync",
     icon: <FileScanIcon className="mr-2 flex w-2 w-4" />,
   },
   {

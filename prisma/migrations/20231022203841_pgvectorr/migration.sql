@@ -1,8 +1,11 @@
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "vector";
+
 -- CreateEnum
 CREATE TYPE "OrganizationPlan" AS ENUM ('free', 'pro', 'max', 'custom');
 
 -- CreateEnum
-CREATE TYPE "SourceType" AS ENUM ('manual', 'github');
+CREATE TYPE "RepositoryType" AS ENUM ('manual', 'github');
 
 -- CreateEnum
 CREATE TYPE "ChatStatus" AS ENUM ('active', 'archived', 'deleted');
@@ -14,7 +17,7 @@ CREATE TYPE "Feedback" AS ENUM ('good', 'bad');
 CREATE TYPE "MessageType" AS ENUM ('user', 'assistant');
 
 -- CreateEnum
-CREATE TYPE "BillingType" AS ENUM ('question', 'file_processed');
+CREATE TYPE "DocumentStatus" AS ENUM ('deleted', 'active');
 
 -- CreateEnum
 CREATE TYPE "OrganizationMemberRole" AS ENUM ('owner', 'member');
@@ -48,14 +51,15 @@ CREATE TABLE "ChatHistory" (
 );
 
 -- CreateTable
-CREATE TABLE "Billing" (
+CREATE TABLE "BillingFile" (
     "id" TEXT NOT NULL,
-    "type" "BillingType" NOT NULL,
     "userId" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
+    "metadata" JSONB NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Billing_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BillingFile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -67,7 +71,11 @@ CREATE TABLE "Organization" (
     "stripe_subscription_id" TEXT,
     "stripe_price_id" TEXT,
     "stripe_current_period_end" TIMESTAMP(3),
+    "currentPlanStartedAt" TIMESTAMP(3),
     "current_plan" "OrganizationPlan" NOT NULL DEFAULT 'free',
+    "planMaxSeats" INTEGER,
+    "planMaxQuestions" INTEGER,
+    "planMaxProcessedFiles" INTEGER,
     "isPersonal" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -100,16 +108,52 @@ CREATE TABLE "Project" (
 );
 
 -- CreateTable
-CREATE TABLE "Source" (
+CREATE TABLE "Document" (
     "id" TEXT NOT NULL,
-    "repoOrganizationName" TEXT NOT NULL,
-    "sourceType" "SourceType" NOT NULL,
-    "repoUrl" TEXT NOT NULL,
-    "repoProjectName" TEXT NOT NULL,
-    "repoBranchName" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT,
+    "content_obj" JSONB,
+    "status" "DocumentStatus" NOT NULL,
+    "sync_fail_reason" TEXT,
+    "synced" BOOLEAN NOT NULL,
+    "repositoryId" TEXT NOT NULL,
+    "isFolder" BOOLEAN NOT NULL DEFAULT false,
+    "pathName" TEXT,
+    "latest_sync_date" TIMESTAMP(3),
+    "embedding" vector,
+    "path" TEXT,
+    "parentId" TEXT,
     "projectId" TEXT NOT NULL,
 
-    CONSTRAINT "Source_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Repository" (
+    "id" TEXT NOT NULL,
+    "repoOrganizationName" TEXT,
+    "title" TEXT,
+    "repositoryType" "RepositoryType" NOT NULL,
+    "repoUrl" TEXT,
+    "repoProjectName" TEXT,
+    "repoBranchName" TEXT,
+    "last_synced_commit" TIMESTAMP(3),
+    "projectId" TEXT NOT NULL,
+    "isDefault" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "Repository_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RepositorySync" (
+    "id" TEXT NOT NULL,
+    "repositoryId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "finished_at" TIMESTAMP(3),
+    "logs" TEXT,
+
+    CONSTRAINT "RepositorySync_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -121,6 +165,18 @@ CREATE TABLE "OrganizationMember" (
     "status" "OrganizationMemberStatus" NOT NULL DEFAULT 'pending',
 
     CONSTRAINT "OrganizationMember_pkey" PRIMARY KEY ("userId","organizationId")
+);
+
+-- CreateTable
+CREATE TABLE "BillingQuestions" (
+    "id" TEXT NOT NULL,
+    "tokens_used" INTEGER NOT NULL,
+    "question" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "projectId" TEXT NOT NULL,
+    "chatId" TEXT NOT NULL,
+
+    CONSTRAINT "BillingQuestions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -191,7 +247,10 @@ ALTER TABLE "Chat" ADD CONSTRAINT "Chat_projectId_fkey" FOREIGN KEY ("projectId"
 ALTER TABLE "ChatHistory" ADD CONSTRAINT "ChatHistory_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Billing" ADD CONSTRAINT "Billing_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "BillingFile" ADD CONSTRAINT "BillingFile_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "Document"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BillingFile" ADD CONSTRAINT "BillingFile_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -200,13 +259,34 @@ ALTER TABLE "User" ADD CONSTRAINT "User_organizationId_fkey" FOREIGN KEY ("organ
 ALTER TABLE "Project" ADD CONSTRAINT "Project_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Source" ADD CONSTRAINT "Source_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Document" ADD CONSTRAINT "Document_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Document"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Document" ADD CONSTRAINT "Document_repositoryId_fkey" FOREIGN KEY ("repositoryId") REFERENCES "Repository"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Document" ADD CONSTRAINT "Document_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Repository" ADD CONSTRAINT "Repository_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RepositorySync" ADD CONSTRAINT "RepositorySync_repositoryId_fkey" FOREIGN KEY ("repositoryId") REFERENCES "Repository"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RepositorySync" ADD CONSTRAINT "RepositorySync_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrganizationMember" ADD CONSTRAINT "OrganizationMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrganizationMember" ADD CONSTRAINT "OrganizationMember_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BillingQuestions" ADD CONSTRAINT "BillingQuestions_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BillingQuestions" ADD CONSTRAINT "BillingQuestions_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

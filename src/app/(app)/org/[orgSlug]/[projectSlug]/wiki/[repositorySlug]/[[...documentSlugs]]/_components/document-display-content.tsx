@@ -1,14 +1,13 @@
 "use client";
 
-import { Editor } from "~/app/(app)/org/[orgSlug]/new-doc/_components/editor";
-import { WikiDocumentHeader } from "../../_components/wiki-document-header";
 import { api } from "~/trpc/react";
 import { EmptyPlaceholder } from "@/components/empty-placeholder";
 import { useWikiContext } from "../../_components/wiki-context";
 import { Skeleton } from "@/components/ui/skeleton";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon } from "lucide-react";
+import React, { useEffect } from "react";
+import { Komponent } from "./komponent";
+import { DashboardTableOfContents } from "../../_components/wiki-toc";
+import { getTableOfContents } from "@/lib/toc";
 
 const DocumentDisplayContentInner = async ({
   initialDocumentId,
@@ -16,19 +15,39 @@ const DocumentDisplayContentInner = async ({
   initialDocumentId: string;
 }) => {
   const { currentSelectedMenuItem } = useWikiContext();
+  const [toc, setToc] = React.useState<any>();
 
   const doc =
-    !initialDocumentId && !currentSelectedMenuItem?.id
-      ? null
-      : api.document.getSpecificFileByPath.useQuery(
-          {
-            documentId:
-              currentSelectedMenuItem?.id ?? (initialDocumentId || ""),
-          },
-          {
-            refetchOnWindowFocus: false,
-          },
-        );
+    // !initialDocumentId && !currentSelectedMenuItem?.id
+    //   ? null
+    //   :
+    api.document.getSpecificFileByPath.useQuery(
+      {
+        documentId: currentSelectedMenuItem?.id ?? (initialDocumentId || ""),
+      },
+      {
+        refetchOnWindowFocus: false,
+      },
+    );
+  const values = async () => {
+    console.log({ tried: "true" });
+    const data = await getTableOfContents(doc?.data?.content)
+      .then((_toc) => {
+        console.log({ _toc });
+        console.log({ _toc });
+        setToc(_toc);
+      })
+      .catch((e) => {
+        console.log({ e });
+      });
+    console.log({ data });
+  };
+  useEffect(() => {
+    console.log({ doc });
+    //if (doc?.data?.content) {
+    values();
+    //}
+  }, [doc?.data?.content]);
 
   if (!doc) {
     return (
@@ -43,14 +62,16 @@ const DocumentDisplayContentInner = async ({
   }
 
   return (
-    <>
-      <WikiDocumentHeader heading={doc.data?.title} />
-      <Editor
-        documentId={doc.data?.id}
-        readOnly
-        content={doc.data?.content_obj}
-      />
-    </>
+    <div className="mdx">
+      <Komponent markdown={doc.data?.content ?? ""} />
+      {toc ? (
+        <div className="hidden text-sm xl:block">
+          <div className="sticky top-16 -mt-10 max-h-[calc(var(--vh)-4rem)] overflow-y-auto pt-10">
+            <DashboardTableOfContents toc={toc} />
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 };
 

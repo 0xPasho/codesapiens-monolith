@@ -7,6 +7,7 @@ import { db } from "~/server/db";
 import { customPlan, freePlan, maxPlan, proPlan } from "~/config/subscription";
 import { OrganizationPlan } from "@prisma/client";
 import { SubscriptionPlan } from "types";
+import { NextRequest } from "next/server";
 
 const getDataByPriceId = (priceId: string): SubscriptionPlan => {
   if (priceId === proPlan.stripePriceId) {
@@ -19,7 +20,7 @@ const getDataByPriceId = (priceId: string): SubscriptionPlan => {
   return freePlan;
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = headers().get("Stripe-Signature") as string;
 

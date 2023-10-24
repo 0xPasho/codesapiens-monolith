@@ -49,16 +49,10 @@ type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
 const NewProjectInformationForm = ({
   orgSlug,
-  url,
-  branch,
-  repo,
-  repoOrgSlug,
+  repositories,
 }: {
   orgSlug: string;
-  url: string;
-  branch: string;
-  repo: string;
-  repoOrgSlug: string;
+  repositories: Array<any>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -90,7 +84,7 @@ const NewProjectInformationForm = ({
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      slug: repo.toLowerCase(),
+      slug: repositories?.[0]?.repo?.toLowerCase() || "",
       description: "",
     },
     mode: "onChange",
@@ -102,10 +96,7 @@ const NewProjectInformationForm = ({
       newProjectSlug: data.slug.toLowerCase(),
       organizationSlug: orgSlug,
       description: data.description ?? "",
-      repoUrl: url,
-      repoBranchName: branch,
-      repoName: repo,
-      repoOrgSlug,
+      repositories,
     });
   }
 
@@ -151,15 +142,30 @@ const NewProjectInformationForm = ({
           )}
         />
         <div className="flex flex-col">
-          <span className="caption text-gray-500">IMPORTED GIT REPOSITORY</span>
-          <div className="mt-1 flex flex-row items-center">
-            <Icons.gitHub className="mr-2 h-4 w-4" />
-            {repo}
-          </div>
-          <div className="mt-1 flex flex-row items-center">
-            <GitBranchIcon className="mr-2 h-4 w-4" />
-            <span>{branch}</span>
-          </div>
+          <span className="caption text-gray-500">
+            IMPORTED GIT REPOSITORIES
+          </span>
+          {repositories.map((repo) => (
+            <div>
+              <Button
+                className="mt-1 flex flex-row items-center p-0"
+                onClick={() => {
+                  window.open(repo.url, "_blank");
+                }}
+                variant={"link"}
+                type="button"
+              >
+                <Icons.gitHub className="mr-2 h-4 w-4" />
+                <span className="mr-2">
+                  {repo.org}/{repo.repo}
+                </span>
+                <Button variant={"outline"} className="px-2">
+                  <GitBranchIcon className="mr-1 h-4 w-4" />
+                  <span>{repo.branch}</span>
+                </Button>
+              </Button>
+            </div>
+          ))}
         </div>
         <Button className="w-full" type="submit" isLoading={isLoading}>
           👉 Create

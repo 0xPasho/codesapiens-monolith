@@ -10,29 +10,37 @@ import GithubOrgPicker from "./github-org-picker";
 import NewProjectBase from "./new-project-base";
 import GithubPermissionsBlock from "./github-permissions-block";
 
-const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
+const NewProjectContent = ({
+  orgSlug,
+  installationId,
+}: {
+  orgSlug: string;
+  installationId?: string;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [orgsLoading, setOrgsLoading] = useState(true);
   const [reposLoading, setReposLoading] = useState(true);
   //const [username, setUsername] = useState<string | null>(null);
   const firstRetrievalRef = useRef(false);
-  const [orgs, setOrgs] = useState<Array<any>>([]);
+  //const [orgs, setOrgs] = useState<Array<any>>([]);
   const [repos, setRepos] = useState<any>([]);
   const [searchingRepo, setSearchingRepo] = useState<string>("");
-  const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
-  const { refetch: fetchGithubOrgs } = api.github.getGithubOrgsByUser.useQuery(
-    undefined,
-    {
-      refetchOnMount: false,
-      retry: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      refetchInterval: false,
-      refetchIntervalInBackground: false,
-    },
-  );
+  //const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
+  // const { refetch: fetchGithubOrgs } = api.github.getGithubOrgsByUser.useQuery(
+  //   undefined,
+  //   {
+  //     refetchOnMount: false,
+  //     retry: false,
+  //     refetchOnReconnect: false,
+  //     refetchOnWindowFocus: false,
+  //     refetchInterval: false,
+  //     refetchIntervalInBackground: false,
+  //   },
+  // );
   const { refetch: fetchGithubRepos } = api.github.getGithubReposByOrg.useQuery(
-    { githubOrgSlug: selectedOrg?.account?.login ?? "" },
+    {
+      /*githubOrgSlug: selectedOrg?.account?.login ?? ""*/
+    },
     {
       refetchOnMount: false,
       retry: false,
@@ -43,38 +51,38 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
     },
   );
 
-  const retrieveOrgs = async () => {
-    setOrgsLoading(true);
-    try {
-      const githubOrgs = await fetchGithubOrgs();
-      if (!githubOrgs.data) {
-        throw "No orgs found";
-      }
+  // const retrieveOrgs = async () => {
+  //   setOrgsLoading(true);
+  //   try {
+  //     const githubOrgs = await fetchGithubOrgs();
+  //     if (!githubOrgs.data) {
+  //       throw "No orgs found";
+  //     }
 
-      const orgsWithoutUser = githubOrgs.data.filter(
-        (org) => org?.account?.type !== "User",
-      );
-      const personalOrg = githubOrgs.data.find((org) => {
-        return org?.account?.type === "User";
-      });
-      setOrgs([personalOrg, ...orgsWithoutUser]);
-      // login is the username
-      //setUsername(personalOrg?.account?.login!);
-      setSelectedOrg(personalOrg);
+  //     const orgsWithoutUser = githubOrgs.data.filter(
+  //       (org) => org?.account?.type !== "User",
+  //     );
+  //     const personalOrg = githubOrgs.data.find((org) => {
+  //       return org?.account?.type === "User";
+  //     });
+  //     setOrgs([personalOrg, ...orgsWithoutUser]);
+  //     // login is the username
+  //     //setUsername(personalOrg?.account?.login!);
+  //     setSelectedOrg(personalOrg);
 
-      // Might break if not, but we need to wait for the orgs to be set before we can retrieve the repos
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      retrieveRepos();
-    } catch (error) {
-      console.log({ error });
-      toast({
-        title: "Something went wrong.",
-        description: "Please refresh the page and try again.",
-        variant: "destructive",
-      });
-    }
-    setOrgsLoading(false);
-  };
+  //     // Might break if not, but we need to wait for the orgs to be set before we can retrieve the repos
+  //     await new Promise((resolve) => setTimeout(resolve, 300));
+  //     retrieveRepos();
+  //   } catch (error) {
+  //     console.log({ error });
+  //     toast({
+  //       title: "Something went wrong.",
+  //       description: "Please refresh the page and try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  //   setOrgsLoading(false);
+  // };
 
   const retrieveRepos = async () => {
     try {
@@ -102,11 +110,11 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
   };
 
   useEffect(() => {
-    if (!firstRetrievalRef.current) {
-      retrieveOrgs();
+    if (!firstRetrievalRef.current && retrieveRepos) {
+      retrieveRepos();
       firstRetrievalRef.current = true;
     }
-  }, []);
+  }, [retrieveRepos]);
 
   useEffect(() => {
     // only add the event listener when the dropdown is opened
@@ -120,7 +128,7 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
     return () => window.removeEventListener("click", handleClick);
   }, [isOpen]);
 
-  if (orgsLoading) {
+  if (reposLoading) {
     return (
       <NewProjectBase
         step={0}
@@ -145,6 +153,21 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
       return repo;
     }
   });
+  if (!installationId) {
+    return (
+      <NewProjectBase
+        step={0}
+        title="✨ Let's create magic!"
+        description="Bring up your Git repo to start"
+      >
+        <GithubOrgRepositories
+          loading={reposLoading}
+          repositories={filteredRepos}
+          orgSlug={orgSlug}
+        />
+      </NewProjectBase>
+    );
+  }
 
   return (
     <NewProjectBase
@@ -153,15 +176,15 @@ const NewProjectContent = ({ orgSlug }: { orgSlug: string }) => {
       description="Bring up your Git repo to start"
     >
       <div className="flex flex-row">
-        <GithubOrgPicker
-          isOpen={isOpen}
-          onSelect={(org) => {
-            setSelectedOrg(org);
-            retrieveRepos();
-          }}
-          selectedOrg={selectedOrg}
-          orgs={orgs}
-        />
+        {/* <GithubOrgPicker
+        isOpen={isOpen}
+        onSelect={(org) => {
+          setSelectedOrg(org);
+          retrieveRepos();
+        }}
+        selectedOrg={selectedOrg}
+        orgs={orgs}
+      /> */}
         <Input
           className="ml-2 flex w-full"
           placeholder="Search for repo..."

@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
 }
 
 enum OrganizationPlan {
@@ -41,17 +43,16 @@ enum DocumentStatus {
 }
 
 model Chat {
-  id               String            @id @default(cuid())
+  id               String             @id @default(cuid())
   status           ChatStatus
   userId           String
   projectId        String
-  createdAt        DateTime          @default(now()) @map(name: "created_at")
-  updatedAt        DateTime          @updatedAt @map(name: "updated_at")
+  createdAt        DateTime           @default(now()) @map(name: "created_at")
+  updatedAt        DateTime           @updatedAt @map(name: "updated_at")
   chatHistory      ChatHistory[]
-  project          Project           @relation(fields: [projectId], references: [id])
-  billingQuestions BillingQuestions[] 
+  project          Project            @relation(fields: [projectId], references: [id])
+  billingQuestions BillingQuestions[]
 }
-
 
 model ChatHistory {
   id        String      @id @default(cuid())
@@ -65,14 +66,17 @@ model ChatHistory {
 }
 
 model BillingFile {
-  id        String      @id @default(cuid())
-  userId    String
-  projectId String
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  projectId  String
   documentId String
-  metadata  Json
-  createdAt DateTime    @default(now()) @map(name: "created_at")
-  document  Document    @relation(fields: [documentId], references: [id])
-  project   Project     @relation(fields: [projectId], references: [id])
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  processId  String?
+  document   Document @relation(fields: [documentId], references: [id])
+  project    Project  @relation(fields: [projectId], references: [id])
+  process    Process? @relation(fields: [processId], references: [id])
 }
 
 model Organization {
@@ -80,35 +84,38 @@ model Organization {
   name String
   slug String
 
-  stripeCustomerId       String?          @unique @map(name: "stripe_customer_id")
-  stripeSubscriptionId   String?          @unique @map(name: "stripe_subscription_id")
-  stripePriceId          String?          @map(name: "stripe_price_id")
-  stripeCurrentPeriodEnd DateTime?        @map(name: "stripe_current_period_end")
+  stripeCustomerId       String?              @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?              @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?              @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime?            @map(name: "stripe_current_period_end")
   currentPlanStartedAt   DateTime?
-  currentPlan            OrganizationPlan @default(free) @map(name: "current_plan")
+  currentPlan            OrganizationPlan     @default(free) @map(name: "current_plan")
   planMaxSeats           Int?
   planMaxQuestions       Int?
   planMaxProcessedFiles  Int?
-  isPersonal          Boolean              @default(false)
-  createdAt           DateTime             @default(now()) @map(name: "created_at")
-  updatedAt           DateTime             @default(now()) @map(name: "updated_at")
-  projects            Project[]
-  organizationMembers OrganizationMember[]
-  User                User[]
+  isPersonal             Boolean              @default(false)
+  createdAt              DateTime             @default(now()) @map(name: "created_at")
+  updatedAt              DateTime             @default(now()) @map(name: "updated_at")
+  projects               Project[]
+  organizationMembers    OrganizationMember[]
+  User                   User[]
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id                   String    @id @default(cuid())
+  name                 String?
+  email                String?   @unique
+  emailVerified        DateTime?
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
+  githubInstallationId String?
 
   organizationId      String?
   defaultOrganization Organization?        @relation(fields: [organizationId], references: [id])
   organizationMembers OrganizationMember[]
+  billingFiles        BillingFile[]
+  billingQuestions    BillingQuestions[]
 }
 
 model Project {
@@ -118,15 +125,38 @@ model Project {
   createdAt        DateTime           @default(now()) @map(name: "created_at")
   updatedAt        DateTime           @default(now()) @map(name: "updated_at")
   organizationId   String
-  organization     Organization      @relation(fields: [organizationId], references: [id])
+  organization     Organization       @relation(fields: [organizationId], references: [id])
   repositories     Repository[]
+  documents        Document[]
   chats            Chat[]
   billingFiles     BillingFile[]
-  billingQuestions BillingQuestions[] 
+  billingQuestions BillingQuestions[]
+  syncs            RepositorySync[]
+  processes        Process[]
 }
 
+model Process {
+  id           String    @id @default(cuid())
+  startDate    DateTime  @default(now())
+  endDate      DateTime?
+  logs         String?
+  repositoryId String
+  projectId    String
+
+  repository   Repository    @relation(fields: [repositoryId], references: [id])
+  project      Project       @relation(fields: [projectId], references: [id])
+  billingFiles BillingFile[]
+}
+
+model DocumentEmbeedingChunk {
+  id        String   @id @default(uuid())
+  content   String?  // corresponds to Document.pageContent
+  metadata  Json     // corresponds to Document.metadata
+  embedding Unsupported("vector")?
+} 
+
 model Document {
-  id               String         @id @default(cuid())
+  id               String                 @id @default(cuid())
   title            String
   content          String?
   content_obj      Json?
@@ -134,19 +164,21 @@ model Document {
   sync_fail_reason String?
   synced           Boolean
   repositoryId     String
-  isFolder         Boolean    @default(false) 
+  isFolder         Boolean                @default(false)
   pathName         String?
   latest_sync_date DateTime?
   path             String?
-  parentId         String?   
-  parent           Document?      @relation("DocumentToDocument", fields: [parentId], references: [id])
-  children         Document[]     @relation("DocumentToDocument") // This line is now explicit about the relation
+  parentId         String?
+  parent           Document?              @relation("DocumentToDocument", fields: [parentId], references: [id])
+  children         Document[]             @relation("DocumentToDocument") // This line is now explicit about the relation
   billingFiles     BillingFile[]
-  repository       Repository     @relation(fields: [repositoryId], references: [id])
+  repository       Repository             @relation(fields: [repositoryId], references: [id])
+  projectId        String
+  project          Project                @relation(fields: [projectId], references: [id])
 }
 
 model Repository {
-  id                   String         @id @default(cuid())
+  id                   String           @id @default(cuid())
   repoOrganizationName String?
   title                String?
   repositoryType       RepositoryType
@@ -154,10 +186,24 @@ model Repository {
   repoProjectName      String?
   repoBranchName       String?
   last_synced_commit   DateTime?
-  documents             Document[]
-  projectId            String
-  project              Project        @relation(fields: [projectId], references: [id])
-  isDefault            Boolean       @default(false) 
+  documents            Document[]
+  processes            Process[]
+  syncs                RepositorySync[]
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+  isDefault Boolean @default(false)
+}
+
+model RepositorySync {
+  id           String     @id @default(cuid())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+  projectId    String
+  project      Project    @relation(fields: [projectId], references: [id])
+  created_at   DateTime   @default(now())
+  finished_at  DateTime?
+  logs         String?
 }
 
 enum OrganizationMemberRole {
@@ -181,18 +227,19 @@ model OrganizationMember {
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
 
-  @@id([userId, organizationId]) // Composite primary key
+  @@id([userId, organizationId]) 
 }
 
 model BillingQuestions {
-  id          String    @id @default(cuid())
-  tokens_used Int
-  question    String
-  created_at  DateTime  @default(now())
-  projectId   String
-  chatId      String
-  project     Project   @relation(fields: [projectId], references: [id])
-  chat        Chat      @relation(fields: [chatId], references: [id])
+  id         String   @id @default(cuid())
+  question   String
+  created_at DateTime @default(now())
+  projectId  String
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  chatId     String
+  project    Project  @relation(fields: [projectId], references: [id])
+  chat       Chat     @relation(fields: [chatId], references: [id])
 }
 
 model Account {

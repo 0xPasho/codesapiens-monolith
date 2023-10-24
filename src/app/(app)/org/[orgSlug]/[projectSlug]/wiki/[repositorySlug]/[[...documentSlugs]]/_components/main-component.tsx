@@ -33,11 +33,6 @@ export default async function DocsPageMainComponent({ params }: DocPageProps) {
             <hr className="my-4 md:my-6" />
             {/* {<DocsPager doc={doc} />} */}
           </div>
-          <div className="hidden text-sm xl:block">
-            <div className="sticky top-16 -mt-10 max-h-[calc(var(--vh)-4rem)] overflow-y-auto pt-10">
-              {/* <DashboardTableOfContents toc={toc} /> */}
-            </div>
-          </div>
         </main>
       </WikiLayout>
     </WikiProvider>

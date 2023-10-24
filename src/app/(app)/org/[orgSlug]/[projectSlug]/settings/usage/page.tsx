@@ -81,7 +81,9 @@ export default async function ProjectUsageSettingsPage({
         <div>
           <span>
             This project is under the organization's{" "}
-            <b>{data.org.currentPlan?.toLowerCase()}</b> plan.
+            <b>{data.org.currentPlan?.toLowerCase()}</b> plan. If you want to
+            limit the usage of this project, go to the organization's billing
+            page.
           </span>
         </div>
       </div>
