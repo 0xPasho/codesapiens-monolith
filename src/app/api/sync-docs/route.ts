@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     repositories = [repository];
   }
 
-  const syncApiUrl = `${env.CONVOS_API_URL}/api/test`;
+  const syncApiUrl = `${env.CONVOS_API_URL}/api/v1/embeed-sync`;
 
   try {
     const response = await fetch(syncApiUrl, {

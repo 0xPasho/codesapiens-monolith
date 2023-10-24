@@ -71,11 +71,16 @@ export const metadata: Metadata = {
     creator: `@${siteConfig.username.twitter}`,
   },
   icons: {
-    icon: "/favicons/favicon.ico",
-    shortcut: "/favicons/favicon-16x16.png",
-    apple: "/favicons/apple-touch-icon.png",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
-  manifest: `${siteConfig.url}/favicons/site.webmanifest`,
+  // icons: {
+  //   icon: "/favicons/favicon.ico",
+  //   shortcut: "/favicons/favicon-16x16.png",
+  //   apple: "/favicons/apple-touch-icon.png",
+  // },
+  // manifest: `${siteConfig.url}/favicons/site.webmanifest`,
 };
 
 export default function RootLayout({

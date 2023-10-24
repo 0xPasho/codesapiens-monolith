@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { WikiProvider } from "../../_components/wiki-context";
 import { DocumentDisplayContent } from "./document-display-content";
-import WikiLayout from "./document-layout";
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
+import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DocPageProps {
   params: {
@@ -18,23 +18,29 @@ interface DocPageProps {
 
 export default async function DocsPageMainComponent({ params }: DocPageProps) {
   return (
-    <WikiProvider>
-      <WikiLayout params={params}>
-        <main className="relative lg:gap-10 xl:grid xl:grid-cols-[1fr_300px]">
-          <div className="mx-auto w-full min-w-0">
-            <Link href={`/org/${params.orgSlug}/${params.projectSlug}/wiki`}>
-              <Button variant="ghost" className="mt-4 px-1">
-                <ArrowLeftIcon /> Go Back to Repositories
-              </Button>
-            </Link>
-            <DocumentDisplayContent
-              initialDocumentId={params?.documentSlugs?.[0] || ""}
-            />
-            <hr className="my-4 md:my-6" />
-            {/* {<DocsPager doc={doc} />} */}
-          </div>
-        </main>
-      </WikiLayout>
-    </WikiProvider>
+    <main className="relative lg:gap-10 xl:grid xl:grid-cols-[1fr_300px]">
+      <div className="mx-auto w-full min-w-0">
+        <Link href={`/org/${params.orgSlug}/${params.projectSlug}/wiki`}>
+          <Button variant="ghost" className="mt-4 px-1">
+            <ArrowLeftIcon /> Go Back to Repositories
+          </Button>
+        </Link>
+
+        <React.Suspense
+          fallback={
+            <>
+              <Skeleton className="min-h-[100px] w-full" />
+              <Skeleton className="mt-4 min-h-[500px] w-full" />
+            </>
+          }
+        >
+          <DocumentDisplayContent
+            initialDocumentId={params?.documentSlugs?.[0] || ""}
+            orgSlug={params.orgSlug}
+          />
+        </React.Suspense>
+        <hr className="my-4 md:my-6" />
+      </div>
+    </main>
   );
 }

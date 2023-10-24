@@ -18,6 +18,7 @@ export default async function ProjectUsageSettingsPage({
       projectSlug={projectSlug}
       title="Project Usage"
       description="This is amount of questions asked by this project"
+      type="project"
     />
   );
 }

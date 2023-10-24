@@ -4,6 +4,9 @@ import { authOptions, getServerAuthSession } from "~/server/auth";
 import { EmptyPlaceholder } from "@/components/empty-placeholder";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { api } from "~/trpc/server";
+import { ChatListItem } from "./_components/chat-list-item";
+import { Separator } from "@/components/ui/separator";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,8 +19,8 @@ export interface ProjectWikiPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "History page",
-  description: "History Page",
+  title: "Chat History page",
+  description: "Chat History Page",
 };
 
 export default async function HistoryPage({
@@ -29,6 +32,9 @@ export default async function HistoryPage({
     redirect(authOptions?.pages?.signIn || "/login");
   }
 
+  const chats = await api.chat.getListOfChats.query({
+    project_slug: projectSlug,
+  });
   return (
     <div className="mt-14  flex w-full justify-center">
       <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-0">
@@ -41,16 +47,31 @@ export default async function HistoryPage({
             </div>
           </div>
         </div>
-        <EmptyPlaceholder>
-          <EmptyPlaceholder.Icon name="user" />
-          <EmptyPlaceholder.Title>No history yet</EmptyPlaceholder.Title>
-          <EmptyPlaceholder.Description>
-            Go ahead and start a conversation with the documentation! 👇
-          </EmptyPlaceholder.Description>
-          <Link href={`/org/${orgSlug}/${projectSlug}`}>
-            <Button>Start asking!</Button>
-          </Link>
-        </EmptyPlaceholder>
+        {chats.length > 0 ? (
+          chats.map((chat, index: number) => {
+            return (
+              <>
+                {index > 0 ? <Separator /> : null}
+                <ChatListItem
+                  chat={chat}
+                  projectSlug={projectSlug}
+                  orgSlug={orgSlug}
+                />
+              </>
+            );
+          })
+        ) : (
+          <EmptyPlaceholder>
+            <EmptyPlaceholder.Icon name="user" />
+            <EmptyPlaceholder.Title>No history yet</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Description>
+              Go ahead and start a conversation with the documentation! 👇
+            </EmptyPlaceholder.Description>
+            <Link href={`/org/${orgSlug}/${projectSlug}`}>
+              <Button>Start asking!</Button>
+            </Link>
+          </EmptyPlaceholder>
+        )}
       </div>
     </div>
   );

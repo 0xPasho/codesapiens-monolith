@@ -28,9 +28,11 @@ export default async function OrgProjectGridItem({
   function formatDate() {
     return formatDistanceToNow(createdAt, { addSuffix: true });
   }
-  const docsQuantity = api.document.getDocumentQuantityByProject.query({
-    projectId,
-  });
+  const docsQuantity = 0;
+  // const docsQuantity = api.document.getDocumentQuantityByProject.query({
+  //   projectId,
+
+  // });
   return (
     <Link href={`/org/${orgSlug}/${slug}`}>
       <Card className="hover:bg-slate-1/5 mt-4 w-full">
@@ -50,10 +52,12 @@ export default async function OrgProjectGridItem({
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 text-sm text-muted-foreground">
-            <div className="flex items-center">
-              <FileIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
-              {docsQuantity} docs
-            </div>
+            {docsQuantity ? (
+              <div className="flex items-center">
+                <FileIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
+                {docsQuantity} docs
+              </div>
+            ) : null}
             <div>Created {formatDate()}</div>
           </div>
         </CardContent>

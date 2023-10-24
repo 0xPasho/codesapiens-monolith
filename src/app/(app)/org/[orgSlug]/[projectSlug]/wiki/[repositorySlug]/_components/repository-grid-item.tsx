@@ -70,10 +70,11 @@ export default async function RepositoryGridItem({
   orgSlug: string;
   projectSlug: string;
 }) {
-  const docsQuantity = await api.document.getDocumentQuantityByProject.query({
-    projectId: repository.projectId,
-    repositoryId: repository.id,
-  });
+  const docsQuantity = 0;
+  // await api.document.getDocumentQuantityByProject.query({
+  //   projectId: repository.projectId,
+  //   repositoryId: repository.id,
+  // });
   return (
     <Link href={`/org/${orgSlug}/${projectSlug}/wiki/${repository.id}`}>
       <Card className="hover:bg-slate-1/5 mt-4 w-full">

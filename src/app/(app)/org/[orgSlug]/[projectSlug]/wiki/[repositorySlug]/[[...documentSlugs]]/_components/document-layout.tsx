@@ -16,7 +16,7 @@ interface WikiLayoutProps {
 
 export default function WikiLayout({ children, params }: WikiLayoutProps) {
   return (
-    <div className="flex-1 md:grid md:grid-cols-[220px_1fr] md:gap-6 lg:grid-cols-[240px_1fr] lg:gap-10">
+    <div className="min-h-[90vh] flex-1 md:grid md:grid-cols-[220px_1fr] md:gap-6 lg:grid-cols-[240px_1fr] lg:gap-10">
       <aside className="fixed z-30 hidden w-full shrink-0 overflow-y-auto border-r py-6 pr-2 md:sticky md:block lg:py-0">
         <WikiSidebarNav {...params} />
       </aside>

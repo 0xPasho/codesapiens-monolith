@@ -15,9 +15,14 @@ import { BrainIcon, UserIcon } from "lucide-react";
 
 export interface ChatMessageProps {
   message: ChatHistory;
+  isLastItem?: boolean;
 }
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  isLastItem,
+  ...props
+}: ChatMessageProps) {
   const [displayedMessage, setDisplayedMessage] = useState("");
   const running = useRef(false);
 
@@ -39,13 +44,13 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
     }, 10);
   };
   useEffect(() => {
-    if (message.type === "assistant") {
+    if (message.type === "assistant" && isLastItem) {
       if (running.current) return;
       typer(0);
     } else {
       setDisplayedMessage(message.content); // Display full content instantly for non-assistant messages
     }
-  }, [message]);
+  }, [message, isLastItem]);
 
   return (
     <div
@@ -60,7 +65,11 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             : "bg-primary text-primary-foreground",
         )}
       >
-        {message.type === "assistant" ? <BrainIcon /> : <UserIcon />}
+        {message.type === "assistant" ? (
+          <img src="/logo.png" className="h-4 w-5" />
+        ) : (
+          <UserIcon />
+        )}
       </div>
       <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
         <MemoizedReactMarkdown

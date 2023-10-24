@@ -16,9 +16,18 @@ import { toast } from "@/components/ui/use-toast";
 export interface ChatProps extends React.ComponentProps<"div"> {
   projectSlug: string;
   orgSlug: string;
+  chatId?: string;
+  messages?: Array<any>;
+  chat: any;
 }
 
-function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
+function ChatWithoutProvider({
+  orgSlug,
+  projectSlug,
+  className,
+  messages,
+  chat,
+}: ChatProps) {
   const {
     addMessage,
     state,
@@ -29,7 +38,11 @@ function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
   } = useChatProvider();
   const { data: sessionData } = useSession();
   const storeCleared = useRef(false);
-
+  useEffect(() => {
+    if (messages?.length) {
+      setConversationHistory(messages);
+    }
+  }, [messages]);
   useEffect(() => {
     if (storeCleared.current) return;
     storeCleared.current = true;
@@ -86,6 +99,7 @@ function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
     createChatAnswer.mutate({
       project_slug: projectSlug,
       prompt: data.prompt,
+      chatId: state.chatId,
     });
   };
 
@@ -105,7 +119,7 @@ function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
             <ChatScrollAnchor trackVisibility={state.isLoading} />
           </>
         ) : (
-          <EmptyScreen />
+          <EmptyScreen chat={chat} projectSlug={projectSlug} />
         )}
       </div>
       <ChatPanel
@@ -120,7 +134,10 @@ function ChatWithoutProvider({ orgSlug, projectSlug, className }: ChatProps) {
 
 export function Chat(props: ChatProps) {
   return (
-    <ChatProvider initialChatId="">
+    <ChatProvider
+      initialChatId={props.chatId || ""}
+      initialMsgs={props.messages}
+    >
       <ChatWithoutProvider {...props} />
     </ChatProvider>
   );

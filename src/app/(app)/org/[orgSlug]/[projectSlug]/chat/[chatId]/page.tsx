@@ -11,26 +11,29 @@ export interface ChatPageProps {
   params: {
     projectSlug: string;
     orgSlug: string;
+    chatId: string;
   };
 }
 
 export const metadata: Metadata = {
-  title: "Project Overview Page",
-  description: "Project Overview Page",
+  title: "Specific Project Overview Page",
+  description: "Specific Project Overview Page",
 };
 
-export default async function ChatPage({
-  params: { projectSlug, orgSlug },
+export default async function SpecificChatPage({
+  params: { projectSlug, orgSlug, chatId },
 }: ChatPageProps) {
   const user = await getServerAuthSession();
-
   if (!user) {
     redirect(authOptions?.pages?.signIn || "/login");
   }
-  const chat = await api.projects.getProjectChat.query({
-    projectSlug,
-    orgSlug,
-  });
-
-  return <Chat orgSlug={orgSlug} projectSlug={projectSlug} chat={chat} />;
+  const chat = await api.chat.getChat.query({ chatId });
+  return (
+    <Chat
+      orgSlug={orgSlug}
+      projectSlug={projectSlug}
+      messages={chat}
+      chatId={chatId}
+    />
+  );
 }

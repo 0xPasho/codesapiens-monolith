@@ -64,15 +64,21 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 type ChatProviderProps = {
   children: ReactNode;
   initialChatId: string;
+  initialMsgs?: ChatHistory[];
 };
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({
   children,
   initialChatId,
+  initialMsgs,
 }) => {
+  console.log({ initialChatId, initialMsgs });
+  console.log({ initialChatId, initialMsgs });
+  console.log({ initialChatId, initialMsgs });
   const initialState: ChatState = {
     ...EMPTY_STATE,
     chatId: initialChatId,
+    messages: initialMsgs || [],
   };
 
   const [state, dispatch] = useReducer(chatReducer, initialState);

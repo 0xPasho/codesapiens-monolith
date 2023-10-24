@@ -35,6 +35,11 @@ const GetProjectBySlugsInput = z.object({
   projectSlug: z.string(),
 });
 
+const GetProjectChatInput = z.object({
+  orgSlug: z.string(),
+  projectSlug: z.string(),
+});
+
 export const projectsRouter = createTRPCRouter({
   getAllProjectsByOrg: protectedProcedure
     .input(GetAllProjectsByOrg)
@@ -91,6 +96,7 @@ export const projectsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(CreateProjectInput)
     .mutation(async ({ ctx, input }) => {
+      // @TODO: it should only apply per org, not in general
       const projectFound = await ctx.db.project.findFirst({
         where: {
           slug: input.newProjectSlug.toLocaleLowerCase(),
@@ -234,5 +240,20 @@ export const projectsRouter = createTRPCRouter({
       });
 
       return updatedProject;
+    }),
+  getProjectChat: protectedProcedure
+    .input(GetProjectChatInput)
+    .query(async ({ ctx, input }) => {
+      return ctx.db.project.findFirst({
+        where: {
+          slug: input.projectSlug,
+          organization: {
+            slug: input.orgSlug,
+          },
+        },
+        include: {
+          processes: true,
+        },
+      });
     }),
 });

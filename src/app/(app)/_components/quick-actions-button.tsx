@@ -22,31 +22,31 @@ const QuickActionsButton = ({ orgSlug }: { orgSlug: string }) => {
           New document
         </Button>
       </Link>
-      <Separator
-        orientation="vertical"
-        className="h-[38px] bg-gray-300 dark:bg-gray-800"
-      />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="px-2 shadow-none">
-            <ChevronDownIcon className="h-4 w-4 text-secondary-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          alignOffset={-5}
-          className="w-[200px]"
-          forceMount
-        >
-          <DropdownMenuLabel>Quick actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <CreateNewOrganizationDialog>
-            <DropdownMenuCheckboxItem>
-              Create Organization
-            </DropdownMenuCheckboxItem>
-          </CreateNewOrganizationDialog>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* <Separator
+      orientation="vertical"
+      className="h-[38px] bg-gray-300 dark:bg-gray-800"
+    />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary" className="px-2 shadow-none">
+          <ChevronDownIcon className="h-4 w-4 text-secondary-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        alignOffset={-5}
+        className="w-[200px]"
+        forceMount
+      >
+        <DropdownMenuLabel>Quick actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <CreateNewOrganizationDialog>
+          <DropdownMenuCheckboxItem>
+            Create Organization
+          </DropdownMenuCheckboxItem>
+        </CreateNewOrganizationDialog>
+      </DropdownMenuContent>
+    </DropdownMenu> */}
     </div>
   );
 };

@@ -10,6 +10,8 @@ import React, {
 // Define the state shape and the actions available in the context
 interface WikiContextType {
   menuItems: Document[];
+  initialLoadDone: boolean;
+  setInitialLoadDone: React.Dispatch<React.SetStateAction<boolean>>;
   setMenuItems: React.Dispatch<React.SetStateAction<Document[]>>;
   currentSelectedMenuItem?: Document;
   setCurrentSelectedMenuItem: React.Dispatch<
@@ -43,6 +45,7 @@ export const WikiProvider: React.FC<WikiProviderProps> = ({ children }) => {
   const [currentSelectedMenuItem, setCurrentSelectedMenuItem] = useState<
     Document | undefined
   >();
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   // Function to reset to initial state
   const reset = () => {
@@ -81,6 +84,8 @@ export const WikiProvider: React.FC<WikiProviderProps> = ({ children }) => {
     setCurrentSelectedMenuItem,
     reset,
     updateLeafById,
+    initialLoadDone,
+    setInitialLoadDone,
   };
 
   return <WikiContext.Provider value={value}>{children}</WikiContext.Provider>;

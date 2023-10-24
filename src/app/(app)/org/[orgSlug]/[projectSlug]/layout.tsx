@@ -20,6 +20,7 @@ import {
   WholeWordIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WikiProvider } from "./wiki/[repositorySlug]/_components/wiki-context";
 
 export default function ProjectLayout({
   children,
@@ -77,57 +78,62 @@ export default function ProjectLayout({
   }, [getRoute]);
 
   return (
-    <div className="w-full">
-      <div
-        className="flex w-full overflow-x-auto px-8 pt-2"
-        style={{ justifyContent: "start" }}
-      >
-        <NavigationMenu className="flex">
-          <NavigationMenuList>
-            <Link
-              href={`/org/${orgSlug}`}
-              legacyBehavior
-              passHref
-              className="p-0"
-            >
-              <NavigationMenuLink
-                className={cn(navigationMenuTriggerStyle(), "mr-2 px-2")}
+    <WikiProvider>
+      <div className="w-full">
+        <div
+          className="flex w-full overflow-x-auto px-8 pt-2"
+          style={{ justifyContent: "start" }}
+        >
+          <NavigationMenu className="flex">
+            <NavigationMenuList>
+              <Link
+                href={`/org/${orgSlug}`}
+                legacyBehavior
+                passHref
+                className="p-0"
               >
-                <ArrowLeftIcon />
-              </NavigationMenuLink>
-            </Link>
-            {menuItems.map((item) => (
-              <div
-                className={`border-b border-b-2 ${
-                  currentSelectedTab === item.id
-                    ? "border-b-black dark:border-b-white"
-                    : "border-b-transparent"
-                } pb-1`}
-              >
-                <NavigationMenuItem>
-                  <Link
-                    href={item.url
-                      .replace("[orgSlug]", orgSlug)
-                      .replace("[projectSlug]", projectSlug)}
-                    legacyBehavior
-                    passHref
-                    className="p-0"
-                  >
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle() + "px-1"}
+                <NavigationMenuLink
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    "-mt-2 mr-2 px-2",
+                  )}
+                >
+                  <ArrowLeftIcon />
+                </NavigationMenuLink>
+              </Link>
+              {menuItems.map((item) => (
+                <div
+                  className={`border-b border-b-2 ${
+                    currentSelectedTab === item.id
+                      ? "border-b-black dark:border-b-white"
+                      : "border-b-transparent"
+                  } pb-1`}
+                >
+                  <NavigationMenuItem>
+                    <Link
+                      href={item.url
+                        .replace("[orgSlug]", orgSlug)
+                        .replace("[projectSlug]", projectSlug)}
+                      legacyBehavior
+                      passHref
+                      className="p-0"
                     >
-                      {item.icon}
-                      {item.label}
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-              </div>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle() + "px-1 "}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </div>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+        <Separator className="w-full" />
+        {children}
       </div>
-      <Separator className="w-full" />
-      {children}
-    </div>
+    </WikiProvider>
   );
 }

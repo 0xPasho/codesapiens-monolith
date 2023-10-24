@@ -17,6 +17,8 @@ import {
 import { Document } from "@prisma/client";
 import { Tree } from "@/components/ui/three";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 export interface WikiSidebarNavProps {
   orgSlug: string;
@@ -40,6 +42,7 @@ export function WikiSidebarNav({
     initialLoadDone,
     setInitialLoadDone,
   } = useWikiContext();
+  const router = useRouter();
   const [leafLoading, setLeafLoading] = useState<string | undefined>(undefined);
 
   const firstCallMade = useRef(false);
@@ -100,31 +103,48 @@ export function WikiSidebarNav({
     return documentSlug || menuItems[0]?.id;
   }, [menuItems]);
 
-  if (initialLoadDone) {
+  if (!initialLoadDone) {
     return (
-      <div className="px-4">
+      <div className="mt-2 px-4">
+        <h1 className="mt-4 text-lg font-bold">File list</h1>
+        <Separator className="mb-1 mt-2" />
         {Array.from({ length: 7 }).map((_, i) => (
           <Skeleton className={`${i > 0 ? "mt-4" : ""} h-6 w-full`} />
         ))}
       </div>
     );
   }
+
   return menuItems.length ? (
-    <Tree
-      data={menuItems}
-      initialSelectedItemId={initialSelectedItem}
-      onSelectChange={(item) => {
-        if (!item) throw "no item";
-        getHierarchyFromLeaf(item);
-        if (item.isFolder) return;
-        setCurrentSelectedMenuItem(item);
-        // router.push(
-        //   `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}/${item.id}`,
-        // );
-      }}
-      leafLoading={leafLoading}
-    />
+    <div className="mt-2 px-4">
+      <h1 className="mt-4 text-lg font-bold">File list</h1>
+      <Separator className="mb-1 mt-2" />
+      <Tree
+        data={menuItems}
+        initialSelectedItemId={initialSelectedItem}
+        onSelectChange={(item) => {
+          if (!item) throw "no item";
+          getHierarchyFromLeaf(item);
+          if (item.isFolder) return;
+          setCurrentSelectedMenuItem(item);
+          // router.push(
+          //   `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}/${item.id}`,
+          // );
+        }}
+        leafLoading={leafLoading}
+      />
+    </div>
   ) : (
-    <div>no items</div>
+    <div className="flex flex-col items-center p-2">
+      <span className="flex text-center text-lg font-bold">
+        No items to show
+      </span>
+      <span className="flex text-center">
+        Go ahead and create a new document
+      </span>
+      <Link href={`/org/${orgSlug}/new-doc`}>
+        <Button className="mt-4">Create new document</Button>
+      </Link>
+    </div>
   );
 }

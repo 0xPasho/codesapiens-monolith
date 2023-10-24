@@ -1,6 +1,7 @@
 import { api } from "~/trpc/server";
 import { Separator } from "@/components/ui/separator";
 import { ProcessItem } from "./_components/process-item";
+import { EmptyPlaceholder } from "@/components/empty-placeholder";
 
 export default async function ProjectUsageSettingsPage({
   params: { orgSlug, repoSlug, projectSlug },
@@ -31,7 +32,13 @@ export default async function ProjectUsageSettingsPage({
             );
           })
         ) : (
-          <span>super empty</span>
+          <EmptyPlaceholder className="border-none">
+            <EmptyPlaceholder.Icon name="settings" />
+            <EmptyPlaceholder.Title>Nothing to show!</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Description>
+              There haven't been any documents sync yet.
+            </EmptyPlaceholder.Description>
+          </EmptyPlaceholder>
         )}
       </div>
     </div>

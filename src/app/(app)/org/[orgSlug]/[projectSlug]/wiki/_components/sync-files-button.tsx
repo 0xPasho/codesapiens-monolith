@@ -8,31 +8,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
 import { FileScanIcon } from "lucide-react";
 import React from "react";
 import { env } from "~/env.mjs";
 
-const SyncFilesButton = ({ projectSlug }: { projectSlug: string }) => {
+const SyncFilesButton = ({
+  projectSlug,
+  className,
+}: {
+  projectSlug: string;
+  className?: string;
+}) => {
   const [isVisible, setIsVisible] = React.useState(false);
 
   const handleSync = async () => {
-    const userInformation = await fetch(
-      `${env.NEXT_PUBLIC_APP_URL}/api/sync-docs`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ projectSlug }),
+    await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/sync-docs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    ).then((res) => res.json());
+      body: JSON.stringify({ projectSlug }),
+    }).then((res) => res.json());
 
-    console.log({ userInformation });
+    toast({ title: "Sit tight", description: "We are syncing your docs!" });
   };
   return (
     <Dialog open={isVisible} onOpenChange={setIsVisible}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className={className}>
           <FileScanIcon className="mr-2 h-4 w-4" /> Sync all remaining docs from
           repositories
         </Button>

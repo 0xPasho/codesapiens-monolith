@@ -23,6 +23,14 @@ type CreateChatAnswerResponse = {
   chat_id: string;
 };
 
+const GetListOfChatsInput = z.object({
+  project_slug: z.string(),
+});
+
+const GetChatInput = z.object({
+  chatId: z.string(),
+});
+
 export const chatRouter = createTRPCRouter({
   createChatAnswer: protectedProcedure
     .input(CreateChatAnswerInput)
@@ -39,6 +47,10 @@ export const chatRouter = createTRPCRouter({
 
       let chatId = input.chatId;
 
+      console.log({ chatId });
+      console.log({ chatId });
+      console.log({ chatId });
+      console.log({ chatId });
       if (chatId) {
         await ctx.db.chat.findFirstOrThrow({
           where: {
@@ -91,5 +103,44 @@ export const chatRouter = createTRPCRouter({
         // console.error("Error forwarding request to Python server:", error);
         // return res.status(500).json({ error: "Internal server error" });
       }
+    }),
+  getListOfChats: protectedProcedure
+    .input(GetListOfChatsInput)
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db.project.findFirstOrThrow({
+        where: {
+          slug: input.project_slug,
+        },
+      });
+
+      const chats = await ctx.db.chat.findMany({
+        where: {
+          projectId: project.id,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return chats;
+    }),
+  getChat: protectedProcedure
+    .input(GetChatInput)
+    .query(async ({ ctx, input }) => {
+      const chat = await ctx.db.chatHistory.findMany({
+        where: {
+          chatId: input.chatId,
+        },
+      });
+      console.log({ chat, input });
+      return chat;
+
+      // .findFirstOrThrow({
+      //   where: {
+      //     id: input.chatId,
+      //   },
+      // });
+
+      // return {chat, chatHistory: };
     }),
 });

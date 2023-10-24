@@ -8,11 +8,15 @@ import React, { useEffect } from "react";
 import { Komponent } from "./komponent";
 import { DashboardTableOfContents } from "../../_components/wiki-toc";
 import { getTableOfContents } from "@/lib/toc";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const DocumentDisplayContentInner = async ({
   initialDocumentId,
+  orgSlug,
 }: {
   initialDocumentId: string;
+  orgSlug: string;
 }) => {
   const { currentSelectedMenuItem } = useWikiContext();
   const [toc, setToc] = React.useState<any>();
@@ -49,6 +53,21 @@ const DocumentDisplayContentInner = async ({
     //}
   }, [doc?.data?.content]);
 
+  if (!initialDocumentId) {
+    return (
+      <EmptyPlaceholder className="border-none">
+        <EmptyPlaceholder.Icon name="page" />
+        <EmptyPlaceholder.Title>Welcome to wiki!</EmptyPlaceholder.Title>
+        <EmptyPlaceholder.Description>
+          Press on any wiki page to see its content.
+        </EmptyPlaceholder.Description>
+        <Link href={`/org/${orgSlug}/new-doc`}>
+          <Button>Create new document</Button>
+        </Link>
+      </EmptyPlaceholder>
+    );
+  }
+
   if (!doc) {
     return (
       <EmptyPlaceholder className="border-none">
@@ -77,20 +96,35 @@ const DocumentDisplayContentInner = async ({
 
 const DocumentDisplayContent = async ({
   initialDocumentId,
+  orgSlug,
 }: {
   initialDocumentId: string;
+  orgSlug: string;
 }) => {
+  const { initialLoadDone, currentSelectedMenuItem } = useWikiContext();
+  // if (!initialLoadDone) {
+  //   return (
+  //     <>
+  //       <Skeleton className="min-h-[100px] w-full" />
+  //       <Skeleton className="mt-4 min-h-[500px] w-full" />
+  //     </>
+  //   );
+  // }
+
   return (
-    <React.Suspense
-      fallback={
+    <>
+      {!initialLoadDone ? (
         <>
           <Skeleton className="min-h-[100px] w-full" />
           <Skeleton className="mt-4 min-h-[500px] w-full" />
         </>
-      }
-    >
-      <DocumentDisplayContentInner initialDocumentId={initialDocumentId} />
-    </React.Suspense>
+      ) : (
+        <DocumentDisplayContentInner
+          initialDocumentId={currentSelectedMenuItem}
+          orgSlug={orgSlug}
+        />
+      )}
+    </>
   );
 };
 

@@ -9,6 +9,7 @@ import CardDataModifier from "../_components/card-data-modifier";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import UpgradePlanModal from "./upgrade-plan-modal";
+import { redirectToStripe } from "./utils";
 
 export function BillingForm({
   subscriptionPlan,
@@ -86,9 +87,12 @@ export function BillingForm({
                 disabled={isLoading}
                 isLoading={isLoading}
                 onClick={() => {
-                  redirectToStripe(
-                    subscriptionPlan.plan.name === "free" ? "pro" : "max",
-                  );
+                  redirectToStripe({
+                    targetPlan:
+                      subscriptionPlan.plan.name === "free" ? "pro" : "max",
+                    orgSlug,
+                    from: "",
+                  });
                 }}
               >
                 Manage Subscription
