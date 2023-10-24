@@ -6,7 +6,7 @@ await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
 const config = {
-  reactStrictMode: true,
+  reactStrictMode: false,
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
@@ -38,6 +38,10 @@ const config = {
     return config;
   },
   pageExtensions: ["ts", "tsx"],
+  experimental: {
+    appDir: true,
+    serverComponentsExternalPackages: ["@prisma/client"],
+  },
 };
 
 export default config;
