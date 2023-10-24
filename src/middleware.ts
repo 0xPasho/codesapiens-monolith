@@ -11,14 +11,6 @@ async function middleware(request: NextRequest) {
 
   const session = await getSession({ req: requestForNextAuth });
 
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
-  console.log({ rivh: request.nextUrl.pathname });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
@@ -43,14 +35,14 @@ async function middleware(request: NextRequest) {
     return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/dashboard`);
   }
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  // const requestHeaders = new Headers(request.headers);
+  // requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  // return NextResponse.next({
+  //   request: {
+  //     headers: requestHeaders,
+  //   },
+  // });
 }
 
 export default middleware;
