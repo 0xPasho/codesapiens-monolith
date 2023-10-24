@@ -25,18 +25,13 @@ export function EmptyPlaceholder({
   );
 }
 
-interface EmptyPlaceholderIconProps
-  extends Partial<React.SVGProps<SVGSVGElement>> {
-  name: keyof typeof Icons;
-}
-
 EmptyPlaceholder.Icon = function EmptyPlaceHolderIcon({
   name,
   className,
   ref,
   ...props
-}: EmptyPlaceholderIconProps) {
-  const Icon = Icons[name];
+}: any) {
+  const Icon = (Icons as any)[name];
 
   if (!Icon) {
     return null;
