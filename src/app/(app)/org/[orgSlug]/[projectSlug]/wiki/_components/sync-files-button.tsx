@@ -32,6 +32,7 @@ const SyncFilesButton = ({
     }).then((res) => res.json());
 
     toast({ title: "Sit tight", description: "We are syncing your docs!" });
+    setIsVisible(false);
   };
   return (
     <Dialog open={isVisible} onOpenChange={setIsVisible}>

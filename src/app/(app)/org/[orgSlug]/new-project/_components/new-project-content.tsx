@@ -100,11 +100,11 @@ const NewProjectContent = ({
       setRepos(sortedOrgs);
     } catch (error) {
       console.log({ error });
-      toast({
-        title: "Something went wrong.",
-        description: "Please refresh the page and try again.",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Something went wrong.",
+      //   description: "Please refresh the page and try again.",
+      //   variant: "destructive",
+      // });
     }
     setReposLoading(false);
   };
@@ -122,6 +122,7 @@ const NewProjectContent = ({
     function handleClick(event) {
       if (event.target.id !== "orgs-button") {
         setIsOpen(false);
+        window.open("/org/" + orgSlug);
       }
     }
     window.addEventListener("click", handleClick);
