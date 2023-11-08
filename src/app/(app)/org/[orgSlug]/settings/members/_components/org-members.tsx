@@ -25,15 +25,22 @@ export function OrgMembers({
       </CardHeader>
       <CardContent className="grid gap-6">
         {orgMembers
-          ?.filter((item) => item.status === "active")
+          ?.filter(
+            (item) => item.status === "active" || item.status === "pending",
+          )
           .map((orgMember: any, index: number) => {
             return (
               <OrgMember
-                name={orgMember.user.defaultOrganization.name}
-                username={orgMember.user.defaultOrganization.slug}
+                name={
+                  orgMember.user.defaultOrganization?.name ??
+                  orgMember.user.email
+                }
+                status={orgMember.status}
+                username={orgMember.user.defaultOrganization?.slug ?? ""}
                 role={orgMember.role}
-                avatar={orgMember.user.defaultOrganization.avatar}
+                avatar={orgMember.user.defaultOrganization?.avatar ?? ""}
                 key={`org-member-${orgMember.id}-${index}`}
+                disableActions={orgMember.status !== "active"}
               />
             );
           })}

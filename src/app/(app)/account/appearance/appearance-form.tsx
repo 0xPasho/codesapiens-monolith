@@ -30,7 +30,7 @@ const appearanceFormSchema = z.object({
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>;
 
 const defaultValues: Partial<AppearanceFormValues> = {
-  theme: "light",
+  theme: "dark",
 };
 
 export function AppearanceForm() {

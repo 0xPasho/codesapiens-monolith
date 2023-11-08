@@ -370,49 +370,61 @@ export const organizationsRouter = createTRPCRouter({
               defaultOrganization: true,
             },
           });
-          const result = await postmarkClient.sendEmailWithTemplate({
-            TemplateId: parseInt(invitationTemplateId),
-            To: member.email,
-            From: "b@bixdy.com", //,provider.from as string,
-            TemplateModel: {
-              product_name: siteConfig.name,
-              action_url: `${env.NEXT_PUBLIC_APP_URL}/org/${orgFound.slug}`,
-              support_email: "b@bixdy.com",
-              invite_sender_organization_name: orgFound.name,
-              invite_sender_name: me?.defaultOrganization?.name,
-            },
-            Headers: [
-              {
-                // Set this to prevent Gmail from threading emails.
-                // See https://stackoverflow.com/questions/23434110/force-emails-not-to-be-grouped-into-conversations/25435722.
-                Name: "X-Entity-Ref-ID",
-                Value: new Date().getTime() + "",
+          try {
+            const result = await postmarkClient.sendEmailWithTemplate({
+              TemplateId: parseInt(invitationTemplateId),
+              To: member.email,
+              From: "b@bixdy.com", //,provider.from as string,
+              TemplateModel: {
+                product_name: siteConfig.name,
+                action_url: `${env.NEXT_PUBLIC_APP_URL}/org/${orgFound.slug}`,
+                support_email: "b@bixdy.com",
+                invite_sender_organization_name: orgFound.name,
+                invite_sender_name: me?.defaultOrganization?.name,
               },
-            ],
-          });
+              Headers: [
+                {
+                  // Set this to prevent Gmail from threading emails.
+                  // See https://stackoverflow.com/questions/23434110/force-emails-not-to-be-grouped-into-conversations/25435722.
+                  Name: "X-Entity-Ref-ID",
+                  Value: new Date().getTime() + "",
+                },
+              ],
+            });
 
-          if (result.ErrorCode) {
+            if (result.ErrorCode) {
+              return {
+                email: member.email,
+                role: member.role,
+                status: "failed_to_send_invitation",
+              };
+            }
+
+            if (!orgMemberFound) {
+              await ctx.db.organizationMember.create({
+                data: {
+                  organizationId: orgFound.id,
+                  userId,
+                  role: ["member", "owner"].includes(member.role)
+                    ? (member.role as OrganizationMemberRole)
+                    : "member",
+                  status: "pending",
+                },
+              });
+            }
+            return {
+              email: member.email,
+              role: member.role,
+              status: "success",
+            };
+          } catch (e) {
+            console.log({ e });
             return {
               email: member.email,
               role: member.role,
               status: "failed_to_send_invitation",
             };
           }
-
-          if (!orgMemberFound) {
-            await ctx.db.organizationMember.create({
-              data: {
-                organizationId: orgFound.id,
-                userId,
-                role: ["member", "owner"].includes(member.role)
-                  ? (member.role as OrganizationMemberRole)
-                  : "member",
-                status: "pending",
-              },
-            });
-          }
-
-          return { email: member.email, role: member.role, status: "success" };
         }),
       );
 
