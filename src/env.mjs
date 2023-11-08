@@ -39,6 +39,7 @@ export const env = createEnv({
     CONVOS_API_URL: z.string().min(1),
     CONVOS_CROSS_ORIGIN_SERVICE_SECRET: z.string().min(1),
     GITHUB_WEBHOOK_SECRET: z.string().min(1),
+    GITHUB_APP_PRIVATE_KEY_BASE64: z.string().min(1),
   },
 
   /**
@@ -85,6 +86,8 @@ export const env = createEnv({
     CONVOS_CROSS_ORIGIN_SERVICE_SECRET:
       process.env.CONVOS_CROSS_ORIGIN_SERVICE_SECRET,
     GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET,
+    // MAKE SURE THE KEY TO BE IN BASE64
+    GITHUB_APP_PRIVATE_KEY_BASE64: process.env.GITHUB_APP_PRIVATE_KEY_BASE64,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
