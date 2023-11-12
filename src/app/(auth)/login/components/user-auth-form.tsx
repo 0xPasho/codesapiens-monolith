@@ -7,18 +7,15 @@ import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { Icons } from "@/components/general/icons";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -76,6 +73,9 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
   return (
     <Card>
       <CardHeader className="space-y-1">
+        <div className="flex  justify-center">
+          <img src="/logo.png" className="w-16" />
+        </div>
         <CardTitle className="text-2xl">
           {type === "register" ? "Create an account" : "Sign in"}
         </CardTitle>
@@ -97,7 +97,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
               });
             }}
             disabled={areButtonsLoading}
-            isLoading={areButtonsLoading}
+            isLoading={isGitHubLoading}
           >
             <Icons.gitHub className="mr-2 h-4 w-4" />
             Github
@@ -112,7 +112,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
               });
             }}
             disabled={areButtonsLoading}
-            isLoading={areButtonsLoading}
+            isLoading={isGoogleLoading}
           >
             <Icons.google className="mr-2 h-4 w-4" />
             Google
@@ -148,7 +148,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
           <Button
             className={"mt-2 w-full"}
             disabled={areButtonsLoading}
-            isLoading={areButtonsLoading}
+            //isLoading={areButtonsLoading}
           >
             Sign In with Email
           </Button>

@@ -21,8 +21,10 @@ const SyncFilesButton = ({
   className?: string;
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
-
+  const [isSyncing, setIsSyncing] = React.useState(false);
   const handleSync = async () => {
+    setIsSyncing(true);
+    toast({ title: "Sit tight", description: "We are syncing your docs!" });
     await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/sync-docs`, {
       method: "POST",
       headers: {
@@ -30,12 +32,24 @@ const SyncFilesButton = ({
       },
       body: JSON.stringify({ projectSlug }),
     }).then((res) => res.json());
+    toast({
+      title: "Your files have been synced!",
+      description:
+        "You can now see your docs in the Wiki section or you can start asking questions!",
+    });
 
-    toast({ title: "Sit tight", description: "We are syncing your docs!" });
     setIsVisible(false);
+    setIsSyncing(false);
   };
+
   return (
-    <Dialog open={isVisible} onOpenChange={setIsVisible}>
+    <Dialog
+      open={isVisible}
+      onOpenChange={(visibility) => {
+        if (isSyncing) return;
+        setIsVisible(visibility);
+      }}
+    >
       <DialogTrigger asChild>
         <Button className={className}>
           <FileScanIcon className="mr-2 h-4 w-4" /> Sync all remaining docs from
@@ -51,13 +65,29 @@ const SyncFilesButton = ({
           Are you sure you want to sync all remaining docs from repositories?
         </p>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setIsVisible(false)}>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              if (isSyncing) return;
+              setIsVisible(false);
+            }}
+          >
             Cancel
           </Button>
-          <Button variant="default" className="ml-2" onClick={handleSync}>
-            Yes, Sync
+          <Button
+            variant="default"
+            className="ml-2"
+            onClick={handleSync}
+            isLoading={isSyncing}
+          >
+            {isSyncing ? "Syncing..." : "Yes, Sync"}
           </Button>
         </DialogFooter>
+        {isSyncing ? (
+          <p style={{ textAlign: "right" }} className="color-gray-500 text-sm">
+            Syncing all files from your project...
+          </p>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

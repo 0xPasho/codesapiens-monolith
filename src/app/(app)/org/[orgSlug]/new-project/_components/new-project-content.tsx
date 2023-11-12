@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import GithubOrgPicker from "./github-org-picker";
 import NewProjectBase from "./new-project-base";
 import GithubPermissionsBlock from "./github-permissions-block";
+import CustomGithubRepo from "./custom-github-repo";
 
 const NewProjectContent = ({
   orgSlug,

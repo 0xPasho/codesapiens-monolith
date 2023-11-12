@@ -29,7 +29,7 @@ export default function HeaderProfileButton() {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar>
+          <Avatar className="cursor-pointer">
             <AvatarImage
               src={
                 sessionData?.user.image ??
