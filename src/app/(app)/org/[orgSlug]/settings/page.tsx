@@ -1,8 +1,6 @@
 import { api } from "~/trpc/server";
 import { OrganizationInformation } from "./_components/organization-information";
 import { Separator } from "@/components/ui/separator";
-import { authOptions, getServerAuthSession } from "~/server/auth";
-import { redirect } from "next/navigation";
 
 export default async function OrgSettingsProfilePage({
   params: { orgSlug },
@@ -12,11 +10,6 @@ export default async function OrgSettingsProfilePage({
   const orgInfo = await api.organizations.getOrgBySlug.query({
     orgSlug,
   });
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
 
   return (
     <div className="space-y-6">

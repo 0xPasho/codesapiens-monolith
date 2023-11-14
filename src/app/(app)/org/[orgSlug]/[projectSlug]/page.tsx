@@ -1,7 +1,5 @@
 import { Chat } from "@/components/general/chat/chat";
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
-import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -22,11 +20,6 @@ export const metadata: Metadata = {
 export default async function ChatPage({
   params: { projectSlug, orgSlug },
 }: ChatPageProps) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
   const chat = await api.projects.getProjectChat.query({
     projectSlug,
     orgSlug,

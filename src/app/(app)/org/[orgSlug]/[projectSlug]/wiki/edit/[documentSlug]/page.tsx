@@ -1,6 +1,4 @@
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
-import { authOptions, getServerAuthSession } from "~/server/auth";
 import { Editor } from "../../../../new-doc/_components/editor";
 import { api } from "~/trpc/server";
 
@@ -22,13 +20,9 @@ export const metadata: Metadata = {
 export default async function ProjectWikiPage({
   params: { documentSlug, orgSlug },
 }: ProjectWikiPageProps) {
-  const user = await getServerAuthSession();
   const document = await api.document.getDocumentById.query({
     documentId: documentSlug,
   });
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
 
   return (
     <Editor

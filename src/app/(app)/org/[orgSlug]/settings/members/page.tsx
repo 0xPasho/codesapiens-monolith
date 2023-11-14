@@ -10,11 +10,6 @@ export default async function OrgMembersPage({
 }: {
   params: { orgSlug: string };
 }) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
   const orgMembers = await api.organizations.getMembers.query({ orgSlug });
   return (
     <div className="space-y-6">

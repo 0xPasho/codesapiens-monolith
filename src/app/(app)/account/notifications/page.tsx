@@ -1,14 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { NotificationsForm } from "./notifications-form";
-import { authOptions, getServerAuthSession } from "~/server/auth";
-import { redirect } from "next/navigation";
 
 export default async function SettingsNotificationsPage() {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
   return (
     <div className="space-y-6">
       <div>

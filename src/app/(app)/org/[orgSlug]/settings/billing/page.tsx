@@ -3,19 +3,12 @@ import { api } from "~/trpc/server";
 import { getOrgSubscriptionPlan } from "@/lib/subscription";
 import { stripe } from "@/lib/stripe";
 import { BillingForm } from "~/app/(app)/account/billing/billing-information";
-import { authOptions, getServerAuthSession } from "~/server/auth";
-import { redirect } from "next/navigation";
 
 export default async function BillingProfilePage({
   params: { orgSlug },
 }: {
   params: { orgSlug: string };
 }) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
   const orgInfo = await api.organizations.getOrgBySlug.query({ orgSlug });
   const subscriptionPlan = await getOrgSubscriptionPlan(orgInfo?.id!);
 

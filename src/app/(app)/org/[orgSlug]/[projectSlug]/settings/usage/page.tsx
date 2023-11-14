@@ -1,5 +1,3 @@
-import { authOptions, getServerAuthSession } from "~/server/auth";
-import { redirect } from "next/navigation";
 import UsageSSRContent from "./_components/usage-ssr-content";
 
 export default async function ProjectUsageSettingsPage({
@@ -7,11 +5,6 @@ export default async function ProjectUsageSettingsPage({
 }: {
   params: { orgSlug: string; projectSlug: string };
 }) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
   return (
     <UsageSSRContent
       orgSlug={orgSlug}

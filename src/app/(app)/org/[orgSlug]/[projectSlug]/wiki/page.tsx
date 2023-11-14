@@ -1,6 +1,4 @@
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
-import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { Repository } from "@prisma/client";
 import RepositoryGridItem from "./[repositorySlug]/_components/repository-grid-item";
@@ -24,12 +22,6 @@ export const metadata: Metadata = {
 export default async function RepositoriesByProjectPage({
   params: { projectSlug, orgSlug },
 }: ProjectWikiPageProps) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
-
   const repositories =
     await api.repositories.getRepositoriesByProjectSlug.query({
       projectSlug,

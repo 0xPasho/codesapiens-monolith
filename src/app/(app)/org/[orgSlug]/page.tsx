@@ -1,6 +1,5 @@
 import React from "react";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 import OrgProjectGridItem from "./_components/org-project-grid-item";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import Link from "next/link";
 import { EmptyPlaceholder } from "@/components/empty-placeholder";
 import { PlusIcon, SettingsIcon } from "lucide-react";
 import OrganizationInvitation from "./_components/organization-invitation";
-import { authOptions, getServerAuthSession } from "~/server/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,12 +24,6 @@ export interface OrgPageProps {
 export default async function OrgsSlugPage({
   params: { orgSlug },
 }: OrgPageProps) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    return redirect(authOptions?.pages?.signIn || "/login");
-  }
-
   const projects = await api.projects.getAllProjectsBySlug.query({
     slug: orgSlug,
   });

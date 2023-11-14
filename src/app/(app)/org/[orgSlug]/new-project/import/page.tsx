@@ -1,8 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
 import NewProjectInformation from "./_components/new-project-information";
-import { redirect } from "next/navigation";
-import { authOptions, getServerAuthSession } from "~/server/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,11 +15,6 @@ const NewProjectImportPage = async ({
 }: {
   params: { orgSlug: string };
 }) => {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
   return <NewProjectInformation {...params} />;
 };
 

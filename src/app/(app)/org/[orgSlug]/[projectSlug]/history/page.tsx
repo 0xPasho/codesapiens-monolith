@@ -1,6 +1,4 @@
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
-import { authOptions, getServerAuthSession } from "~/server/auth";
 import { EmptyPlaceholder } from "@/components/empty-placeholder";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,12 +24,6 @@ export const metadata: Metadata = {
 export default async function HistoryPage({
   params: { projectSlug, orgSlug },
 }: ProjectWikiPageProps) {
-  const user = await getServerAuthSession();
-
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login");
-  }
-
   const chats = await api.chat.getListOfChats.query({
     project_slug: projectSlug,
   });
