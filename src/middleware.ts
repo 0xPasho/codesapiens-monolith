@@ -25,7 +25,7 @@ async function middleware(request: NextRequest) {
     }
   } else if (isAuthPage) {
     return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/dashboard`);
-  // }
+  }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
@@ -47,4 +47,4 @@ export const config = {
     "/login",
     "/register",
   ],
-}
+};
