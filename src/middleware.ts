@@ -47,4 +47,4 @@ export default middleware;
 //     "/login",
 //     "/register",
 //   ],
-// };
+// }
