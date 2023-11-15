@@ -26,6 +26,11 @@ export default async function RepositoriesByProjectPage({
     await api.repositories.getRepositoriesByProjectSlug.query({
       projectSlug,
     });
+  console.log({ repositories });
+  console.log({ repositories });
+  console.log({ repositories });
+  console.log({ repositories });
+  console.log({ repositories });
 
   return (
     <div className="mt-14  flex w-full justify-center">

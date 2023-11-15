@@ -187,12 +187,17 @@ export const Komponent: FC<KomponentProps> = ({
     try {
       return markdown
         ? evaluateSync(markdown, {
-            ...runtime,
+            ...((runtime || {}) ?? {}),
             useMDXComponents,
           } as EvaluateOptions).default
         : null;
     } catch (e) {
-      return () => (e as Error).message;
+      console.log({ suuup: e });
+      console.log({ suuup: e });
+      console.log({ suuup: e });
+      console.log({ suuup: e });
+      return <div>There was an error</div>;
+      //return () => (e as Error).message;
     }
   }, [markdown]);
 

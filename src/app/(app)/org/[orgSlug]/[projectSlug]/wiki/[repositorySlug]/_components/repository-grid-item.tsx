@@ -46,10 +46,10 @@ function RepositoryGridItemFooter({
       <>
         {repository.repositoryType === "github" ? (
           <div className="flex space-x-4 text-sm text-muted-foreground">
-            <div className="flex items-center">
-              <FileIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
-              {docsQuantity} docs
-            </div>
+            {/* <div className="flex items-center">
+          <FileIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
+          {docsQuantity} docs
+        </div> */}
             <div className="flex items-center">
               <GitBranchIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
               {repository.repoBranchName}
@@ -94,7 +94,7 @@ export default async function RepositoryGridItem({
             </div>
             <CardDescription>
               {repository.repositoryType === "github" ? (
-                <Link href={repository.repoUrl!} target="_blank">
+                <Link href={repository.repoUrl! ?? "/"} target="_blank">
                   <Badge>
                     <GithubIcon className="mr-2 h-4 w-4" />
                     {`${repository.repoOrganizationName ?? ""}/${
