@@ -19,6 +19,7 @@ const GithubConnectButton = ({
   const handlePopupClosed = () => {
     setIsGithubAppLoading(false);
     onPopoverClose?.();
+    window.location.reload();
   };
 
   const handlePopupClosedChecks = (popup: any) => {
