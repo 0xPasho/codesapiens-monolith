@@ -22,6 +22,7 @@ export default async function SpecificChatPage({
   params: { projectSlug, orgSlug, chatId },
 }: ChatPageProps) {
   const chat = await api.chat.getChat.query({ chatId });
+
   return (
     <Chat
       orgSlug={orgSlug}

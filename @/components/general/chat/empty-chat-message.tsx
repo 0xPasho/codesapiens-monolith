@@ -26,8 +26,6 @@ export function EmptyScreen({
   projectSlug: string;
 }) {
   const { setPromptInput } = useChat();
-  console.log({ chat });
-  console.log({ chat });
   return (
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8">
@@ -40,8 +38,8 @@ export function EmptyScreen({
               : "You can start a conversation with this smart monkey by asking for example"
             : `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first.`}
         </p>
-        {chat.processes?.length &&
-        chat.processes.every((item) => item.endDate) ? (
+        {chat?.processes?.length &&
+        chat?.processes?.every((item) => item.endDate) ? (
           <div className="mt-4 flex flex-col items-start space-y-2">
             {exampleMessages.map((message, index) => (
               <Button

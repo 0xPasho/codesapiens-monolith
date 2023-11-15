@@ -5,6 +5,7 @@ import * as React from "react";
 import { TableOfContents } from "@/lib/toc";
 import { cn } from "@/lib/utils";
 import { useMounted } from "@/lib/hooks/useMounted";
+import { Separator } from "@/components/ui/separator";
 
 interface TocProps {
   toc: TableOfContents;
