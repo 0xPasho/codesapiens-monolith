@@ -26,19 +26,22 @@ export function EmptyScreen({
   projectSlug: string;
 }) {
   const { setPromptInput } = useChat();
+  console.log({ chat });
+  console.log({ chat });
   return (
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8">
         <img src="/logo.png" className="mb-2 w-24" />
         <h1 className="mb-2 text-lg font-semibold">Hey, I'm here to help.</h1>
         <p className="leading-normal text-muted-foreground">
-          {chat.processes?.length
+          {chat?.processes?.length
             ? chat.processes?.some((item) => !item.endDate)
               ? "Files are still being synced"
               : "You can start a conversation with this smart monkey by asking for example"
             : `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first.`}
         </p>
-        {chat.processes?.some((item) => !item.endDate) ? (
+        {chat.processes?.length &&
+        chat.processes.every((item) => item.endDate) ? (
           <div className="mt-4 flex flex-col items-start space-y-2">
             {exampleMessages.map((message, index) => (
               <Button

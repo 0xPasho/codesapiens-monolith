@@ -7,6 +7,9 @@ import { type AppRouter } from "~/server/api/root";
 export const transformer = superjson;
 
 function getBaseUrl() {
+  if (process.env.NODE_ENV !== "production") {
+    return process.env.NEXTAUTH_URL || "http://localhost:3000";
+  }
   return env.NEXT_PUBLIC_APP_URL; //process.env.NEXTAUTH_URL || "http://localhost:3000";
 }
 

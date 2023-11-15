@@ -1,7 +1,6 @@
 import "~/styles/mdx.css";
 import { Metadata } from "next";
 
-import DocsPageMainComponent from "./_components/main-component";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
