@@ -1,14 +1,9 @@
 import { headers } from "next/headers";
-import Stripe from "stripe";
 import crypto from "crypto";
 
 import { env } from "~/env.mjs";
-import { stripe } from "@/lib/stripe";
 import { db } from "~/server/db";
-import { customPlan, freePlan, maxPlan, proPlan } from "~/config/subscription";
-import { OrganizationPlan } from "@prisma/client";
-import { SubscriptionPlan } from "types";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
 

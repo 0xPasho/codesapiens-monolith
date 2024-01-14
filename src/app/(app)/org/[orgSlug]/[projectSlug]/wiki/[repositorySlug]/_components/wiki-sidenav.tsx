@@ -1,39 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-
-import { cn } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useWikiContext } from "./wiki-context";
-import { api } from "~/trpc/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ArrowLeftIcon,
-  FileIcon,
-  Folder,
-  FolderIcon,
-  Workflow,
-} from "lucide-react";
 import { Document } from "@prisma/client";
 import { Tree } from "@/components/ui/three";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ArrowLeftIcon, CrossIcon } from "lucide-react";
 
 export interface WikiSidebarNavProps {
   orgSlug: string;
   projectSlug: string;
   repositorySlug: string;
-  documentSlugs: string[];
+  documentSlug: string;
+  onPressHide?: () => void;
 }
 
 export function WikiSidebarNav({
   orgSlug,
   projectSlug,
   repositorySlug,
-  documentSlugs,
+  documentSlug,
+  onPressHide,
 }: WikiSidebarNavProps) {
-  const documentSlug = documentSlugs?.[0];
   const {
     menuItems,
     setMenuItems,
@@ -44,6 +36,7 @@ export function WikiSidebarNav({
   } = useWikiContext();
   const router = useRouter();
   const [leafLoading, setLeafLoading] = useState<string | undefined>(undefined);
+  const searchParams = useSearchParams();
 
   const firstCallMade = useRef(false);
   const getHierarchyFromLeaf = async (document: Document) => {
@@ -116,8 +109,22 @@ export function WikiSidebarNav({
   }
 
   return menuItems.length ? (
-    <div className="mt-2 px-4">
-      <h1 className="mt-4 text-lg font-bold">File list</h1>
+    <div className="mt-2 border bg-popover px-4   py-6 sm:border-none sm:bg-transparent">
+      <Button
+        className="flex w-full text-center sm:hidden"
+        variant="link"
+        onClick={onPressHide}
+      >
+        <CrossIcon className="mr-1 h-4 w-4 rotate-45" /> Close file list
+      </Button>
+      <h1 className="mt-4 text-center text-lg font-bold sm:pt-0 sm:text-start">
+        File list
+      </h1>
+      <Link href={`/org/${orgSlug}/${projectSlug}/wiki`}>
+        <Button variant="ghost" className="mt-4 px-1">
+          <ArrowLeftIcon /> Go to Repositories
+        </Button>
+      </Link>
       <Separator className="mb-1 mt-2" />
       <Tree
         data={menuItems}
@@ -127,9 +134,14 @@ export function WikiSidebarNav({
           getHierarchyFromLeaf(item);
           if (item.isFolder) return;
           setCurrentSelectedMenuItem(item);
-          // router.push(
-          //   `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}/${item.id}`,
-          // );
+          const searchParamsObj = new URLSearchParams(
+            Array.from(searchParams.entries()),
+          ); // -> has to use this form
+          const pathname = `/org/${orgSlug}/${projectSlug}/wiki/${repositorySlug}`;
+          searchParamsObj.set("documentId", item.id);
+          const query = searchParamsObj.toString();
+          router.push(`${pathname}?${query}`, undefined);
+          onPressHide?.();
         }}
         leafLoading={leafLoading}
       />

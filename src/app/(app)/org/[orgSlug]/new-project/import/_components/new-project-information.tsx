@@ -71,7 +71,7 @@ const NewProjectInformation = ({ orgSlug }: { orgSlug: string }) => {
     >
       <NewProjectInformationForm
         orgSlug={orgSlug}
-        repositories={repositoryList ?? []}
+        repositories={repositoryList || []}
       />
     </NewProjectBase>
   );

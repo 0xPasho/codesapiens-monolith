@@ -40,7 +40,23 @@ const GetProjectChatInput = z.object({
   projectSlug: z.string(),
 });
 
+const GetProjectBySlugInput = z.object({
+  projectSlug: z.string(),
+});
+
 export const projectsRouter = createTRPCRouter({
+  getProjectBySlug: protectedProcedure
+    .input(GetProjectBySlugInput)
+    .query(({ ctx, input }) => {
+      return ctx.db.project.findFirst({
+        where: {
+          slug: input.projectSlug,
+        },
+        include: {
+          organization: true,
+        },
+      });
+    }),
   getAllProjectsByOrg: protectedProcedure
     .input(GetAllProjectsByOrg)
     .query(({ ctx, input }) => {
@@ -96,10 +112,12 @@ export const projectsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(CreateProjectInput)
     .mutation(async ({ ctx, input }) => {
-      // @TODO: it should only apply per org, not in general
       const projectFound = await ctx.db.project.findFirst({
         where: {
           slug: input.newProjectSlug.toLocaleLowerCase(),
+          organization: {
+            slug: input.organizationSlug,
+          },
         },
       });
 
@@ -127,6 +145,7 @@ export const projectsRouter = createTRPCRouter({
         data: {
           slug: input.newProjectSlug.toLocaleLowerCase(),
           organizationId: organizationFound.id,
+          visibility: "private",
         },
       });
       for (const tempRepo of input.repositories) {
@@ -137,6 +156,8 @@ export const projectsRouter = createTRPCRouter({
             projectId: newProject.id,
             repoBranchName: tempRepo.branch,
             repoOrganizationName: tempRepo.org,
+            repoDescription: tempRepo.repoDescription,
+            repoGithubIsPublic: tempRepo.repoGithubIsPublic,
             repositoryType: "github",
             title: tempRepo.repo,
           },
@@ -149,7 +170,7 @@ export const projectsRouter = createTRPCRouter({
 
       const defaultRepo = await ctx.db.repository.create({
         data: {
-          title: "Default repository",
+          title: "Project Documentation",
           repositoryType: "manual",
           projectId: newProject.id,
           isDefault: true,

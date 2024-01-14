@@ -21,11 +21,29 @@ const exampleMessages = [
 export function EmptyScreen({
   chat,
   projectSlug,
+  isPublicChat,
 }: {
   chat: any;
   projectSlug: string;
+  isPublicChat: boolean;
 }) {
   const { setPromptInput } = useChat();
+  if (isPublicChat) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <div className="rounded-lg border bg-background p-8">
+          <img src="/logo.png" className="mb-2 w-24" />
+          <h1 className="mb-2 text-lg font-semibold">Hey, I'm here to help.</h1>
+          <p className="leading-normal text-muted-foreground">
+            You can start a conversation with this smart monkey by asking
+            anything about this repository.
+          </p>
+          <p className="leading-normal text-muted-foreground"></p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8">
@@ -45,7 +63,7 @@ export function EmptyScreen({
               <Button
                 key={index}
                 variant="link"
-                className="h-auto p-0 text-base"
+                className="h-auto p-0 text-base dark:text-white"
                 onClick={() => setPromptInput(message.message)}
               >
                 <ArrowRightIcon className="mr-2 text-muted-foreground" />

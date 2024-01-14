@@ -212,7 +212,7 @@ const Leaf = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex cursor-pointer items-center px-2 py-2         before:absolute before:left-0 before:right-1 before:-z-10 before:h-[1.75rem] before:w-full before:bg-muted/80 before:opacity-0 hover:before:opacity-100",
+        "flex cursor-pointer items-center px-2 py-2 before:absolute before:left-0 before:right-1 before:-z-10 before:h-[1.75rem] before:w-full before:bg-muted/80 before:opacity-0 hover:before:opacity-100",
         className,
         isSelected &&
           "text-accent-foreground before:border-l-2 before:border-l-accent-foreground/50 before:bg-accent before:opacity-100 dark:before:border-0",
@@ -235,6 +235,24 @@ const Leaf = React.forwardRef<
   );
 });
 
+const RightAccordionTriggerElement = ({
+  isFolder,
+  isLoading,
+}: {
+  isFolder: boolean;
+  isLoading: boolean;
+}) => {
+  if (!isFolder) return null;
+  if (isLoading) {
+    return (
+      <Icons.spinner className="ml-auto h-4 w-4 shrink-0 text-accent-foreground/50 " />
+    );
+  }
+  return (
+    <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-accent-foreground/50 transition-transform duration-200" />
+  );
+};
+
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & {
@@ -253,11 +271,7 @@ const AccordionTrigger = React.forwardRef<
       {...props}
     >
       {children}
-      {isLoading ? (
-        <Icons.spinner className="ml-auto h-4 w-4 shrink-0 text-accent-foreground/50 " />
-      ) : isFolder ? (
-        <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-accent-foreground/50 transition-transform duration-200" />
-      ) : null}
+      <RightAccordionTriggerElement isFolder={isFolder} isLoading={isLoading} />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
@@ -270,7 +284,7 @@ const AccordionContent = React.forwardRef<
   <AccordionPrimitive.Content
     ref={ref}
     className={cn(
-      "overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+      "overflow-hidden text-sm transition-all data-[state=open]:animate-accordion-down",
       className,
     )}
     {...props}

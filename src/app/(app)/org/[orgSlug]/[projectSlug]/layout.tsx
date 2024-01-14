@@ -54,7 +54,7 @@ export default function ProjectLayout({
     },
     {
       url: "/org/[orgSlug]/[projectSlug]/wiki",
-      label: "Wiki and Repositories",
+      label: "Wiki, Docs and Repositories",
       id: "wiki",
       icon: <SearchCodeIcon className="mr-2 h-4 w-4" />,
     },

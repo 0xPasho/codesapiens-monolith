@@ -186,7 +186,7 @@ export const Komponent: FC<KomponentProps> = ({
   const MDXContent = useMemo(() => {
     try {
       return markdown
-        ? evaluateSync(markdown, {
+        ? evaluateSync(`${markdown}`, {
             ...((runtime || {}) ?? {}),
             useMDXComponents,
           } as EvaluateOptions).default

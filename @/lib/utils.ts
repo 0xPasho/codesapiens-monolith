@@ -2,6 +2,8 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { env } from "~/env.mjs";
 
+export type StripeSuccessUrlType = "organization" | "personal";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -28,16 +30,18 @@ export function stripeSuccessUrl({
   orgSlug,
   type,
 }: {
-  type: "org" | "personal";
+  type: StripeSuccessUrlType;
   orgSlug?: string;
 }) {
   const path =
-    type === "org" ? `/org/${orgSlug}/settings/billing` : "/account/billing";
+    type === "organization"
+      ? `/org/${orgSlug}/settings/billing`
+      : "/account/billing";
   return absoluteUrl(path);
 }
 
 export function stripeFailUrl(data: {
-  type: "org" | "personal";
+  type: StripeSuccessUrlType;
   orgSlug?: string;
 }) {
   return stripeSuccessUrl(data) + "?st=fail";

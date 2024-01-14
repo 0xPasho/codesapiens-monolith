@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
-import Pricing from "~/app/(app)/account/_components/pricing";
 import { UnauthenticatedHeaderContent } from "../_components/unauthenticated-header-content";
+import PricingInnerContent from "./PricingInnerContent";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,7 +22,7 @@ export default async function PricingPage() {
             Discover the perfect plan tailored for your needs. Unlock powerful
             features and more to elevate your business efficiency.
           </p>
-          <Pricing orgSlug="" from="user" currentPlan="" />
+          <PricingInnerContent />
         </div>
       </section>
     </>

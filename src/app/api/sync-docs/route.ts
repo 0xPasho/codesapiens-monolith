@@ -6,50 +6,60 @@ import { env } from "process";
 
 type Payload = {
   projectSlug: string;
-  repositorySlug?: string;
 };
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-
+  console.log({ session });
   if (!session?.user) {
     return new Response(null, { status: 403, statusText: "UNAUTHORIZED" });
   }
 
   const data: Payload = await req.json();
-  const repositorySlug = data?.repositorySlug;
   const projectSlug = data?.projectSlug;
 
   if (!projectSlug) {
     return new Response(null, { status: 400, statusText: "BAD REQUEST" });
   }
 
-  let repositories;
-  if (!repositorySlug) {
-    repositories = await db.repository.findMany({
-      where: {
-        project: {
-          slug: projectSlug,
-        },
-      },
-    });
-    //repositories = [repositories[0]];
-  } else {
-    const repository = await db.repository.findFirst({
-      where: {
-        project: {
-          slug: projectSlug,
-        },
-        id: repositorySlug,
-      },
-    });
-    if (!repository) {
-      return new Response(null, { status: 404, statusText: "NOT FOUND" });
-    }
-    repositories = [repository];
+  const project = await db.project.findFirst({
+    where: {
+      slug: projectSlug,
+    },
+    include: {
+      organization: true,
+    },
+  });
+
+  if (!project?.organization?.stripeCustomerId) {
+    return NextResponse.json({ error: "Needs subscription", status: 403 });
   }
 
+  const repositories = await db.repository.findMany({
+    where: {
+      project: {
+        slug: projectSlug,
+      },
+      OR: [
+        {
+          syncs: {
+            none: {},
+          },
+        },
+        {
+          isDefault: true,
+          repositoryType: "manual",
+        },
+      ],
+    },
+  });
+
   const syncApiUrl = `${env.CONVOS_API_URL}/api/v1/embeed-sync`;
+
+  console.log({
+    id_user: session.user.id,
+    id_repositories: repositories.map((r) => r.id),
+  });
 
   try {
     const response = await fetch(syncApiUrl, {

@@ -23,8 +23,16 @@ export const env = createEnv({
 
     STRIPE_API_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
+
     STRIPE_PRO_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_PRO_SEATS_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_PRO_FILES_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_PRO_QUESTIONS_MONTHLY_PLAN_ID: z.string().min(1),
+
     STRIPE_MAX_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_MAX_SEATS_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_MAX_FILES_MONTHLY_PLAN_ID: z.string().min(1),
+    STRIPE_MAX_QUESTIONS_MONTHLY_PLAN_ID: z.string().min(1),
 
     SMTP_FROM: z.string().min(1),
     POSTMARK_API_TOKEN: z.string().min(1),
@@ -82,6 +90,18 @@ export const env = createEnv({
     GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET,
     // MAKE SURE THE KEY TO BE IN BASE64
     GITHUB_APP_PRIVATE_KEY_BASE64: process.env.GITHUB_APP_PRIVATE_KEY_BASE64,
+    STRIPE_MAX_FILES_MONTHLY_PLAN_ID:
+      process.env.STRIPE_MAX_FILES_MONTHLY_PLAN_ID,
+    STRIPE_PRO_FILES_MONTHLY_PLAN_ID:
+      process.env.STRIPE_PRO_FILES_MONTHLY_PLAN_ID,
+    STRIPE_MAX_QUESTIONS_MONTHLY_PLAN_ID:
+      process.env.STRIPE_MAX_QUESTIONS_MONTHLY_PLAN_ID,
+    STRIPE_MAX_SEATS_MONTHLY_PLAN_ID:
+      process.env.STRIPE_MAX_SEATS_MONTHLY_PLAN_ID,
+    STRIPE_PRO_QUESTIONS_MONTHLY_PLAN_ID:
+      process.env.STRIPE_PRO_QUESTIONS_MONTHLY_PLAN_ID,
+    STRIPE_PRO_SEATS_MONTHLY_PLAN_ID:
+      process.env.STRIPE_PRO_SEATS_MONTHLY_PLAN_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

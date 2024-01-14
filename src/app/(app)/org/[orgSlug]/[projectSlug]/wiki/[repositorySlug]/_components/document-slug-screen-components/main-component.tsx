@@ -12,7 +12,7 @@ interface DocPageProps {
     orgSlug: string;
     projectSlug: string;
     repositorySlug: string;
-    documentSlugs: string[];
+    documentSlug: string;
   };
 }
 
@@ -35,7 +35,7 @@ export default async function DocsPageMainComponent({ params }: DocPageProps) {
           }
         >
           <DocumentDisplayContent
-            initialDocumentId={params?.documentSlugs?.[0] || ""}
+            initialDocumentId={params?.documentSlug || ""}
             orgSlug={params.orgSlug}
           />
         </React.Suspense>

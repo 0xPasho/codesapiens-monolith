@@ -38,7 +38,7 @@ export default async function BillingProfilePage({
           ...subscriptionPlan,
           isCanceled,
         }}
-        from="org"
+        from="organization"
       />
     </div>
   );

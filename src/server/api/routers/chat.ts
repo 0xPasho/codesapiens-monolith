@@ -1,3 +1,5 @@
+import { stripe } from "@/lib/stripe";
+import { Organization } from "@prisma/client";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 
@@ -7,6 +9,7 @@ const CreateChatAnswerInput = z.object({
   prompt: z.string(),
   project_slug: z.string(),
   chatId: z.string().optional(),
+  orgSlug: z.string(),
 });
 
 type CreateChatAnswerResponse = {
@@ -31,6 +34,36 @@ const GetChatInput = z.object({
   chatId: z.string(),
 });
 
+const createUsageRecordForQuestions = async (stripeSubscriptionId: string) => {
+  const items = await stripe.subscriptionItems.list({
+    subscription: stripeSubscriptionId,
+  });
+  let questionsSubscriptionItemId: string;
+  for (const item of items.data) {
+    // we don't care because once we are inside the billing
+    // there's only going to be one of them.
+    if (
+      item.plan.id === env.STRIPE_MAX_QUESTIONS_MONTHLY_PLAN_ID ||
+      item.plan.id === env.STRIPE_PRO_QUESTIONS_MONTHLY_PLAN_ID
+    ) {
+      questionsSubscriptionItemId = item.id;
+    }
+  }
+
+  if (!questionsSubscriptionItemId) {
+    throw "Error getting the questions subscription id for files";
+  }
+
+  return stripe.subscriptionItems.createUsageRecord(
+    questionsSubscriptionItemId,
+    {
+      quantity: 1,
+      timestamp: "now",
+      action: "increment",
+    },
+  );
+};
+
 export const chatRouter = createTRPCRouter({
   createChatAnswer: protectedProcedure
     .input(CreateChatAnswerInput)
@@ -43,26 +76,68 @@ export const chatRouter = createTRPCRouter({
         });
       };
 
+      //@TODO: Validation for public chats & credits
+
       const answerApiUrl = `${env.CONVOS_API_URL}/api/answer`;
 
       let chatId = input.chatId;
-
-      console.log({ chatId });
-      console.log({ chatId });
-      console.log({ chatId });
-      console.log({ chatId });
+      let currentOrg: Organization;
+      // if chat exists don't do the before thing just bypass
+      // if no chatid, then go and create it...
       if (chatId) {
-        await ctx.db.chat.findFirstOrThrow({
+        const theChat = await ctx.db.chat.findFirstOrThrow({
           where: {
             id: chatId,
           },
+          include: {
+            project: {
+              include: {
+                organization: true,
+              },
+            },
+          },
         });
+        currentOrg = theChat.project.organization;
       } else {
-        const project = await ctx.db.project.findFirstOrThrow({
+        let project;
+        // find if user don't have the project_slug but it's a global project
+        // const myOrg = await ctx.db.project.findFirstOrThrow({
+        //   where: {
+        //     id: ctx.session.user.id,
+        //   },
+        // });
+        const projectFound = await ctx.db.project.findFirst({
           where: {
             slug: input.project_slug,
           },
+          include: {
+            organization: true,
+          },
         });
+
+        if (
+          projectFound?.organization.slug !== input.orgSlug &&
+          projectFound.visibility === "public"
+        ) {
+          project = await ctx.db.project.create({
+            data: {
+              slug: input.project_slug,
+              visibility: "private",
+              organizationId: projectFound.organizationId,
+            },
+            include: {
+              organization: true,
+            },
+          });
+        } else {
+          project = await ctx.db.project.findFirstOrThrow({
+            where: {
+              slug: input.project_slug,
+            },
+            include: { organization: true },
+          });
+        }
+
         const chat = await ctx.db.chat.create({
           data: {
             projectId: project.id,
@@ -70,6 +145,7 @@ export const chatRouter = createTRPCRouter({
             userId: ctx.session.user.id,
           },
         });
+        currentOrg = project.organization;
 
         chatId = chat.id;
       }
@@ -91,7 +167,15 @@ export const chatRouter = createTRPCRouter({
         const json = (await response.json()) as CreateChatAnswerResponse;
         const assistanceMessage = await getChatMsg(json.assistance_message.id);
         const userMessage = await getChatMsg(json.user_message.id);
-
+        await createUsageRecordForQuestions(currentOrg.stripeSubscriptionId);
+        await ctx.db.organization.update({
+          data: {
+            currentQuestions: currentOrg.currentQuestions + 1,
+          },
+          where: {
+            id: currentOrg.id,
+          },
+        });
         return {
           assistanceMessage,
           userMessage,

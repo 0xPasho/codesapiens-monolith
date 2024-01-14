@@ -1,13 +1,13 @@
 "use client";
 
-import WikiLayout from "./_components/document-layout";
+import WikiLayout from "./_components/document-slug-screen-components/document-layout";
 
 interface DocPageProps {
   params: {
     orgSlug: string;
     projectSlug: string;
     repositorySlug: string;
-    documentSlugs: string[];
+    documentSlug: string;
   };
   children: React.ReactNode;
 }

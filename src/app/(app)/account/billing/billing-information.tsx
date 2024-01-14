@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { formatDate } from "@/lib/utils";
+import { StripeSuccessUrlType, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import CardDataModifier from "../_components/card-data-modifier";
@@ -10,13 +10,19 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import UpgradePlanModal from "./upgrade-plan-modal";
 import { redirectToStripe } from "./utils";
+import { SubscriptionPlan } from "types";
 
 export function BillingForm({
   subscriptionPlan,
   className,
   from,
   orgSlug,
-}: any) {
+}: {
+  from: StripeSuccessUrlType;
+  subscriptionPlan: any & { isCancelled?: boolean };
+  orgSlug?: string;
+  className?: string;
+}) {
   const params = useSearchParams();
   // st = stripeStatus
   const stripeStatus = params.get("st");
@@ -88,10 +94,8 @@ export function BillingForm({
                 isLoading={isLoading}
                 onClick={() => {
                   redirectToStripe({
-                    targetPlan:
-                      subscriptionPlan.plan.name === "free" ? "pro" : "max",
                     orgSlug,
-                    from: "",
+                    from: "personal",
                   });
                 }}
               >
@@ -105,23 +109,31 @@ export function BillingForm({
             subscriptionPlan.plan.name === "pro" ? (
               <Button
                 disabled={isLoading}
-                className="mt-4 bg-yellow-400 text-black sm:mt-0"
+                //className="mt-4 bg-yellow-400 text-black sm:mt-0"
+                className="mt-4 inline-flex h-9 transform items-center justify-center rounded-md bg-gradient-to-r from-yellow-400 to-yellow-300 px-4 py-2 text-sm font-medium text-black shadow-lg transition-all duration-150 ease-in-out hover:scale-105 hover:from-yellow-300 hover:to-yellow-200 hover:shadow-xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:mt-0"
                 isLoading={isLoading}
                 onClick={async () => {
                   setIsModalVisible(true);
-                  return;
                   if (subscriptionPlan.plan.name === "free") {
-                    return redirectToStripe(
-                      subscriptionPlan.plan.name === "free" ? "pro" : "max",
-                    );
+                    return redirectToStripe({
+                      from,
+                      orgSlug,
+                    });
                   }
                   setIsLoading(true);
                   const params = `?orgSlug=${orgSlug}&from=${from}&plan=max&actionType=upgrade`;
-                  const response = await fetch(`/api/stripe${params}`);
-                  console.log({ response });
+                  await fetch(`/api/stripe${params}`);
                   setIsLoading(false);
                 }}
               >
+                <span
+                  className="mr-1 text-lg"
+                  style={{
+                    textShadow: "1px 2px 2px black",
+                  }}
+                >
+                  ✨
+                </span>
                 {subscriptionPlan.plan.name === "free"
                   ? "Upgrade to next plan"
                   : "Upgrade to next plan"}
@@ -144,6 +156,38 @@ export function BillingForm({
       <UpgradePlanModal
         isVisible={isModalVisible}
         onVisibleChange={setIsModalVisible}
+        from={from}
+        onChoosePlan={async (newPlan) => {
+          const isUpgradeFromFree =
+            subscriptionPlan.plan.name === "free" &&
+            (newPlan === "pro" || newPlan === "max");
+          const isUpgradeFromPro =
+            subscriptionPlan.plan.name === "pro" && newPlan === "max";
+          let params = `?from=${from}`;
+          if (orgSlug) {
+            params += "&orgSlug=" + orgSlug;
+          }
+          const isUpgrade = isUpgradeFromFree || isUpgradeFromPro;
+          if (isUpgrade) {
+            params += "&callIntent=upgrade";
+          }
+          // if it's not an upgrade
+          // and it's not the same plan
+          // then it means it's a downgrade
+          else if (newPlan !== subscriptionPlan.plan.name) {
+            params += "&downgradeTo=" + newPlan;
+          }
+          const response = await fetch(`/api/stripe${params}`);
+
+          const data = await response.json();
+
+          if (data.url) {
+            window.location.href = data.url;
+          }
+          setIsLoading(false);
+        }}
+        orgSlug={orgSlug}
+        currentPlan={subscriptionPlan.plan.name}
       />
     </>
   );

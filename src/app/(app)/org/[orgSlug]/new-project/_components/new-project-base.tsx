@@ -12,12 +12,15 @@ const NewProjectBase = ({
   description,
   children,
   step,
+  withRedirect = true,
 }: {
   children: React.ReactNode;
   title: string;
   description: string;
   step: number;
+  withRedirect?: boolean;
 }) => {
+  if (!withRedirect) return children;
   return (
     <div className="mt-8  flex w-full justify-center">
       <div className="flex w-[850px] max-w-full flex-col">

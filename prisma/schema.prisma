@@ -42,6 +42,11 @@ enum DocumentStatus {
   active
 }
 
+enum ProjectVisibility {
+  public
+  private
+}
+
 model Chat {
   id               String             @id @default(cuid())
   status           ChatStatus
@@ -90,8 +95,11 @@ model Organization {
   stripeCurrentPeriodEnd DateTime?            @map(name: "stripe_current_period_end")
   currentPlanStartedAt   DateTime?
   currentPlan            OrganizationPlan     @default(free) @map(name: "current_plan")
+  currentSeats           Int?                 @default(1) 
   planMaxSeats           Int?
+  currentQuestions       Int?                 @default(0) 
   planMaxQuestions       Int?
+  currentProcessedFiles  Int?                 @default(0) 
   planMaxProcessedFiles  Int?
   isPersonal             Boolean              @default(false)
   createdAt              DateTime             @default(now()) @map(name: "created_at")
@@ -122,6 +130,7 @@ model Project {
   id               String             @id @default(cuid())
   slug             String             @unique
   desc             String?
+  visibility       ProjectVisibility   @default(private) @map(name: "visibility")
   createdAt        DateTime           @default(now()) @map(name: "created_at")
   updatedAt        DateTime           @default(now()) @map(name: "updated_at")
   organizationId   String
@@ -182,10 +191,11 @@ model Repository {
   repoOrganizationName String?
   title                String?
   repositoryType       RepositoryType
+  repoGithubIsPublic   Boolean?   @default(false)
+  repoDescription      String?
   repoUrl              String?
   repoProjectName      String?
   repoBranchName       String?
-  last_synced_commit   DateTime?
   documents            Document[]
   processes            Process[]
   syncs                RepositorySync[]
@@ -204,6 +214,7 @@ model RepositorySync {
   created_at   DateTime   @default(now())
   finished_at  DateTime?
   logs         String?
+  synced_commit         String?
 }
 
 enum OrganizationMemberRole {

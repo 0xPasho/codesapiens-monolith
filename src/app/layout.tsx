@@ -3,11 +3,13 @@ import { siteConfig } from "~/config/site";
 import "~/styles/globals.css";
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
+import { GoogleAnalytics } from "nextjs-google-analytics";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { NextAuthProvider } from "@/components/general/providers/NextAuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/general/theme-provider";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,12 +50,54 @@ export const metadata: Metadata = {
     "TypeScript Reference",
     "TypeScript Reference Documentation",
     "TypeScript Reference Docs",
+    "Automated Documentation",
+    "API Design",
+    "API Testing",
+    "API Versioning",
+    "API Tools",
+    "API Integration",
+    "API Management",
+    "API Development",
+    "Code Examples",
+    "API Guides",
+    "API Best Practices",
+    "API Security",
+    "API Schema",
+    "API Blueprint",
+    "API Endpoints",
+    "API Models",
+    "API Authentication",
+    "API Libraries",
+    "RESTful Services",
+    "GraphQL Queries",
+    "GraphQL Schema",
+    "OpenAPI Specification",
+    "Swagger Editor",
+    "Swagger UI",
+    "Postman Collections",
+    "Insomnia REST Client",
+    "API Mocking",
+    "API Monitoring",
+    "Interactive API Docs",
+    "SDK Documentation",
+    "API Testing Tools",
+    "TypeScript Typings",
+    "TypeScript Compiler",
+    "TypeScript Linting",
+    "TypeScript API",
+    "TypeScript Patterns",
+    "TypeScript Modules",
+    "JSDoc Annotations",
+    "JSDoc Tags",
+    "JSDoc Templates",
   ],
   authors: [
     {
       name: "olyvialabs",
       url: "https://olyvialabs.io",
     },
+    { name: "pasho", url: "https://pasho.io" },
+    { name: "brandon aguilar", url: "https://pasho.io" },
   ],
   creator: "olyvialabs",
   openGraph: {
@@ -90,10 +134,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
       <body
         className={`flex min-h-screen flex-col font-sans antialiased ${inter.variable}`}
       >
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-HEHDQ0XV9V" />
+        <Script id="google-analytics">
+          {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+ 
+          gtag('config', 'G-HEHDQ0XV9V');
+        `}
+        </Script>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider headers={headers()}>
             <NextAuthProvider>{children}</NextAuthProvider>

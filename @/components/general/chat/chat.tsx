@@ -19,6 +19,8 @@ export interface ChatProps extends React.ComponentProps<"div"> {
   chatId?: string;
   messages?: Array<any>;
   chat: any;
+  isPublicChat?: boolean;
+  emptyChatComponent?: () => React.ReactNode;
 }
 
 function ChatWithoutProvider({
@@ -27,6 +29,8 @@ function ChatWithoutProvider({
   className,
   messages,
   chat,
+  isPublicChat,
+  emptyChatComponent,
 }: ChatProps) {
   const {
     addMessage,
@@ -93,13 +97,14 @@ function ChatWithoutProvider({
       userId: sessionData?.user.id ?? "",
       createdAt: new Date(),
       feedback: null,
-      chatId: state.chatId ?? "",
+      chatId: state.chatId || "",
     });
 
     createChatAnswer.mutate({
       project_slug: projectSlug,
       prompt: data.prompt,
       chatId: state.chatId,
+      orgSlug: orgSlug,
     });
   };
 
@@ -118,13 +123,22 @@ function ChatWithoutProvider({
             <ChatList messages={state.messages} />
             <ChatScrollAnchor trackVisibility={state.isLoading} />
           </>
+        ) : emptyChatComponent ? (
+          emptyChatComponent()
         ) : (
-          <EmptyScreen chat={chat} projectSlug={projectSlug} />
+          <EmptyScreen
+            chat={chat}
+            projectSlug={projectSlug}
+            isPublicChat={isPublicChat}
+          />
         )}
       </div>
       <ChatPanel
         stop={stop}
         reload={reload}
+        isPublicChat={isPublicChat}
+        orgSlug={orgSlug}
+        projectSlug={projectSlug}
         messages={state.messages}
         onNewMessage={handleNewMessage}
       />

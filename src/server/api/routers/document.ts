@@ -44,23 +44,37 @@ const GetSpecificFileByPath = z.object({
 });
 
 type BlockType = {
-  type: "header" | "paragraph" | "list" | "code" | "table";
+  type: "header" | "paragraph" | "list" | "code" | "table" | "linkTool";
   data: {
     text?: string;
     items?: string[];
     style?: "ordered";
     code?: string;
     content?: any;
+    meta?: any;
+    level?: number;
+    link?: string;
   };
 };
 
 const processBlocksToText = (blocks: BlockType[]) => {
   let text = "";
   for (const block of blocks) {
+    console.log({ block });
     switch (block.type) {
       case "header":
       case "paragraph":
+        for (let i = 0; i < (block.data.level || 0); i++) {
+          text += "#";
+        }
+        // First level should be ##, second level ### and so on...
+        if (block.data.level > 0) {
+          text += "# ";
+        }
         text += block.data.text;
+        break;
+      case "linkTool":
+        text += `[${block.data.meta.title}](${block.data.link})`;
         break;
       case "list":
         text += "\n";
@@ -77,6 +91,7 @@ const processBlocksToText = (blocks: BlockType[]) => {
         text += JSON.stringify(block.data.content);
         break;
     }
+    text += "\n\n";
   }
   return text;
 };
@@ -87,6 +102,7 @@ export const documentRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const content = processBlocksToText(input.content);
+        console.log({ content });
         const repository = await ctx.db.repository.findFirst({
           where: {
             id: input.repositoryId,
@@ -160,6 +176,9 @@ export const documentRouter = createTRPCRouter({
       return ctx.db.document.findFirst({
         where: {
           id: input.documentId,
+        },
+        include: {
+          repository: true,
         },
       });
     }),

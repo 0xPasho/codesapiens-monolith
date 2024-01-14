@@ -25,22 +25,29 @@ const CustomGithubRepo = ({
     );
   }
   return (
-    <Input
-      placeholder="🔗 Paste here the link to the repository"
-      autoFocus
-      value={inputValue}
-      onChange={(e) => {
-        setInputValue(e.target.value);
-      }}
-      type="url"
-      required
-      className="mb-4 w-full"
-      onKeyDown={(value) => {
-        if (value.key === "Enter") {
-          onSubmit();
-        }
-      }}
-    />
+    <div className="mb-6 flex flex-col md:flex-row">
+      <Input
+        placeholder="🔗 Paste here the link to the repository"
+        autoFocus
+        value={inputValue}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+        }}
+        type="url"
+        required
+        className="w-full"
+        onKeyDown={(value) => {
+          if (value.key === "Enter") {
+            onSubmit();
+          }
+        }}
+      />
+      {inputValue ? (
+        <Button className="min-w-[18rem] max-w-full" onClick={() => onSubmit()}>
+          Add repo
+        </Button>
+      ) : null}
+    </div>
   );
 };
 

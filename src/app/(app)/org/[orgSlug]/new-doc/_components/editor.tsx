@@ -17,6 +17,7 @@ import { Icons } from "@/components/general/icons";
 import NewDocumentExtraInfoModal from "./new-document-extra-info-modal";
 import { api } from "~/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { env } from "~/env.mjs";
 
 interface EditorProps {
   documentId?: string;
@@ -97,8 +98,20 @@ export function Editor({
         data: content, //body.content,
         readOnly,
         tools: {
-          header: Header,
-          linkTool: LinkTool,
+          header: {
+            class: Header,
+            config: {
+              placeholder: "Type here your header",
+              levels: [1, 2, 3, 4],
+              defaultLevel: 2,
+            },
+          },
+          linkTool: {
+            class: LinkTool,
+            config: {
+              endpoint: `${env.NEXT_PUBLIC_APP_URL}/api/editor/url`, //"http://localhost:8008/fetchUrl", // Your backend endpoint for url data fetching,
+            },
+          },
           list: List,
           code: Code,
           inlineCode: InlineCode,
@@ -177,13 +190,13 @@ export function Editor({
                 </Button>
               </div>
             ) : null}
-            <div className="prose prose-stone dark:prose-invert mx-auto w-[800px]">
+            <div className="prose prose-stone dark:prose-invert mx-auto  w-full">
               {!readOnly ? (
                 <TextareaAutosize
                   autoFocus
                   id="title"
                   placeholder="Post title"
-                  className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
+                  className="w-full resize-none appearance-none overflow-hidden bg-transparent text-lg font-bold focus:outline-none sm:text-xl md:text-5xl"
                   {...register("title")}
                   defaultValue={title}
                 />
@@ -192,7 +205,9 @@ export function Editor({
               )}
               <div
                 id="editor"
-                className={` ${editorIsReady ? "min-h-[500px]" : "h-0"}`}
+                className={`w-full ${
+                  editorIsReady ? "min-h-[24rem]" : "h-0"
+                } overflow-x-auto`}
               />
               {!editorIsReady ? (
                 <Skeleton className="mt-4 min-h-[500px] w-full" />

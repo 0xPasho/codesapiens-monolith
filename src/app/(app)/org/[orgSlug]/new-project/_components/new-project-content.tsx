@@ -14,9 +14,13 @@ import CustomGithubRepo from "./custom-github-repo";
 const NewProjectContent = ({
   orgSlug,
   installationId,
+  withRedirect = true,
+  onContinueSelectingRepos,
 }: {
   orgSlug: string;
   installationId?: string;
+  withRedirect?: boolean;
+  onContinueSelectingRepos?: (data: any) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [orgsLoading, setOrgsLoading] = useState(true);
@@ -136,6 +140,7 @@ const NewProjectContent = ({
         step={0}
         title="✨ Let's create magic!"
         description="Bring up your Git repo to start"
+        withRedirect={withRedirect}
       >
         <div className="flex flex-col gap-6 rounded-[4px] ">
           <Skeleton className="h-12 w-full" />
@@ -161,6 +166,7 @@ const NewProjectContent = ({
         step={0}
         title="✨ Let's create magic!"
         description="Bring up your Git repo to start"
+        withRedirect={withRedirect}
       >
         <GithubOrgRepositories
           loading={reposLoading}
@@ -176,17 +182,9 @@ const NewProjectContent = ({
       step={0}
       title="✨ Let's create magic!"
       description="Bring up your Git repo to start"
+      withRedirect={withRedirect}
     >
       <div className="flex flex-row">
-        {/* <GithubOrgPicker
-        isOpen={isOpen}
-        onSelect={(org) => {
-          setSelectedOrg(org);
-          retrieveRepos();
-        }}
-        selectedOrg={selectedOrg}
-        orgs={orgs}
-      /> */}
         <Input
           className="ml-2 flex w-full"
           placeholder="Search for repo..."
@@ -201,6 +199,8 @@ const NewProjectContent = ({
           loading={reposLoading}
           repositories={filteredRepos}
           orgSlug={orgSlug}
+          onContinue={onContinueSelectingRepos}
+          withRedirect={withRedirect}
         />
       </div>
       <GithubPermissionsBlock />

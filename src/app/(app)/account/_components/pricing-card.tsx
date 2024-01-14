@@ -1,37 +1,30 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { CircleDot, CircleDotIcon } from "lucide-react";
 
 export default function PlanCard({
   plan,
   currentPlan,
   hasAuth,
-  onManagePlan,
-  onUpgrade,
-  onDowngrade,
-  onGetStarted,
   onChoosePlan,
 }: {
   plan: any;
   currentPlan?: string;
   hasAuth: boolean;
-  onManagePlan?: (plan: any) => void;
-  onUpgrade?: (plan: any) => void;
-  onDowngrade?: (plan: any) => void;
-  onGetStarted?: (plan: any) => void;
   onChoosePlan?: (plan: any) => void;
 }) {
   const getButtonLabel = () => {
     if (!hasAuth && plan.key === "free")
-      return { title: "Get started", onClick: onGetStarted };
+      return { title: "Get started", onClick: onChoosePlan };
     if (currentPlan === plan.title?.toLowerCase())
-      return { title: "Manage current plan", onClick: onManagePlan };
+      return { title: "Manage current plan", onClick: onChoosePlan };
     if (
       (plan.key === "free" && ["max", "pro"].includes(currentPlan)) ||
       (plan.key === "pro" && currentPlan === "max")
     )
-      return { title: "Downgrade", onClick: onDowngrade };
+      return { title: "Downgrade", onClick: onChoosePlan };
     if (plan.key === "max" && currentPlan === "pro")
-      return { title: "Upgrade", onClick: onUpgrade };
+      return { title: "Upgrade", onClick: onChoosePlan };
     return { title: "Choose Plan", onClick: onChoosePlan };
   };
 
@@ -58,39 +51,39 @@ export default function PlanCard({
         },
       )}
     >
-      {plan.isTheMostPopular && plan.titl && (
-        <Badge className=" bg-yellow-400">Most Popular</Badge>
+      {plan.isTheMostPopular && (
+        <Badge variant="outline" className="color-black bg-yellow-400">
+          Most Popular
+        </Badge>
       )}
       <h3 className="mb-1 text-lg font-semibold">{plan.title}</h3>
-      {currentPlan === plan.title?.toLowerCase() && (
-        <Badge className=" bg-green-400">Current Plan</Badge>
-      )}
+      {currentPlan === plan.title?.toLowerCase() && <Badge>Current Plan</Badge>}
       <p className="mt-1">
         <span className="text-6xl font-bold">{plan.price}</span>{" "}
         {plan.title !== "Free" ? "/Month" : "Forever"}
       </p>
-      <p className="mt-2 text-sm opacity-80">
-        For most businesses that want to optimize web queries.
-      </p>
-      <div className="mt-4 text-sm">
+      <p className="mt-2 text-sm opacity-80">{plan.description}</p>
+      <div className="mt-4 text-start text-sm">
         {plan.features.map((feature, fIndex) => (
-          <p key={fIndex} className="my-2">
-            <span className="fa fa-check-circle ml-1 mr-2"></span>
-            {feature}
-          </p>
+          <div key={fIndex} className="my-2 flex">
+            <div>
+              <CircleDot className="mr-2 mt-1 h-3 w-3" />
+            </div>
+            <span>{feature}</span>
+          </div>
         ))}
       </div>
       <button
         className={cn(
           "mt-4 w-full rounded py-4 transition duration-150 ease-in-out",
           {
-            "border border-yellow-500 bg-transparent font-bold text-black hover:bg-yellow-400 dark:text-white dark:hover:bg-yellow-800":
+            "border border-yellow-500 bg-transparent font-bold text-black hover:bg-yellow-400 dark:text-white dark:text-white dark:hover:bg-yellow-800":
               isGradientRequired(),
-            "border border-black bg-transparent text-black hover:bg-gray-300":
+            "border border-black bg-transparent text-black hover:bg-gray-300 hover:bg-gray-800 dark:border-white dark:text-white":
               !isGradientRequired(),
           },
         )}
-        onClick={() => onClick(plan)}
+        onClick={() => onClick(plan.key)}
       >
         {title}
       </button>

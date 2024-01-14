@@ -3,8 +3,6 @@
 
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { GearIcon, PersonIcon } from "@radix-ui/react-icons";
-
 import { cn } from "@/lib/utils";
 import { MemoizedReactMarkdown } from "@/components/general/markdown";
 import { ChatMessageActions } from "./chat-message-actions";
@@ -19,7 +17,7 @@ export interface ChatMessageProps {
 }
 
 export function ChatMessage({
-  message,
+  message = {},
   isLastItem,
   ...props
 }: ChatMessageProps) {
@@ -44,6 +42,7 @@ export function ChatMessage({
     }, 10);
   };
   useEffect(() => {
+    if (!message.type) return;
     if (message.type === "assistant" && isLastItem) {
       if (running.current) return;
       typer(0);
@@ -51,6 +50,11 @@ export function ChatMessage({
       setDisplayedMessage(message.content); // Display full content instantly for non-assistant messages
     }
   }, [message, isLastItem]);
+
+  // means data retrieved is incorrect
+  if (!message.type) {
+    return <div className="bg-red-500">There was an error</div>;
+  }
 
   return (
     <div

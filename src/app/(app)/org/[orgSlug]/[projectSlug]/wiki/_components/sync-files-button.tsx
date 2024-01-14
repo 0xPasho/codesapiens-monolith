@@ -24,19 +24,33 @@ const SyncFilesButton = ({
   const [isSyncing, setIsSyncing] = React.useState(false);
   const handleSync = async () => {
     setIsSyncing(true);
-    toast({ title: "Sit tight", description: "We are syncing your docs!" });
-    await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/sync-docs`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ projectSlug }),
-    }).then((res) => res.json());
-    toast({
-      title: "Your files have been synced!",
-      description:
-        "You can now see your docs in the Wiki section or you can start asking questions!",
-    });
+    try {
+      const result = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/sync-docs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectSlug }),
+      }).then((res) => res.json());
+      if (result?.status === 403) {
+        toast({
+          title: "No subscription found🧐",
+          description:
+            "To sync your files and chat, you need to have a subscription.",
+        });
+      } else {
+        toast({
+          title: "Sit tight. We are syncing your docs!",
+          description:
+            "For more information go to Settings => Documents Sync History",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "There was an error syncing your files...",
+        description: "Please contact support if this problem persists",
+      });
+    }
 
     setIsVisible(false);
     setIsSyncing(false);
@@ -52,8 +66,7 @@ const SyncFilesButton = ({
     >
       <DialogTrigger asChild>
         <Button className={className}>
-          <FileScanIcon className="mr-2 h-4 w-4" /> Sync all remaining docs from
-          repositories
+          <FileScanIcon className="mr-2 h-4 w-4" /> Begin Sync Process
         </Button>
       </DialogTrigger>
 

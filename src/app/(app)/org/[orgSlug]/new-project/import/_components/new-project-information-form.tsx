@@ -95,7 +95,7 @@ const NewProjectInformationForm = ({
     createProject.mutate({
       newProjectSlug: data.slug.toLowerCase(),
       organizationSlug: orgSlug,
-      description: data.description ?? "",
+      description: data.description || "",
       repositories,
     });
   }
@@ -148,7 +148,7 @@ const NewProjectInformationForm = ({
           {repositories.map((repo) => (
             <div>
               <Button
-                className="mt-1 flex flex-row items-center p-0"
+                className="mt-1 flex flex-row items-center p-0 dark:text-white"
                 onClick={() => {
                   window.open(repo.url, "_blank");
                 }}
@@ -159,7 +159,7 @@ const NewProjectInformationForm = ({
                 <span className="mr-2">
                   {repo.org}/{repo.repo}
                 </span>
-                <Button variant={"outline"} className="px-2">
+                <Button variant={"outline"} className="px-2 dark:text-white">
                   <GitBranchIcon className="mr-1 h-4 w-4" />
                   <span>{repo.branch}</span>
                 </Button>

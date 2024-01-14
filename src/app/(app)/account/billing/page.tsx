@@ -37,7 +37,7 @@ export default async function SettingsProfilePage() {
           ...subscriptionPlan,
           isCanceled,
         }}
-        from="user"
+        from="personal"
       />
     </div>
   );

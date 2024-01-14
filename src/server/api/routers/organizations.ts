@@ -4,6 +4,7 @@ import { Client } from "postmark";
 import { z } from "zod";
 import { siteConfig } from "~/config/site";
 import { env } from "~/env.mjs";
+import { stripe } from "@/lib/stripe";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 const postmarkClient = new Client(env.POSTMARK_API_TOKEN);
@@ -46,6 +47,34 @@ const UpdateOrgSlugInput = z.object({
   slug: z.string(),
   orgSlug: z.string(),
 });
+
+const createUsageRecordForSeats = async (stripeSubscriptionId: string) => {
+  // @TODO: remove seats from DB
+  const items = await stripe.subscriptionItems.list({
+    subscription: stripeSubscriptionId,
+  });
+  let seatsSubscriptionItemId: string;
+  for (const item of items.data) {
+    // we don't care because once we are inside the billing
+    // there's only going to be one of them.
+    if (
+      item.plan.id === env.STRIPE_MAX_SEATS_MONTHLY_PLAN_ID ||
+      item.plan.id === env.STRIPE_PRO_SEATS_MONTHLY_PLAN_ID
+    ) {
+      seatsSubscriptionItemId = item.id;
+    }
+  }
+
+  if (!seatsSubscriptionItemId) {
+    throw "Error getting the payment subscription id for files";
+  }
+
+  return stripe.subscriptionItems.createUsageRecord(seatsSubscriptionItemId, {
+    quantity: 1,
+    timestamp: "now",
+    action: "increment",
+  });
+};
 
 export const organizationsRouter = createTRPCRouter({
   getAllOrganizationsByUser: protectedProcedure.query(({ ctx }) => {
@@ -412,6 +441,16 @@ export const organizationsRouter = createTRPCRouter({
                 },
               });
             }
+
+            await createUsageRecordForSeats(orgFound.stripeSubscriptionId);
+            await ctx.db.organization.update({
+              data: {
+                currentSeats: orgFound.currentSeats + 1,
+              },
+              where: {
+                id: orgFound.id,
+              },
+            });
             return {
               email: member.email,
               role: member.role,

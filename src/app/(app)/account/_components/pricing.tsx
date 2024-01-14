@@ -3,15 +3,19 @@
 import { useState } from "react";
 import PlanCard from "./pricing-card";
 import { redirectToStripe } from "../billing/utils";
+import { StripeSuccessUrlType } from "@/lib/utils";
+import { siteConfig } from "~/config/site";
 
 export default function Pricing({
   currentPlan,
   from,
   orgSlug,
+  onChoosePlan,
 }: {
   currentPlan?: string;
-  from: "user" | "org";
+  from: StripeSuccessUrlType;
   orgSlug: string;
+  onChoosePlan: (selectedPlanName: string) => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const plans = [
@@ -20,38 +24,42 @@ export default function Pricing({
       title: "Free",
       price: "$0",
       isTheMostPopular: false,
+      description: "No cost, full access to start",
       features: [
-        "All limited links",
-        "Own analytics platform",
-        "Chat support",
-        "Optimize hashtags",
-        "Unlimited users",
+        "Ask a limited amount of questions to public repositories",
+        `Access to our extension`,
+        "Unlimited repository exploration",
+        "Manual documentation can be created",
       ],
     },
     {
       key: "pro",
       title: "Pro",
-      price: "$39",
+      price: "$29",
+      description: "Ideal for individuals or small teams",
       isTheMostPopular: true,
       features: [
-        "All limited links",
-        "Own analytics platform",
-        "Chat support",
-        "Optimize hashtags",
-        "Unlimited users",
+        "Enjoy 500 questions monthly",
+        `Full access to our powerful extension`,
+        "Unlimited repository exploration",
+        "Manual documentation is available",
+        "1,500 file analyses per month",
+        "Includes 5 seats for team access",
       ],
     },
     {
       key: "max",
       title: "Max",
-      price: "$99",
+      price: "$79",
+      description: "Built for large teams and extensive documentation needs",
       isTheMostPopular: false,
       features: [
-        "All limited links",
-        "Own analytics platform",
-        "Chat support",
-        "Optimize hashtags",
-        "Unlimited users",
+        "Enjoy 2,500 questions monthly",
+        `Full access to our powerful extension`,
+        "Unlimited repository exploration",
+        "Manual documentation is available",
+        "5,000 file analyses included",
+        "10 seats to empower your team",
       ],
     },
   ];
@@ -62,7 +70,6 @@ export default function Pricing({
     }
     try {
       await redirectToStripe({
-        targetPlan: planItem.key,
         from,
         orgSlug,
       });
@@ -81,13 +88,7 @@ export default function Pricing({
             plan={plan}
             currentPlan={currentPlan}
             hasAuth={!!currentPlan}
-            onManagePlan={handleStripe}
-            onUpgrade={handleStripe}
-            onDowngrade={() => {}}
-            onGetStarted={() => {
-              // never should be called
-            }}
-            onChoosePlan={handleStripe}
+            onChoosePlan={onChoosePlan}
           />
         ))}
       </div>

@@ -1,4 +1,5 @@
 import { toast } from "@/components/ui/use-toast";
+import { StripeSuccessUrlType } from "@/lib/utils";
 
 const fireErrorMessage = (type?: string) => {
   switch (type) {
@@ -42,16 +43,19 @@ const fireErrorMessage = (type?: string) => {
 async function redirectToStripe({
   orgSlug,
   from,
-  targetPlan,
+  callIntent = "buy_or_manage",
 }: {
   orgSlug: string;
-  from: string;
-  targetPlan: string;
+  from: StripeSuccessUrlType;
+  callIntent?: "upgrade" | "buy_or_manage";
 }) {
   try {
     // If there's a target plan it will be used to create a checkout session.
     // Otherwise, it will be used to create a portal session.
-    const params = `?orgSlug=${orgSlug}&from=${from}&plan=${targetPlan}`;
+    let params = `?from=${from}&callIntent=${callIntent}`;
+    if (orgSlug) {
+      params += "&orgSlug=" + orgSlug;
+    }
     const response = await fetch(`/api/stripe${params}`);
 
     if (!response?.ok) {

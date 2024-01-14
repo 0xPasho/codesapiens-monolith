@@ -5,4 +5,7 @@ export type SubscriptionPlan = {
   maxSeats: number;
   maxQuestions: number;
   maxFilesProcessed: number;
+  seatsPriceId: string;
+  filesPriceId: string;
+  questionsPriceId: string;
 };

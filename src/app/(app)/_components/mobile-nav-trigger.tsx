@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "./mobile-nav";
 import { useState } from "react";
-import { PlusIcon, SidebarCloseIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 const MobileNavTrigger = ({
   orgSlug,
@@ -25,7 +25,7 @@ const MobileNavTrigger = ({
           setIsMobileNavOpen(!isMobileNavOpen);
         }}
         variant="secondary"
-        className="px-1 sm:hidden"
+        className={hasAuth ? "px-1 sm:hidden" : "px-1 md:hidden"}
       >
         {isMobileNavOpen ? (
           <PlusIcon className="rotate-45" />

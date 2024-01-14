@@ -14,6 +14,11 @@ const GetRepositoryDocumentsCountInput = z.object({
   repositoryId: z.string(),
 });
 
+const AddMoreRepositories = z.object({
+  repositories: z.array(z.any()),
+  projectSlug: z.string(),
+});
+
 export const repositoriesRouter = createTRPCRouter({
   getManualRepositoriesByProject: protectedProcedure
     .input(GetManualRepositoriesByProject)
@@ -27,14 +32,31 @@ export const repositoriesRouter = createTRPCRouter({
     }),
   getRepositoriesByProjectSlug: protectedProcedure
     .input(GetRepositoriesByProjectSlug)
-    .query(({ ctx, input }) => {
-      return ctx.db.repository.findMany({
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.db.repository.findMany({
         where: {
           project: {
             slug: input.projectSlug,
           },
         },
+        include: {
+          syncs: true,
+          documents: true,
+        },
       });
+      const finalResult = [];
+      for (const repo of results) {
+        const document = repo.documents.find((doc) => !doc.parentId);
+        finalResult.push({
+          ...repo,
+          document: [],
+          documentQuantity: repo.documents.length,
+          syncs: [],
+          defaultDocument: document,
+          latestSync: repo.syncs?.[0],
+        });
+      }
+      return finalResult;
     }),
   getRepositoryDocumentsCount: protectedProcedure
     .input(GetRepositoryDocumentsCountInput)
@@ -44,5 +66,50 @@ export const repositoriesRouter = createTRPCRouter({
           repositoryId: input.repositoryId,
         },
       });
+    }),
+  addMoreRepositories: protectedProcedure
+    .input(AddMoreRepositories)
+    .mutation(async ({ ctx, input }) => {
+      const project = await ctx.db.project.findFirstOrThrow({
+        where: {
+          slug: input.projectSlug,
+        },
+      });
+
+      for (const tempRepo of input.repositories) {
+        const foundRepo = await ctx.db.repository.findFirst({
+          where: {
+            repoOrganizationName: tempRepo.org,
+            repoProjectName: tempRepo.repo,
+            repositoryType: "github",
+            projectId: project.id,
+          },
+        });
+
+        // if this is already inserted, ignore it....
+        if (foundRepo) {
+          continue;
+        }
+
+        const repo = await ctx.db.repository.create({
+          data: {
+            repoUrl: tempRepo.url,
+            repoProjectName: tempRepo.repo,
+            projectId: project.id,
+            repoBranchName: tempRepo.branch,
+            repoDescription: tempRepo.repoDescription,
+            repoOrganizationName: tempRepo.org,
+            repositoryType: "github",
+            title: tempRepo.repo,
+            repoGithubIsPublic: tempRepo.repoGithubIsPublic,
+          },
+        });
+
+        if (!repo) {
+          console.log({ error: "Error creating a repo" });
+        }
+      }
+
+      return { success: true };
     }),
 });
