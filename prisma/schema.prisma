@@ -135,7 +135,7 @@ model Project {
   updatedAt        DateTime           @default(now()) @map(name: "updated_at")
   organizationId   String
   organization     Organization       @relation(fields: [organizationId], references: [id])
-  repositories     Repository[]
+  repositories     ProjectRepository[]
   documents        Document[]
   chats            Chat[]
   billingFiles     BillingFile[]
@@ -200,9 +200,17 @@ model Repository {
   processes            Process[]
   syncs                RepositorySync[]
 
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
+  projects            ProjectRepository[]
   isDefault Boolean @default(false)
+}
+
+model ProjectRepository {
+  projectId    String
+  project      Project    @relation(fields: [projectId], references: [id])
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+
+  @@id([projectId, repositoryId])
 }
 
 model RepositorySync {

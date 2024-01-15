@@ -1,3 +1,5 @@
+import { VideoIcon } from "@radix-ui/react-icons";
+
 const HeroContent = () => {
   return (
     <div className="bg-transparent">
@@ -45,10 +47,16 @@ const HeroContent = () => {
                 href="#try"
                 className="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Try it now!
+                👇 Try it now!
               </a>
-              <a href="/login" className="text-sm font-semibold leading-6">
-                Get started <span aria-hidden="true">→</span>
+              <a
+                href="#demo"
+                className=" flex items-center justify-center text-sm font-semibold leading-6"
+              >
+                <span aria-hidden="true">
+                  <VideoIcon className="mr-2" />
+                </span>
+                View video demo
               </a>
             </div>
           </div>

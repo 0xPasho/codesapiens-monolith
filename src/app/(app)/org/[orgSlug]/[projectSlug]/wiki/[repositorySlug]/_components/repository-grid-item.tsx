@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Repository, RepositorySync } from "@prisma/client";
+import { Process, Repository, RepositorySync } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import { api } from "~/trpc/server";
 
 function RepositoryGridItemFooter({
   repository,
@@ -37,28 +36,30 @@ function RepositoryGridItemFooter({
       addSuffix: true,
     });
   }
+  console.log({ repository });
+  console.log({ repository });
 
-  const latestSync = repository["latestSync"] as RepositorySync;
+  const latestProcess = repository["latestProcess"] as Process;
   return (
     <>
       {repository.repositoryType === "github" ? (
-        <div className="flex flex-wrap space-x-4 text-sm text-muted-foreground">
+        <div className="flex flex-wrap space-x-2 text-sm text-muted-foreground">
           <Badge variant="outline" className="flex items-center border-primary">
             <FileIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
             {docsQuantity || 0} documents
           </Badge>
-          {!!latestSync?.synced_commit && (
+          {!!latestProcess?.["synced_commit"] && (
             <Badge variant="outline" className="flex items-center">
               <GitBranchIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
-              Synced commit: {latestSync.synced_commit}
+              Synced commit: {latestProcess["synced_commit"]}
             </Badge>
           )}
 
           <Badge variant="outline" className="flex items-center border-primary">
             <RecycleIcon className="mr-1 h-3 w-3 fill-sky-400 text-sky-400" />
-            {!latestSync?.finished_at
+            {!latestProcess?.endDate
               ? "No synced yet"
-              : `Synced on ${formatDate(latestSync.finished_at)}`}
+              : `Synced ${formatDate(latestProcess.endDate)}`}
           </Badge>
         </div>
       ) : null}

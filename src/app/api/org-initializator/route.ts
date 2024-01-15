@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { freePlan } from "~/config/subscription";
 import { db } from "~/server/db";
 
 type Payload = {
@@ -52,9 +53,10 @@ async function insertDefaultOrganization(user: {
       name: user.name ?? "", // If user has no name, use empty string, Important as in some fields it's going to be filled as "You"
       slug,
       isPersonal: true,
-      planMaxQuestions: 3,
-      planMaxSeats: 1,
-      planMaxProcessedFiles: 5,
+      planMaxQuestions: freePlan.maxQuestions,
+      planMaxSeats: freePlan.maxSeats,
+      planMaxProcessedFiles: freePlan.maxFilesProcessed,
+      currentSeats: 1,
     },
   });
 

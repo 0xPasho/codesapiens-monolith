@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { GearIcon, StopIcon } from "@radix-ui/react-icons";
 import { ButtonScrollToBottom } from "../buttom-scroll-to-bottom";
 import { PromptForm } from "./prompt-form";
-import { useChat } from "./chat-context-provider";
 import { ChatHistory } from "@prisma/client";
 import clsx from "clsx";
+import useChatStore from "./chat-context-provider";
 
 export interface ChatPanelProps {
   onNewMessage: (data: { prompt: string }) => Promise<void>;
@@ -14,6 +12,7 @@ export interface ChatPanelProps {
   orgSlug: string;
   projectSlug: string;
   isPublicChat?: boolean;
+  error: string | null;
 }
 
 export function ChatPanel({
@@ -24,8 +23,9 @@ export function ChatPanel({
   orgSlug,
   projectSlug,
   isPublicChat,
+  error,
 }: ChatPanelProps) {
-  const { state } = useChat();
+  const { isLoading } = useChatStore();
 
   return (
     <div
@@ -50,6 +50,7 @@ export function ChatPanel({
           )}
         >
           <PromptForm
+            error={error}
             orgSlug={orgSlug}
             isPublicChat={isPublicChat}
             projectSlug={projectSlug}
@@ -58,7 +59,7 @@ export function ChatPanel({
                 prompt: value,
               });
             }}
-            isLoading={state.isLoading}
+            isLoading={isLoading}
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
-import { useChat } from "./chat-context-provider";
 import SyncFilesButton from "~/app/(app)/org/[orgSlug]/[projectSlug]/wiki/_components/sync-files-button";
+import useChatStore from "./chat-context-provider";
 
 const exampleMessages = [
   {
@@ -27,7 +27,7 @@ export function EmptyScreen({
   projectSlug: string;
   isPublicChat: boolean;
 }) {
-  const { setPromptInput } = useChat();
+  const { setPromptInput } = useChatStore();
   if (isPublicChat) {
     return (
       <div className="mx-auto max-w-2xl">

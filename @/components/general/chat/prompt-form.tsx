@@ -11,7 +11,7 @@ import {
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import Link from "next/link";
 import { ArrowUp, SearchCodeIcon } from "lucide-react";
-import { useChat } from "./chat-context-provider";
+import useChatStore from "./chat-context-provider";
 
 export interface PromptProps {
   onSubmit: (value: string) => Promise<void>;
@@ -19,6 +19,7 @@ export interface PromptProps {
   orgSlug: string;
   projectSlug: string;
   isPublicChat?: boolean;
+  error: string | null;
 }
 
 export function PromptForm({
@@ -27,8 +28,9 @@ export function PromptForm({
   onSubmit,
   isLoading,
   isPublicChat,
+  error,
 }: PromptProps) {
-  const { state, setPromptInput } = useChat();
+  const { promptInput, setPromptInput } = useChatStore();
   const { formRef, onKeyDown } = useEnterSubmit();
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -42,10 +44,10 @@ export function PromptForm({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (!state.promptInput?.trim()) {
+        if (!promptInput?.trim()) {
           return;
         }
-        await onSubmit(state.promptInput);
+        await onSubmit(promptInput);
         setPromptInput("");
       }}
       ref={formRef}
@@ -56,7 +58,8 @@ export function PromptForm({
           tabIndex={0}
           onKeyDown={onKeyDown}
           rows={1}
-          value={state.promptInput}
+          disabled={!!error}
+          value={promptInput}
           onChange={(e: any) => setPromptInput(e.target.value)}
           placeholder="Ask something"
           spellCheck={false}
@@ -69,7 +72,7 @@ export function PromptForm({
                 <Button
                   type="submit"
                   size="icon"
-                  disabled={isLoading || state.promptInput === ""}
+                  disabled={isLoading || promptInput === ""}
                 >
                   <ArrowUp />
                   <span className="sr-only">Send message</span>

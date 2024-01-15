@@ -31,34 +31,48 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  if (!project?.organization?.stripeCustomerId) {
-    return NextResponse.json({ error: "Needs subscription", status: 403 });
-  }
+  // if (!project?.organization?.stripeCustomerId) {
+  //   return NextResponse.json({ error: "Needs subscription", status: 403 });
+  // }
+
+  const defaultRepo = await db.repository.findFirst({
+    where: {
+      isDefault: true,
+      repositoryType: "manual",
+      project: {
+        slug: projectSlug,
+      },
+    },
+  });
 
   const repositories = await db.repository.findMany({
     where: {
       project: {
         slug: projectSlug,
       },
-      OR: [
-        {
-          syncs: {
-            none: {},
-          },
-        },
-        {
-          isDefault: true,
-          repositoryType: "manual",
-        },
-      ],
+      NOT: {
+        repositoryType: "manual",
+      },
+    },
+    include: {
+      syncs: {
+        take: 1,
+      },
     },
   });
 
+  const idRepositoriesToSend = [];
+  for (const repo of repositories) {
+    if (!repo.syncs?.[0]?.id) {
+      idRepositoriesToSend.push(repo.id);
+    }
+  }
+  idRepositoriesToSend.push(defaultRepo.id);
   const syncApiUrl = `${env.CONVOS_API_URL}/api/v1/embeed-sync`;
 
   console.log({
     id_user: session.user.id,
-    id_repositories: repositories.map((r) => r.id),
+    id_repositories: idRepositoriesToSend,
   });
 
   try {

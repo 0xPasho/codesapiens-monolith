@@ -53,9 +53,9 @@ export default async function RepositoriesByProjectPage({
     );
 
   return (
-    <div className="mt-14  flex w-full justify-center">
+    <div className="mt-14  flex w-full justify-center px-4">
       <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-0">
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-col justify-between md:flex-row">
           <h2 className="mr-2 text-4xl font-bold tracking-tight">
             Documentation Hub
           </h2>
@@ -76,7 +76,7 @@ export default async function RepositoriesByProjectPage({
           />
         </div>
         <Separator className="my-8" />
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-col justify-between md:flex-row">
           <div>
             <h1 className="text-2xl font-bold">Synced Github Repos</h1>
             <span>Github repositories to this project</span>

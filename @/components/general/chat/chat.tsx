@@ -5,13 +5,13 @@ import { ChatPanel } from "./chat-panel";
 import { ChatList } from "./chat-list";
 import { EmptyScreen } from "./empty-chat-message";
 import { ChatScrollAnchor } from "./chat-scroll-anchor";
-import { ChatProvider } from "./chat-context-provider";
-import { useChat as useChatProvider } from "./chat-context-provider";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 import { ChatHistory } from "@prisma/client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { UserAuthForm } from "~/app/(auth)/login/components/user-auth-form";
+import useChatStore from "./chat-context-provider";
 
 export interface ChatProps extends React.ComponentProps<"div"> {
   projectSlug: string;
@@ -20,44 +20,137 @@ export interface ChatProps extends React.ComponentProps<"div"> {
   messages?: Array<any>;
   chat: any;
   isPublicChat?: boolean;
+  repositoryId?: string;
   emptyChatComponent?: () => React.ReactNode;
 }
 
-function ChatWithoutProvider({
+const ErrorMessagesContext = ({ error }: { error: string | null }) => {
+  if (!error) return null;
+  if (error === "UNAUTHORIZED") {
+    return (
+      <div>
+        <UserAuthForm
+          from="/#try"
+          header={() => {
+            return (
+              <div className="w-full">
+                <div className="flex  justify-center">
+                  <img src="/logo.png" className="w-16" />
+                </div>
+                <h1 className="text-center text-lg font-bold text-primary md:text-2xl">
+                  You need an account
+                </h1>
+                <div className="flex w-full">
+                  <span className="text-md w-full self-center text-center">
+                    One las thing, before asking questions please log in
+                  </span>
+                </div>
+              </div>
+            );
+          }}
+        />
+      </div>
+    );
+  }
+  if (error === "NO_MORE_CREDITS") {
+    return (
+      <div className="relative mx-auto max-w-2xl rounded-lg border p-5 px-4 text-red-500">
+        🫣 You are out of credits in your free plan! Please subscribe to our
+        plans to continue using our product.
+      </div>
+    );
+  }
+  if (error === "INTERNAL_ERROR") {
+    return (
+      <div className="relative mx-auto max-w-2xl rounded-lg border p-5 px-4 text-red-500">
+        😪 There was a problem continuing with the conversation. Please try
+        again with otoher conversation. If this issue persists, please contact
+        support!
+      </div>
+    );
+  }
+};
+
+const ChatHeaderContext = ({
+  error,
+  chat,
+  messages,
+  emptyChatComponent,
+  isLoading,
+  projectSlug,
+  isPublicChat,
+}: {
+  error: string | null;
+  chat: any;
+  projectSlug: string;
+  isLoading: boolean;
+  messages: Array<any>;
+  emptyChatComponent: () => React.ReactNode;
+  isPublicChat?: boolean;
+}) => {
+  if (error) return <ErrorMessagesContext error={error} />;
+
+  return emptyChatComponent ? (
+    emptyChatComponent()
+  ) : (
+    <EmptyScreen
+      chat={chat}
+      projectSlug={projectSlug}
+      isPublicChat={isPublicChat}
+    />
+  );
+};
+
+export function ChatWithoutProvider({
   orgSlug,
   projectSlug,
   className,
-  messages,
+  messages: propsMsgs,
   chat,
   isPublicChat,
+  repositoryId,
   emptyChatComponent,
 }: ChatProps) {
   const {
     addMessage,
-    state,
     setChatIsLoading,
     setChatId,
     setConversationHistory,
     reset,
-  } = useChatProvider();
+    chatId,
+    isLoading,
+    messages,
+  } = useChatStore();
+  // Forced is ONLY for free chat on home screen, as they won't
+  // have a project related to this repository they want to ask
+  const [forcedProjectSlug, setForcedProjectSlug] = useState("");
+  const [forcedOrgSlug, setForcedOrgSlug] = useState("");
   const { data: sessionData } = useSession();
   const storeCleared = useRef(false);
+  const [msgError, setMsgError] = useState<string>(null);
   useEffect(() => {
-    if (messages?.length) {
-      setConversationHistory(messages);
+    if (propsMsgs?.length) {
+      setConversationHistory((msgs) => [...msgs, ...propsMsgs]);
     }
-  }, [messages]);
+  }, [propsMsgs, setConversationHistory]);
+
   useEffect(() => {
-    if (storeCleared.current) return;
-    storeCleared.current = true;
-    reset();
+    // if (storeCleared.current) return;
+    // storeCleared.current = true;
+    // reset();
   }, []);
 
   const createChatAnswer = api.chat.createChatAnswer.useMutation({
     onSuccess(data) {
       try {
         console.log({ data });
-        if (!state.chatId) {
+        console.log({ data });
+        console.log({ data });
+        if (data.error) {
+          setMsgError(data.error);
+          return;
+        }
+        if (!chatId) {
           // router.push(
           //   `/org/${orgSlug}/${projectSlug}/chat/${data.chatId}`,
           //   undefined,
@@ -66,45 +159,66 @@ function ChatWithoutProvider({
 
           setChatId(data.chatId!);
         }
-        const newMessages: ChatHistory[] = [...state.messages];
-        const fakeMsgIndex = newMessages.findIndex(
-          (msg) => msg.id === "the-new-msg",
-        );
-
-        if (fakeMsgIndex !== -1) {
-          newMessages[fakeMsgIndex] = data.userMessage as ChatHistory;
+        if (!projectSlug && !forcedProjectSlug) {
+          setForcedProjectSlug(data.projectSlug);
         }
-        newMessages.push(data.assistanceMessage as ChatHistory);
-        setConversationHistory(newMessages);
+        if (!orgSlug && !forcedOrgSlug) {
+          setForcedOrgSlug(data.orgSlug);
+        }
+        setConversationHistory((providedMsgs) => {
+          const newMessages = [...providedMsgs];
+          console.log({ newMessages });
+          console.log({ newMessages });
+          const fakeMsgIndex = newMessages.findIndex(
+            (msg) => msg.id === "the-new-msg",
+          );
+          console.log({ fakeMsgIndex });
+          console.log({ fakeMsgIndex });
+
+          if (fakeMsgIndex !== -1) {
+            newMessages[fakeMsgIndex] = data.userMessage as ChatHistory;
+          }
+          newMessages.push(data.assistanceMessage as ChatHistory);
+          console.log({ newMessages });
+          console.log({ newMessages });
+          return newMessages;
+        });
         setChatIsLoading(false);
       } catch (e) {
         toast({ title: "Something went wrong" });
-        console.log(e);
       }
     },
-    onError: ({ data }) => {
-      console.log(data);
+    onError: ({ data }: { data?: { code: string } }) => {
+      if (data?.code === "UNAUTHORIZED") {
+        setMsgError(data.code);
+      }
       setChatIsLoading(false);
     },
   });
 
   const handleNewMessage = async (data: { prompt: string }) => {
     setChatIsLoading(true);
-    addMessage({
-      id: "the-new-msg",
-      content: data.prompt,
-      type: "user",
-      userId: sessionData?.user.id ?? "",
-      createdAt: new Date(),
-      feedback: null,
-      chatId: state.chatId || "",
+    setConversationHistory((listMsg) => {
+      return [
+        ...listMsg,
+        {
+          id: "the-new-msg",
+          content: data.prompt,
+          type: "user",
+          userId: sessionData?.user.id || "",
+          createdAt: new Date(),
+          feedback: null,
+          chatId: chatId || "",
+        },
+      ];
     });
 
     createChatAnswer.mutate({
-      project_slug: projectSlug,
+      project_slug: forcedProjectSlug || projectSlug,
       prompt: data.prompt,
-      chatId: state.chatId,
-      orgSlug: orgSlug,
+      chatId: chatId,
+      orgSlug: forcedOrgSlug || orgSlug,
+      repositoryId,
     });
   };
 
@@ -114,45 +228,57 @@ function ChatWithoutProvider({
   const stop = () => {
     console.log("stop");
   };
-
+  //h-[calc(100%-15rem)]
+  console.log({ messages });
   return (
     <>
-      <div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
-        {state.messages.length ? (
-          <>
-            <ChatList messages={state.messages} />
-            <ChatScrollAnchor trackVisibility={state.isLoading} />
-          </>
-        ) : emptyChatComponent ? (
-          emptyChatComponent()
-        ) : (
-          <EmptyScreen
+      <div
+        className={cn(
+          isPublicChat
+            ? "flex max-h-[70vh] flex-1 flex-col overflow-y-auto px-8"
+            : "pb-[200px] pt-4 md:pt-10",
+          className,
+        )}
+      >
+        {messages.length === 0 && (
+          <ChatHeaderContext
+            messages={messages}
             chat={chat}
-            projectSlug={projectSlug}
+            emptyChatComponent={emptyChatComponent}
+            error={msgError}
+            isLoading={isLoading}
+            projectSlug={forcedProjectSlug || projectSlug}
             isPublicChat={isPublicChat}
           />
         )}
+        <div className="w-full">
+          <ChatList messages={messages} />
+          {!isPublicChat && <ChatScrollAnchor trackVisibility={isLoading} />}
+        </div>
       </div>
       <ChatPanel
+        error={msgError}
         stop={stop}
         reload={reload}
         isPublicChat={isPublicChat}
-        orgSlug={orgSlug}
-        projectSlug={projectSlug}
-        messages={state.messages}
+        orgSlug={forcedOrgSlug || orgSlug}
+        projectSlug={forcedProjectSlug || projectSlug}
+        messages={messages}
         onNewMessage={handleNewMessage}
       />
     </>
   );
 }
+const Chat = ChatWithoutProvider;
+export default Chat;
 
-export function Chat(props: ChatProps) {
-  return (
-    <ChatProvider
-      initialChatId={props.chatId || ""}
-      initialMsgs={props.messages}
-    >
-      <ChatWithoutProvider {...props} />
-    </ChatProvider>
-  );
-}
+// export function Chat(props: ChatProps) {
+//   return (
+//     <ChatProvider
+//       initialChatId={props.chatId || ""}
+//       initialMsgs={props.messages}
+//     >
+//       <ChatWithoutProvider {...props} />
+//     </ChatProvider>
+//   );
+// }

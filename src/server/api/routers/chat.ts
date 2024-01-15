@@ -1,5 +1,5 @@
 import { stripe } from "@/lib/stripe";
-import { Organization } from "@prisma/client";
+import { Organization, PrismaClient, Project, Session } from "@prisma/client";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 
@@ -10,6 +10,7 @@ const CreateChatAnswerInput = z.object({
   project_slug: z.string(),
   chatId: z.string().optional(),
   orgSlug: z.string(),
+  repositoryId: z.string().optional(),
 });
 
 type CreateChatAnswerResponse = {
@@ -64,6 +65,122 @@ const createUsageRecordForQuestions = async (stripeSubscriptionId: string) => {
   );
 };
 
+const getOrgByFreeUser = async (
+  { session, db }: { session: Session; db: PrismaClient },
+  input: any,
+) => {
+  const userId = session.user!.id;
+  const user = await db.user.findFirst({
+    where: {
+      id: userId,
+    },
+    include: {
+      defaultOrganization: true,
+    },
+  });
+
+  // now lets find the repository
+  const repositoryInformation = await db.repository.findFirst({
+    where: {
+      id: input.repositoryId,
+    },
+  });
+
+  // const repository = await db.repository.findFirst({
+  //   where: {
+  //     project: {
+  //       organizationId: user.organizationId,
+  //     },
+  //     id: input.repositoryId,
+  //   },
+  //   include: {
+  //     project: {
+  //       include: {
+  //         organization: true,
+  //       },
+  //     },
+  //   },
+  // });
+
+  const deepFinding = await db.organization.findFirst({
+    where: {
+      id: user.organizationId,
+      projects: {
+        some: {
+          repositories: {
+            some: {
+              id: repositoryInformation.id,
+            },
+          },
+        },
+      },
+    },
+    include: {
+      projects: {
+        include: {
+          repositories: {
+            take: 1,
+          },
+        },
+        take: 1,
+      },
+    },
+  });
+  let suffix = 0;
+  let project: Project;
+  if (!deepFinding?.id) {
+    const baseSlug = repositoryInformation.repoProjectName
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]+/g, "")
+      .replace(/\s+/g, "_");
+    let slug = baseSlug;
+    // let's make sure we are creating a correct proejct with correct slug
+    while (true) {
+      const projectFound = await db.project.findFirst({
+        where: {
+          slug,
+        },
+      });
+
+      if (!projectFound) break; // Exit the loop if slug is unique
+
+      suffix += 1;
+      slug = `${baseSlug}_${suffix}`;
+    }
+
+    project = await db.project.create({
+      data: {
+        slug,
+        visibility: "public",
+        organizationId: user.organizationId,
+        repositories: {
+          connect: {
+            id: repositoryInformation.id,
+          },
+        },
+      },
+    });
+
+    await db.repository.create({
+      data: {
+        title: "Project Documentation",
+        repositoryType: "manual",
+        projectId: project.id,
+        isDefault: true,
+      },
+    });
+  } else {
+    project = deepFinding?.projects?.[0];
+  }
+  console.log({ project, deepFinding });
+  return {
+    org: user.defaultOrganization,
+    project,
+    repository: deepFinding?.projects?.[0]?.repositories?.[0],
+  };
+};
+
 export const chatRouter = createTRPCRouter({
   createChatAnswer: protectedProcedure
     .input(CreateChatAnswerInput)
@@ -75,8 +192,7 @@ export const chatRouter = createTRPCRouter({
           },
         });
       };
-
-      //@TODO: Validation for public chats & credits
+      let project;
 
       const answerApiUrl = `${env.CONVOS_API_URL}/api/answer`;
 
@@ -97,38 +213,28 @@ export const chatRouter = createTRPCRouter({
             },
           },
         });
+        project = theChat.project;
         currentOrg = theChat.project.organization;
       } else {
-        let project;
         // find if user don't have the project_slug but it's a global project
         // const myOrg = await ctx.db.project.findFirstOrThrow({
         //   where: {
         //     id: ctx.session.user.id,
         //   },
         // });
-        const projectFound = await ctx.db.project.findFirst({
-          where: {
-            slug: input.project_slug,
-          },
-          include: {
-            organization: true,
-          },
-        });
+        // const projectFound = await ctx.db.project.findFirst({
+        //   where: {
+        //     slug: input.project_slug,
+        //   },
+        //   include: {
+        //     organization: true,
+        //   },
+        // });
+        if (input.repositoryId && !input.orgSlug) {
+          const freshUserInformation = await getOrgByFreeUser(ctx, input);
 
-        if (
-          projectFound?.organization.slug !== input.orgSlug &&
-          projectFound.visibility === "public"
-        ) {
-          project = await ctx.db.project.create({
-            data: {
-              slug: input.project_slug,
-              visibility: "private",
-              organizationId: projectFound.organizationId,
-            },
-            include: {
-              organization: true,
-            },
-          });
+          project = freshUserInformation.project;
+          currentOrg = freshUserInformation.org;
         } else {
           project = await ctx.db.project.findFirstOrThrow({
             where: {
@@ -136,6 +242,7 @@ export const chatRouter = createTRPCRouter({
             },
             include: { organization: true },
           });
+          currentOrg = project.organization;
         }
 
         const chat = await ctx.db.chat.create({
@@ -145,12 +252,48 @@ export const chatRouter = createTRPCRouter({
             userId: ctx.session.user.id,
           },
         });
-        currentOrg = project.organization;
 
         chatId = chat.id;
       }
 
+      const remainingCredits =
+        (currentOrg.planMaxQuestions || 0) - (currentOrg.currentQuestions || 0);
+
+      // if its a free plan and no more credits, then don't let the guy fire more questions
+      if (remainingCredits <= 0 && currentOrg.currentPlan === "free") {
+        return { error: "NO_MORE_CREDITS", status: 403 };
+      }
+      console.log(project);
+      console.log(project);
+      console.log(currentOrg);
+      console.log(currentOrg);
+      return;
       try {
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+        });
         const response = await fetch(answerApiUrl, {
           method: "POST",
           headers: {
@@ -167,7 +310,10 @@ export const chatRouter = createTRPCRouter({
         const json = (await response.json()) as CreateChatAnswerResponse;
         const assistanceMessage = await getChatMsg(json.assistance_message.id);
         const userMessage = await getChatMsg(json.user_message.id);
-        await createUsageRecordForQuestions(currentOrg.stripeSubscriptionId);
+        // a free user don't have stripe sub id
+        if (currentOrg.stripeSubscriptionId) {
+          await createUsageRecordForQuestions(currentOrg.stripeSubscriptionId);
+        }
         await ctx.db.organization.update({
           data: {
             currentQuestions: currentOrg.currentQuestions + 1,
@@ -180,10 +326,12 @@ export const chatRouter = createTRPCRouter({
           assistanceMessage,
           userMessage,
           chatId: json.assistance_message.chat_id!,
+          projectSlug: project.slug,
+          orgSlug: currentOrg.slug,
         };
       } catch (error) {
         console.log({ error });
-        return { error: "Internal server error", status: 500 };
+        return { error: "INTERNAL_ERROR", status: 500 };
         // console.error("Error forwarding request to Python server:", error);
         // return res.status(500).json({ error: "Internal server error" });
       }

@@ -3,7 +3,7 @@ import { env } from "~/env.mjs";
 
 const FooterComponent = () => {
   return (
-    <footer className="m-4 rounded-lg  bg-black/100 shadow">
+    <footer className="m-4 rounded-2xl  bg-black/100 shadow">
       <div className="mx-auto w-full max-w-screen-xl p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <a
@@ -12,7 +12,7 @@ const FooterComponent = () => {
           >
             <img src="/logo.png" className="h-8" />
 
-            <span className="font-bold">{siteConfig.name}</span>
+            <span className="font-bold text-white">{siteConfig.name}</span>
           </a>
           <ul className="mb-6 flex flex-wrap items-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:mb-0">
             <li>

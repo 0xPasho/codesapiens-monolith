@@ -9,7 +9,7 @@ import {
   Legend,
 } from "recharts";
 
-const unprocessedItemColor = "#E5E7EB";
+const unprocessedItemColor = "#2463ec";
 const groupingColor = "#3B82F6";
 const colorsArray = [
   "#EF4444", // Red

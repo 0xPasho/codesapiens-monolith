@@ -1,4 +1,4 @@
-import { Chat } from "@/components/general/chat/chat";
+import { ChatWithoutProvider as Chat } from "@/components/general/chat/chat";
 import { type Metadata } from "next";
 import { api } from "~/trpc/server";
 

@@ -1,6 +1,7 @@
 import { HeaderContent } from "~/app/(app)/_components/header-content";
 import { headers } from "next/headers";
 import { getServerAuthSession } from "~/server/auth";
+import FooterComponent from "../_components/footer-component";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -20,7 +21,9 @@ export default async function AuthenticatedLayout({
   return (
     <>
       <HeaderContent orgSlug={orgSlug} session={session} />
-      <main className="mx-auto w-full">{children}</main>
+      <main className="mx-auto w-full" style={{ minHeight: "70vh" }}>
+        {children}
+      </main>
     </>
   );
 }

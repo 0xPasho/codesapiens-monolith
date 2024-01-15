@@ -50,8 +50,12 @@ export async function POST(req: NextRequest) {
         currentProcessedFiles: foundOrg.currentProcessedFiles + data.quantity,
       },
     });
-  } catch (err) {
     return new Response(null, {
+      status: 200,
+      statusText: "SUCCESS",
+    });
+  } catch (err) {
+    return new Response(err, {
       status: 500,
       statusText: "ERROR_ON_SAVING_RECORDS",
     });

@@ -22,6 +22,8 @@ import {
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   type?: "login" | "register";
+  header?: () => React.ReactNode;
+  from?: string;
 }
 
 type FormData = z.infer<typeof userAuthSchema>;
@@ -30,7 +32,12 @@ export const userAuthSchema = z.object({
   email: z.string().email(),
 });
 
-export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
+export function UserAuthForm({
+  className,
+  type,
+  header,
+  from,
+}: UserAuthFormProps) {
   const {
     register,
     handleSubmit,
@@ -49,7 +56,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
     const signInResult = await signIn("email", {
       email: data.email.toLowerCase(),
       redirect: false,
-      callbackUrl: searchParams?.get("from") || "/dashboard",
+      callbackUrl: from || searchParams?.get("from") || "/dashboard",
     });
 
     setIsLoading(false);
@@ -73,14 +80,20 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
   return (
     <Card>
       <CardHeader className="space-y-1">
-        <div className="flex  justify-center">
-          <img src="/logo.png" className="w-16" />
-        </div>
-        <CardTitle className="text-2xl">
-          {type === "register" ? "Create an account" : "Sign in"}
-        </CardTitle>
+        {!header && (
+          <>
+            <div className="flex  justify-center">
+              <img src="/logo.png" className="w-16" />
+            </div>
+            <CardTitle className="text-2xl">
+              {type === "register" ? "Create an account" : "Sign in"}
+            </CardTitle>
+          </>
+        )}
         <CardDescription>
-          {type === "register"
+          {!!header
+            ? header()
+            : type === "register"
             ? "Enter your email below to create your account"
             : "Enter your email below to sign in"}
         </CardDescription>
@@ -93,7 +106,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
               setIsGitHubLoading(true);
               signIn("github", {
                 redirect: true,
-                callbackUrl: searchParams?.get("from") || "/dashboard",
+                callbackUrl: from || searchParams?.get("from") || "/dashboard",
               });
             }}
             disabled={areButtonsLoading}
@@ -108,7 +121,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
               setIsGoogleLoading(true);
               signIn("google", {
                 redirect: true,
-                callbackUrl: searchParams?.get("from") || "/dashboard",
+                callbackUrl: from || searchParams?.get("from") || "/dashboard",
               });
             }}
             disabled={areButtonsLoading}

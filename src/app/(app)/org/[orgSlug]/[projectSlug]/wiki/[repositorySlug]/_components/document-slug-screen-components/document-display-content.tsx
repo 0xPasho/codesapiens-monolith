@@ -67,9 +67,15 @@ const DocumentationDisplay = ({
     `${shouldAddTitle ? `# ${doc.data.title}\n\n` : ""}${doc.data.content}` ||
     "";
 
+  const startsWithHeaders = markdownInnerText?.startsWith("#")
+    ? ""
+    : "# " + markdownInnerText;
+
   return (
     <div className="px-6 sm:px-2">
-      <MarkdownPreview source={`${markdownInnerText}`} />
+      <MarkdownPreview
+        source={`${startsWithHeaders}${markdownInnerText}${markdownInnerText}`}
+      />
     </div>
   );
 };

@@ -42,18 +42,22 @@ export const repositoriesRouter = createTRPCRouter({
         include: {
           syncs: true,
           documents: true,
+          processes: true,
         },
       });
       const finalResult = [];
       for (const repo of results) {
-        const document = repo.documents.find((doc) => !doc.parentId);
+        const document = repo.documents.find(
+          (doc) => !doc.parentId && !doc.isFolder,
+        );
+
         finalResult.push({
           ...repo,
           document: [],
           documentQuantity: repo.documents.length,
           syncs: [],
           defaultDocument: document,
-          latestSync: repo.syncs?.[0],
+          latestProcess: repo.processes?.[0],
         });
       }
       return finalResult;

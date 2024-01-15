@@ -4,17 +4,25 @@ export type LandingPageRepositoryInfo = {
   image: string;
   github_url: string;
   stars: string;
-  projectSlug: string;
+  repositoryId: string;
 };
 
 const tryReposData: LandingPageRepositoryInfo[] = [
+  {
+    title: "IsPair",
+    description: "Checks if something is Pair in Java",
+    image: "placeholder_image_link",
+    github_url: "https://github.com/PedroPepeu/isPair",
+    stars: "3",
+    repositoryId: "clre9pi8j0014yhs2jn5c22n6",
+  },
   {
     title: "Twitter Algorithm Repository",
     description: "Insights into the algorithms used by Twitter.",
     image: "placeholder_image_link",
     github_url: "https://github.com/twitter/algorithms",
     stars: "10000",
-    projectSlug: "",
+    repositoryId: "clrejopi20009yh4yi0cdmk0o",
   },
   {
     title: "Google's TensorFlow Models",
@@ -125,4 +133,4 @@ const tryReposData: LandingPageRepositoryInfo[] = [
   },
 ];
 
-export default tryReposData;
+export { tryReposData };

@@ -9,7 +9,8 @@ import { ChatMessageActions } from "./chat-message-actions";
 import { CodeBlock } from "@/components/ui/codeblock";
 import { ChatHistory } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
-import { BrainIcon, UserIcon } from "lucide-react";
+import { UserIcon } from "lucide-react";
+import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 
 export interface ChatMessageProps {
   message: ChatHistory;
@@ -34,6 +35,7 @@ export function ChatMessage({
         });
         setDisplayedMessage((prev) => prev + message.content[pos]);
         typer(pos + 1);
+
         //indexRef.current += 1; // Increment the ref's current value
       } else {
         clearTimeout(timer);
@@ -53,7 +55,13 @@ export function ChatMessage({
 
   // means data retrieved is incorrect
   if (!message.type) {
-    return <div className="bg-red-500">There was an error</div>;
+    return (
+      <div className="rounded-lg border p-5 text-red-500">
+        😪 There was a problem continuing with the conversation. Please try
+        again with otoher conversation. If this issue persists, please contact
+        support!
+      </div>
+    );
   }
 
   return (
@@ -66,7 +74,7 @@ export function ChatMessage({
           "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow",
           message.type === "user"
             ? "bg-background"
-            : "bg-primary text-primary-foreground",
+            : "bg-white text-primary-foreground",
         )}
       >
         {message.type === "assistant" ? (
