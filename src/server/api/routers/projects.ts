@@ -54,6 +54,11 @@ export const projectsRouter = createTRPCRouter({
         },
         include: {
           organization: true,
+          repositories: {
+            include: {
+              repository: true,
+            },
+          },
         },
       });
     }),
@@ -66,6 +71,11 @@ export const projectsRouter = createTRPCRouter({
         },
         include: {
           organization: true,
+          repositories: {
+            include: {
+              repository: true,
+            },
+          },
         },
       });
     }),
@@ -82,6 +92,11 @@ export const projectsRouter = createTRPCRouter({
         },
         include: {
           organization: true,
+          repositories: {
+            include: {
+              repository: true,
+            },
+          },
         },
       });
     }),
@@ -106,6 +121,11 @@ export const projectsRouter = createTRPCRouter({
         },
         include: {
           organization: true,
+          repositories: {
+            include: {
+              repository: true,
+            },
+          },
         },
       });
     }),
@@ -149,30 +169,49 @@ export const projectsRouter = createTRPCRouter({
         },
       });
       for (const tempRepo of input.repositories) {
-        const repo = await ctx.db.repository.create({
-          data: {
-            repoUrl: tempRepo.url,
-            repoProjectName: tempRepo.repo,
-            projectId: newProject.id,
-            repoBranchName: tempRepo.branch,
+        // Check if the repository already exists
+        let repo = await ctx.db.repository.findFirst({
+          where: {
             repoOrganizationName: tempRepo.org,
-            repoDescription: tempRepo.repoDescription,
-            repoGithubIsPublic: tempRepo.repoGithubIsPublic,
+            repoProjectName: tempRepo.repo,
             repositoryType: "github",
-            title: tempRepo.repo,
           },
         });
 
+        // If the repository does not exist, create it
         if (!repo) {
-          console.log({ error: "Error creating a repo" });
+          repo = await ctx.db.repository.create({
+            data: {
+              repoUrl: tempRepo.url,
+              repoProjectName: tempRepo.repo,
+              repoBranchName: tempRepo.branch,
+              repoOrganizationName: tempRepo.org,
+              repoDescription: tempRepo.repoDescription,
+              repoGithubIsPublic: tempRepo.repoGithubIsPublic,
+              repositoryType: "github",
+              title: tempRepo.repo,
+            },
+          });
+
+          if (!repo) {
+            console.log({ error: "Error creating a repo" });
+            continue;
+          }
         }
+
+        // Create a link in ProjectRepository table
+        await ctx.db.projectRepository.create({
+          data: {
+            projectId: newProject.id,
+            repositoryId: repo.id,
+          },
+        });
       }
 
       const defaultRepo = await ctx.db.repository.create({
         data: {
           title: "Project Documentation",
           repositoryType: "manual",
-          projectId: newProject.id,
           isDefault: true,
         },
       });
@@ -183,6 +222,13 @@ export const projectsRouter = createTRPCRouter({
           message: "Could not create default repository",
         });
       }
+
+      await ctx.db.projectRepository.create({
+        data: {
+          projectId: newProject.id,
+          repositoryId: defaultRepo.id,
+        },
+      });
 
       return newProject;
     }),

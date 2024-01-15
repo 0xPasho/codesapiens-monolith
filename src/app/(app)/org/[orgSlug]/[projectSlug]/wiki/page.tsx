@@ -3,7 +3,6 @@ import { api } from "~/trpc/server";
 import { Repository } from "@prisma/client";
 import RepositoryGridItem from "./[repositorySlug]/_components/repository-grid-item";
 import SyncFilesButton from "./_components/sync-files-button";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import AddMoreGithubReposModal from "./_components/add-more-github-repos-modal";
 

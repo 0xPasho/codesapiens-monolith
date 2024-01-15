@@ -101,7 +101,7 @@ const getOrgByFreeUser = async (
   //     },
   //   },
   // });
-
+  let project;
   const deepFinding = await db.organization.findFirst({
     where: {
       id: user.organizationId,
@@ -109,7 +109,9 @@ const getOrgByFreeUser = async (
         some: {
           repositories: {
             some: {
-              id: repositoryInformation.id,
+              repository: {
+                id: input.repositoryId,
+              },
             },
           },
         },
@@ -119,6 +121,9 @@ const getOrgByFreeUser = async (
       projects: {
         include: {
           repositories: {
+            include: {
+              repository: true,
+            },
             take: 1,
           },
         },
@@ -126,16 +131,17 @@ const getOrgByFreeUser = async (
       },
     },
   });
-  let suffix = 0;
-  let project: Project;
+  console.log({ deepFinding });
   if (!deepFinding?.id) {
     const baseSlug = repositoryInformation.repoProjectName
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9\s]+/g, "")
       .replace(/\s+/g, "_");
+
+    let suffix = 0;
     let slug = baseSlug;
-    // let's make sure we are creating a correct proejct with correct slug
+
     while (true) {
       const projectFound = await db.project.findFirst({
         where: {
@@ -143,7 +149,7 @@ const getOrgByFreeUser = async (
         },
       });
 
-      if (!projectFound) break; // Exit the loop if slug is unique
+      if (!projectFound) break;
 
       suffix += 1;
       slug = `${baseSlug}_${suffix}`;
@@ -154,31 +160,94 @@ const getOrgByFreeUser = async (
         slug,
         visibility: "public",
         organizationId: user.organizationId,
-        repositories: {
-          connect: {
-            id: repositoryInformation.id,
-          },
-        },
       },
     });
 
-    await db.repository.create({
+    await db.projectRepository.create({
+      data: {
+        projectId: project.id,
+        repositoryId: repositoryInformation.id,
+      },
+    });
+
+    const defaultDocsRepository = await db.repository.create({
       data: {
         title: "Project Documentation",
         repositoryType: "manual",
-        projectId: project.id,
         isDefault: true,
       },
     });
+
+    await db.projectRepository.createMany({
+      data: [
+        {
+          projectId: project.id,
+          repositoryId: defaultDocsRepository.id,
+        },
+      ],
+    });
   } else {
-    project = deepFinding?.projects?.[0];
+    project = deepFinding.projects[0];
   }
-  console.log({ project, deepFinding });
+
   return {
     org: user.defaultOrganization,
     project,
-    repository: deepFinding?.projects?.[0]?.repositories?.[0],
+    repository: deepFinding?.projects?.[0]?.repositories?.[0]?.repository,
   };
+
+  // let project;
+  // if (!deepFinding?.id) {
+  //   const baseSlug = repositoryInformation.repoProjectName
+  //     .trim()
+  //     .toLowerCase()
+  //     .replace(/[^a-z0-9\s]+/g, "")
+  //     .replace(/\s+/g, "_");
+  //   let slug = baseSlug;
+  //   // let's make sure we are creating a correct proejct with correct slug
+  //   while (true) {
+  //     const projectFound = await db.project.findFirst({
+  //       where: {
+  //         slug,
+  //       },
+  //     });
+
+  //     if (!projectFound) break; // Exit the loop if slug is unique
+
+  //     suffix += 1;
+  //     slug = `${baseSlug}_${suffix}`;
+  //   }
+
+  //   project = await db.project.create({
+  //     data: {
+  //       slug,
+  //       visibility: "public",
+  //       organizationId: user.organizationId,
+  //       repositories: {
+  //         connect: {
+  //           id: repositoryInformation.id,
+  //         },
+  //       },
+  //     },
+  //   });
+
+  //   await db.repository.create({
+  //     data: {
+  //       title: "Project Documentation",
+  //       repositoryType: "manual",
+  //       projectId: project.id,
+  //       isDefault: true,
+  //     },
+  //   });
+  // } else {
+  //   project = deepFinding?.projects?.[0];
+  // }
+  // console.log({ project, deepFinding });
+  // return {
+  //   org: user.defaultOrganization,
+  //   project,
+  //   repository: deepFinding?.projects?.[0]?.repositories?.[0],
+  // };
 };
 
 export const chatRouter = createTRPCRouter({
@@ -192,14 +261,10 @@ export const chatRouter = createTRPCRouter({
           },
         });
       };
-      let project;
-
       const answerApiUrl = `${env.CONVOS_API_URL}/api/answer`;
-
+      let project;
+      let currentOrg;
       let chatId = input.chatId;
-      let currentOrg: Organization;
-      // if chat exists don't do the before thing just bypass
-      // if no chatid, then go and create it...
       if (chatId) {
         const theChat = await ctx.db.chat.findFirstOrThrow({
           where: {
@@ -216,23 +281,8 @@ export const chatRouter = createTRPCRouter({
         project = theChat.project;
         currentOrg = theChat.project.organization;
       } else {
-        // find if user don't have the project_slug but it's a global project
-        // const myOrg = await ctx.db.project.findFirstOrThrow({
-        //   where: {
-        //     id: ctx.session.user.id,
-        //   },
-        // });
-        // const projectFound = await ctx.db.project.findFirst({
-        //   where: {
-        //     slug: input.project_slug,
-        //   },
-        //   include: {
-        //     organization: true,
-        //   },
-        // });
         if (input.repositoryId && !input.orgSlug) {
           const freshUserInformation = await getOrgByFreeUser(ctx, input);
-
           project = freshUserInformation.project;
           currentOrg = freshUserInformation.org;
         } else {
@@ -259,41 +309,11 @@ export const chatRouter = createTRPCRouter({
       const remainingCredits =
         (currentOrg.planMaxQuestions || 0) - (currentOrg.currentQuestions || 0);
 
-      // if its a free plan and no more credits, then don't let the guy fire more questions
       if (remainingCredits <= 0 && currentOrg.currentPlan === "free") {
         return { error: "NO_MORE_CREDITS", status: 403 };
       }
-      console.log(project);
-      console.log(project);
-      console.log(currentOrg);
-      console.log(currentOrg);
-      return;
+
       try {
-        console.log({
-          id_user: ctx.session.user.id,
-          id_chat: chatId,
-          prompt: input.prompt,
-        });
-        console.log({
-          id_user: ctx.session.user.id,
-          id_chat: chatId,
-          prompt: input.prompt,
-        });
-        console.log({
-          id_user: ctx.session.user.id,
-          id_chat: chatId,
-          prompt: input.prompt,
-        });
-        console.log({
-          id_user: ctx.session.user.id,
-          id_chat: chatId,
-          prompt: input.prompt,
-        });
-        console.log({
-          id_user: ctx.session.user.id,
-          id_chat: chatId,
-          prompt: input.prompt,
-        });
         const response = await fetch(answerApiUrl, {
           method: "POST",
           headers: {
@@ -304,6 +324,10 @@ export const chatRouter = createTRPCRouter({
             id_user: ctx.session.user.id,
             id_chat: chatId,
             prompt: input.prompt,
+            // NOTE:
+            id_repository: input.repositoryId,
+            // sending id_repository means it will ONLY take in consideration that for
+            // the searching
           }),
         });
 

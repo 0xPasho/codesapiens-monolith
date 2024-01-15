@@ -15,51 +15,64 @@ const GetRepositoryDocumentsCountInput = z.object({
 });
 
 const AddMoreRepositories = z.object({
-  repositories: z.array(z.any()),
+  repositories: z.array(z.any()), // Consider defining a stricter schema for repository objects
   projectSlug: z.string(),
 });
 
 export const repositoriesRouter = createTRPCRouter({
   getManualRepositoriesByProject: protectedProcedure
     .input(GetManualRepositoriesByProject)
-    .query(({ ctx, input }) => {
-      return ctx.db.repository.findMany({
-        where: {
-          projectId: input.projectId,
-          repositoryType: "manual",
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db.project.findFirstOrThrow({
+        where: { id: input.projectId },
+        include: {
+          repositories: {
+            include: {
+              repository: true,
+            },
+          },
         },
+      });
+
+      return project.repositories.filter((repo) => {
+        return repo.repository.repositoryType === "manual";
       });
     }),
   getRepositoriesByProjectSlug: protectedProcedure
     .input(GetRepositoriesByProjectSlug)
     .query(async ({ ctx, input }) => {
-      const results = await ctx.db.repository.findMany({
-        where: {
-          project: {
-            slug: input.projectSlug,
+      const project = await ctx.db.project.findFirstOrThrow({
+        where: { slug: input.projectSlug },
+        include: {
+          repositories: {
+            include: {
+              repository: {
+                include: {
+                  syncs: true,
+                  documents: true,
+                  processes: true,
+                },
+              },
+            },
           },
         },
-        include: {
-          syncs: true,
-          documents: true,
-          processes: true,
-        },
       });
-      const finalResult = [];
-      for (const repo of results) {
+
+      const finalResult = project.repositories.map((projectRepository) => {
+        const repo = projectRepository.repository;
         const document = repo.documents.find(
           (doc) => !doc.parentId && !doc.isFolder,
         );
-
-        finalResult.push({
+        return {
           ...repo,
           document: [],
           documentQuantity: repo.documents.length,
           syncs: [],
           defaultDocument: document,
           latestProcess: repo.processes?.[0],
-        });
-      }
+        };
+      });
+
       return finalResult;
     }),
   getRepositoryDocumentsCount: protectedProcedure
@@ -81,36 +94,51 @@ export const repositoriesRouter = createTRPCRouter({
       });
 
       for (const tempRepo of input.repositories) {
-        const foundRepo = await ctx.db.repository.findFirst({
+        // Check if the repository already exists
+        let repo = await ctx.db.repository.findFirst({
           where: {
             repoOrganizationName: tempRepo.org,
             repoProjectName: tempRepo.repo,
             repositoryType: "github",
-            projectId: project.id,
           },
         });
 
-        // if this is already inserted, ignore it....
-        if (foundRepo) {
-          continue;
+        // If the repository does not exist, create it
+        if (!repo) {
+          repo = await ctx.db.repository.create({
+            data: {
+              repoUrl: tempRepo.url,
+              repoProjectName: tempRepo.repo,
+              repoBranchName: tempRepo.branch,
+              repoDescription: tempRepo.repoDescription,
+              repoOrganizationName: tempRepo.org,
+              repositoryType: "github",
+              title: tempRepo.repo,
+              repoGithubIsPublic: tempRepo.repoGithubIsPublic,
+            },
+          });
+
+          if (!repo) {
+            console.log({ error: "Skipped because it already exists" });
+            continue;
+          }
         }
 
-        const repo = await ctx.db.repository.create({
-          data: {
-            repoUrl: tempRepo.url,
-            repoProjectName: tempRepo.repo,
+        // Create a new ProjectRepository link if it doesn't exist
+        const existingLink = await ctx.db.projectRepository.findFirst({
+          where: {
             projectId: project.id,
-            repoBranchName: tempRepo.branch,
-            repoDescription: tempRepo.repoDescription,
-            repoOrganizationName: tempRepo.org,
-            repositoryType: "github",
-            title: tempRepo.repo,
-            repoGithubIsPublic: tempRepo.repoGithubIsPublic,
+            repositoryId: repo.id,
           },
         });
 
-        if (!repo) {
-          console.log({ error: "Error creating a repo" });
+        if (!existingLink) {
+          await ctx.db.projectRepository.create({
+            data: {
+              projectId: project.id,
+              repositoryId: repo.id,
+            },
+          });
         }
       }
 

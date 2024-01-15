@@ -9,7 +9,6 @@ const GetGithubReposByOrg = z.object({
 
 export const githubRouter = createTRPCRouter({
   getGithubOrgsByUser: protectedProcedure.query(async ({ ctx }) => {
-    return [];
     const octokitApp = await getApp();
     const currentUser = await ctx.db.user.findFirst({
       where: {

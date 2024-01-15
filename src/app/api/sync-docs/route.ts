@@ -28,6 +28,11 @@ export async function POST(req: NextRequest) {
     },
     include: {
       organization: true,
+      repositories: {
+        include: {
+          repository: true,
+        },
+      },
     },
   });
 
@@ -35,39 +40,25 @@ export async function POST(req: NextRequest) {
   //   return NextResponse.json({ error: "Needs subscription", status: 403 });
   // }
 
-  const defaultRepo = await db.repository.findFirst({
-    where: {
-      isDefault: true,
-      repositoryType: "manual",
-      project: {
-        slug: projectSlug,
-      },
-    },
-  });
+  const defaultRepo = project.repositories.find(
+    (pr) =>
+      pr.repository.isDefault && pr.repository.repositoryType === "manual",
+  )?.repository;
 
-  const repositories = await db.repository.findMany({
-    where: {
-      project: {
-        slug: projectSlug,
-      },
-      NOT: {
-        repositoryType: "manual",
-      },
-    },
-    include: {
-      syncs: {
-        take: 1,
-      },
-    },
-  });
+  const repositories = project.repositories
+    .filter((pr) => pr.repository.repositoryType !== "manual")
+    .map((pr) => pr.repository);
 
   const idRepositoriesToSend = [];
   for (const repo of repositories) {
-    if (!repo.syncs?.[0]?.id) {
-      idRepositoriesToSend.push(repo.id);
-    }
+    //if (!repo.syncs?.[0]?.id) {
+    idRepositoriesToSend.push(repo.id);
+    //}
   }
-  idRepositoriesToSend.push(defaultRepo.id);
+  if (defaultRepo) {
+    idRepositoriesToSend.push(defaultRepo.id);
+  }
+
   const syncApiUrl = `${env.CONVOS_API_URL}/api/v1/embeed-sync`;
 
   console.log({
@@ -85,6 +76,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         id_user: session.user.id,
         id_repositories: repositories.map((r) => r.id),
+        id_project: project.id,
       }),
     });
 

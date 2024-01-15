@@ -11,6 +11,7 @@ const CreateDocumentInput = z.object({
   title: z.string(),
   folderPath: z.string(),
   repositoryId: z.string(),
+  projectId: z.string(),
 });
 
 const UpdateDocumentInput = z.object({
@@ -118,7 +119,7 @@ export const documentRouter = createTRPCRouter({
             synced: false,
             repositoryId: input.repositoryId,
             pathName: input.title,
-            projectId: repository!.projectId!,
+            projectId: input!.projectId!,
           },
         });
         return newDoc;

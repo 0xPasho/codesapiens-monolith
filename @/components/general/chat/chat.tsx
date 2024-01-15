@@ -135,9 +135,9 @@ export function ChatWithoutProvider({
   }, [propsMsgs, setConversationHistory]);
 
   useEffect(() => {
-    // if (storeCleared.current) return;
-    // storeCleared.current = true;
-    // reset();
+    if (storeCleared.current) return;
+    storeCleared.current = true;
+    reset();
   }, []);
 
   const createChatAnswer = api.chat.createChatAnswer.useMutation({
@@ -147,6 +147,9 @@ export function ChatWithoutProvider({
         console.log({ data });
         console.log({ data });
         if (data.error) {
+          if (messages.length > 0) {
+            toast({ title: "You reached the limit of FREE daily questions" });
+          }
           setMsgError(data.error);
           return;
         }
@@ -191,6 +194,7 @@ export function ChatWithoutProvider({
     onError: ({ data }: { data?: { code: string } }) => {
       if (data?.code === "UNAUTHORIZED") {
         setMsgError(data.code);
+        setConversationHistory(() => []);
       }
       setChatIsLoading(false);
     },
@@ -235,12 +239,12 @@ export function ChatWithoutProvider({
       <div
         className={cn(
           isPublicChat
-            ? "flex max-h-[70vh] flex-1 flex-col overflow-y-auto px-8"
+            ? "flex max-h-[70vh] flex-1 flex-col overflow-y-auto sm:px-8"
             : "pb-[200px] pt-4 md:pt-10",
           className,
         )}
       >
-        {messages.length === 0 && (
+        {(messages.length === 0 || msgError === "NO_MORE_CREDITS") && (
           <ChatHeaderContext
             messages={messages}
             chat={chat}
@@ -256,6 +260,7 @@ export function ChatWithoutProvider({
           {!isPublicChat && <ChatScrollAnchor trackVisibility={isLoading} />}
         </div>
       </div>
+      {createChatAnswer.isLoading && <span>Loading</span>}
       <ChatPanel
         error={msgError}
         stop={stop}

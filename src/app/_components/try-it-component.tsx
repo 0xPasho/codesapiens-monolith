@@ -4,9 +4,12 @@ import { ChatWithoutProvider as Chat } from "@/components/general/chat/chat";
 import ListTryRepos from "./list-try-repos";
 import { useState } from "react";
 import { tryReposData } from "./try-repos-data";
+import useChatStore from "@/components/general/chat/chat-context-provider";
+import { EmptyScreen } from "@/components/general/chat/empty-chat-message";
 
 const TryItComponent = () => {
   const [selectedListItem, setSelectedListItem] = useState(0);
+  const { reset } = useChatStore();
   return (
     <div
       id="try"
@@ -19,18 +22,21 @@ const TryItComponent = () => {
           accessible soon to start asking questions
         </span>
       </div>
-      <div className="mx-auto flex w-full max-w-6xl flex-col px-12 md:flex-row">
+      <div className="mx-auto flex w-full max-w-6xl flex-col px-6 sm:px-12 md:flex-row">
         <div className="py-6 md:w-1/3">
           <div className="flex flex-col">
             <div className="overflow-y-auto">
               <ListTryRepos
                 selected={selectedListItem}
-                onSelect={setSelectedListItem}
+                onSelect={(newValue) => {
+                  reset();
+                  setSelectedListItem(newValue);
+                }}
               />
             </div>
           </div>
         </div>
-        <div className="space-between flex flex-col px-6 py-6 md:w-2/3">
+        <div className="space-between flex flex-col py-6 sm:px-6 md:w-2/3">
           <Chat
             orgSlug=""
             projectSlug=""
@@ -39,12 +45,12 @@ const TryItComponent = () => {
             chat={null}
             repositoryId={tryReposData[selectedListItem].repositoryId}
             isPublicChat
-            // emptyChatComponent={() => (
-            //   <div className="relative mx-auto max-w-2xl rounded-lg border p-5 px-4">
-            //     <h1>{tryReposData[selectedListItem].title}</h1>
-            //     <p>{tryReposData[selectedListItem].description}</p>
-            //   </div>
-            // )}
+            emptyChatComponent={() => (
+              <EmptyScreen
+                isPublicChat
+                selectedPublicItem={tryReposData[selectedListItem]}
+              />
+            )}
           />
         </div>
       </div>

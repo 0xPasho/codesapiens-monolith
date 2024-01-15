@@ -3,7 +3,7 @@ import { env } from "~/env.mjs";
 
 const FooterComponent = () => {
   return (
-    <footer className="m-4 rounded-2xl  bg-black/100 shadow">
+    <footer className="m-4 mt-24 rounded-2xl  bg-black/100 shadow">
       <div className="mx-auto w-full max-w-screen-xl p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <a

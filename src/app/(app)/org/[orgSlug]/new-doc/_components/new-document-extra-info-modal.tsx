@@ -68,9 +68,12 @@ export default function NewDocumentExtraInfoModal({
           "Your document was created successfully. You can now start editing it.",
       });
       const project = projects?.find((project) => project.id === projectId);
+      console.log({ data });
+      console.log({ data });
       router.push(`/org/${orgSlug}/${project!.slug!}/wiki/edit/${data.id}`);
     },
-    onError() {
+    onError(e) {
+      console.log({ e });
       toast({
         title: "Error creating document",
         description:
@@ -89,6 +92,9 @@ export default function NewDocumentExtraInfoModal({
   const { data: repositories, isLoading: areReposLoading } =
     api.repositories.getManualRepositoriesByProject.useQuery({ projectId });
 
+  console.log({ repositories });
+  console.log({ repositories });
+  console.log({ repositories });
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setDocSaving(true);
     createDocumentMutation.mutate({
@@ -96,6 +102,7 @@ export default function NewDocumentExtraInfoModal({
       content: blocks,
       folderPath: "",
       repositoryId: data.repositoryId,
+      projectId: data.projectId,
     });
   }
 
@@ -189,8 +196,8 @@ export default function NewDocumentExtraInfoModal({
                         ) : null}
                         {repositories?.map((repository) => {
                           return (
-                            <SelectItem value={repository.id}>
-                              {repository.title}
+                            <SelectItem value={repository.repository.id}>
+                              {repository.repository.title}
                             </SelectItem>
                           );
                         })}
@@ -205,7 +212,12 @@ export default function NewDocumentExtraInfoModal({
               />
             </div>
             <DialogFooter>
-              <Button type="submit">Create</Button>
+              <Button
+                type="submit"
+                isLoading={createDocumentMutation.isLoading}
+              >
+                Create
+              </Button>
             </DialogFooter>
           </form>
         </Form>

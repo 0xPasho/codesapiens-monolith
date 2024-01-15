@@ -1,9 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { LandingPageRepositoryInfo, tryReposData } from "./try-repos-data";
 import clsx from "clsx";
-import { ListIcon, StarIcon } from "lucide-react";
+import { GithubIcon, ListIcon, StarIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Link1Icon } from "@radix-ui/react-icons";
 
 const ListItem = ({
   item,
@@ -28,7 +30,7 @@ const ListItem = ({
           alt="Project logo"
           className="h-8 w-8 rounded-full"
           height="32"
-          src="/placeholder.svg"
+          src={item.image}
           style={{
             aspectRatio: "32/32",
             objectFit: "cover",
@@ -40,10 +42,20 @@ const ListItem = ({
           <p className="text-sm text-gray-400">{item.description}</p>
         </div>
       </div>
-      <Badge variant="secondary" className="px-2 text-yellow-500">
-        <StarIcon className="mr-1 h-3 w-3 fill-yellow-500 text-yellow-500" />
-        {thousandStars}k
-      </Badge>
+      <div className="flex flex-col">
+        <Badge variant="secondary" className="px-2 text-yellow-500">
+          <StarIcon className="mr-1 h-3 w-3 fill-yellow-500 text-yellow-500" />
+          {thousandStars}k
+        </Badge>
+        <Link target="blank" href={item.github_url}>
+          <Badge
+            variant="outline"
+            className="mt-1 w-full items-center justify-center px-1 text-center text-yellow-500"
+          >
+            <GithubIcon className="mr-1 h-3 w-3" /> More
+          </Badge>
+        </Link>
+      </div>
     </div>
   );
 };

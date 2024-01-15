@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import SyncFilesButton from "~/app/(app)/org/[orgSlug]/[projectSlug]/wiki/_components/sync-files-button";
 import useChatStore from "./chat-context-provider";
+import { LandingPageRepositoryInfo } from "~/app/_components/try-repos-data";
 
 const exampleMessages = [
   {
@@ -22,10 +23,12 @@ export function EmptyScreen({
   chat,
   projectSlug,
   isPublicChat,
+  selectedPublicItem,
 }: {
   chat: any;
-  projectSlug: string;
-  isPublicChat: boolean;
+  projectSlug?: string;
+  isPublicChat?: boolean;
+  selectedPublicItem?: LandingPageRepositoryInfo;
 }) {
   const { setPromptInput } = useChatStore();
   if (isPublicChat) {
@@ -36,9 +39,23 @@ export function EmptyScreen({
           <h1 className="mb-2 text-lg font-semibold">Hey, I'm here to help.</h1>
           <p className="leading-normal text-muted-foreground">
             You can start a conversation with this smart monkey by asking
-            anything about this repository.
+            anything about this repository.{" "}
+            {selectedPublicItem ? "You are asking about the next project:" : ""}
           </p>
-          <p className="leading-normal text-muted-foreground"></p>
+          <div className="flex flex-col items-center justify-center md:flex-row">
+            <img
+              src={selectedPublicItem.image}
+              className="mr-4 mt-4 h-8 w-8 rounded-full"
+            />
+            <div className="pt-3">
+              <p className="font-bold leading-normal text-muted-foreground">
+                {selectedPublicItem.title}
+              </p>
+              <p className="leading-normal text-muted-foreground">
+                {selectedPublicItem.description}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );

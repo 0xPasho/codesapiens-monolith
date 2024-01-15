@@ -34,7 +34,7 @@ export function ChatPanel({
         isPublicChat ? "" : "fixed inset-x-0 bottom-0 ",
       )}
     >
-      <ButtonScrollToBottom />
+      {!isPublicChat && <ButtonScrollToBottom />}
       <div
         className={clsx(
           "mx-auto sm:max-w-2xl sm:px-4",

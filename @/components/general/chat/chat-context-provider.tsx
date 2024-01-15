@@ -42,7 +42,7 @@ const useChatStore = create<
   setChatIsLoading: (isLoading) => set(() => ({ isLoading })),
   reset: () =>
     set(() => ({
-      //messages: [],
+      messages: [],
       chatId: "",
       currentStatus: "new",
       promptInput: "",
