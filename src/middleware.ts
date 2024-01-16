@@ -8,7 +8,7 @@ async function middleware(request: NextRequest) {
   // and it was causing issues, so we rely on the cookie directly
   //const sessionToken = request.cookies.get("next-auth.session-token");
   const token = await getToken({ req: request });
-
+  console.log({ header: request.headers });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
