@@ -25,7 +25,10 @@ async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/register");
   const isAuthenticated = httpCookie || httpsCookie;
   console.log({ token });
-  console.log({ token });
+  console.log({ httpCookie, httpsCookie });
+  console.log({ httpCookie, httpsCookie });
+  console.log({ httpCookie, httpsCookie });
+  console.log(request.headers?.cookies);
   if (isAuthenticated) {
     let from = request.nextUrl.pathname;
     if (request.nextUrl.search) {
