@@ -12,6 +12,9 @@ async function middleware(request: NextRequest) {
     req: request,
     secret: process.NEXTAUTH_SECRET!,
   });
+  console.log({ token });
+  console.log({ token });
+  console.log({ token });
   console.log({ header: request.headers });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
