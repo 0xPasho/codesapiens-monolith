@@ -15,14 +15,16 @@ const CreateChatAnswerInput = z.object({
 
 type CreateChatAnswerResponse = {
   answer: string;
-  user_message: {
-    id: string;
-    chat_id: string;
-  };
-  assistance_message: {
-    id: string;
-    chat_id: string;
-  };
+  user_message: string;
+  // {
+  //   id: string;
+  //   chat_id: string;
+  // };
+  assistance_message: string;
+  // {
+  //   id: string;
+  //   chat_id: string;
+  // };
   sources: any[];
   chat_id: string;
 };
@@ -63,6 +65,14 @@ const createUsageRecordForQuestions = async (stripeSubscriptionId: string) => {
       action: "increment",
     },
   );
+};
+
+const getChatMsg = async (id: string, ctx) => {
+  return await ctx.db.chatHistory.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
 };
 
 const getOrgByFreeUser = async (
@@ -254,13 +264,6 @@ export const chatRouter = createTRPCRouter({
   createChatAnswer: protectedProcedure
     .input(CreateChatAnswerInput)
     .mutation(async ({ ctx, input }) => {
-      const getChatMsg = async (id: string) => {
-        return await ctx.db.chatHistory.findFirstOrThrow({
-          where: {
-            id,
-          },
-        });
-      };
       const answerApiUrl = `${env.CONVOS_API_URL}/api/answer`;
       let project;
       let currentOrg;
@@ -313,6 +316,14 @@ export const chatRouter = createTRPCRouter({
         return { error: "NO_MORE_CREDITS", status: 403 };
       }
 
+      const userMessage = ctx.db.chatHistory.create({
+        data: {
+          userId: ctx.session.user.id,
+          content: input.prompt,
+          chatId,
+          type: "user",
+        },
+      });
       try {
         const response = await fetch(answerApiUrl, {
           method: "POST",
@@ -332,13 +343,27 @@ export const chatRouter = createTRPCRouter({
         });
 
         const json = (await response.json()) as CreateChatAnswerResponse;
-        const assistanceMessage = await getChatMsg(json.assistance_message.id);
-        const userMessage = await getChatMsg(json.user_message.id);
+        // const assistanceMessage = await getChatMsg(
+        //   json.assistance_message.id,
+        //   ctx,
+        // );
+        const assistanceMessage = ctx.db.chatHistory.create({
+          data: {
+            userId: ctx.session.user.id,
+            content: json.assistance_message,
+            chatId,
+            type: "assistant",
+          },
+        });
+        //const userMessage = await getChatMsg(json.user_message.id, ctx);
         // a free user don't have stripe sub id
         if (currentOrg.stripeSubscriptionId) {
-          await createUsageRecordForQuestions(currentOrg.stripeSubscriptionId);
+          // do not await, this will cause slow up the things
+          createUsageRecordForQuestions(currentOrg.stripeSubscriptionId);
         }
-        await ctx.db.organization.update({
+
+        // not await, let's save bit of time
+        ctx.db.organization.update({
           data: {
             currentQuestions: currentOrg.currentQuestions + 1,
           },
@@ -346,10 +371,11 @@ export const chatRouter = createTRPCRouter({
             id: currentOrg.id,
           },
         });
+
         return {
-          assistanceMessage,
-          userMessage,
-          chatId: json.assistance_message.chat_id!,
+          assistanceMessage: await assistanceMessage,
+          userMessage: await userMessage,
+          chatId,
           projectSlug: project.slug,
           orgSlug: currentOrg.slug,
         };
