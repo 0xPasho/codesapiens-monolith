@@ -14,14 +14,19 @@ async function middleware(request: NextRequest) {
   });
   console.log({ token });
   console.log({ token });
+  const httpsCookie = request.headers.cookies?.get?.(
+    "__Secure-next-auth.session-token",
+  )?.value;
+  const httpCookie = request.headers.cookies?.get?.("next-auth.session-token")
+    ?.value;
   console.log({ header: request.headers });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
-
+  const isAuthenticated = httpCookie || httpsCookie;
   console.log({ token });
   console.log({ token });
-  if (!token) {
+  if (isAuthenticated) {
     let from = request.nextUrl.pathname;
     if (request.nextUrl.search) {
       from += request.nextUrl.search;
