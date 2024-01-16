@@ -9,7 +9,8 @@ export default async function OrgSwitcherWrapper({
   orgSlug: string;
 }) {
   const orgs = await api.organizations.getAllOrganizationsByUser.query();
-
+  console.log({ orgs });
+  console.log({ orgs });
   let selectedOrg;
   if (orgSlug) {
     selectedOrg = orgs?.find((org) => org.organization.slug === orgSlug);

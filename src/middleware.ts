@@ -14,8 +14,7 @@ async function middleware(request: NextRequest) {
   });
   console.log({ token });
   console.log({ token });
-  console.log({ token });
-  console.log({ header: request.headers });
+g  console.log({ header: request.headers });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
