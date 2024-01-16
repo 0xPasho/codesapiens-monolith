@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { env } from "./env.mjs";
 import { withAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 async function middleware(request: NextRequest) {
   // We can't import next-auth here because it's not available in the serverless environment
@@ -78,7 +78,7 @@ export default withAuth(
         console.log(req.cookies);
         const tokenValue = req.cookies.get("next-auth.session-token")?.value;
         const tokenInSession: any = tokenValue
-          ? jwt_decode(tokenValue || "{}")
+          ? jwtDecode(tokenValue || "{}")
           : new Object();
         console.log({ tokenValue, tokenInSession });
         console.log({ tokenValue, tokenInSession });
