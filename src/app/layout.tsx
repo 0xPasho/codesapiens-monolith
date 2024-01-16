@@ -148,7 +148,10 @@ export default function RootLayout({
           gtag('config', 'G-HEHDQ0XV9V');
         `}
         </Script>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark" /*"system" enableSystem*/
+        >
           <TRPCReactProvider headers={headers()}>
             <NextAuthProvider>{children}</NextAuthProvider>
             <Toaster />
