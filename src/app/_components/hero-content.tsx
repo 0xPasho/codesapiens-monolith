@@ -18,15 +18,13 @@ const HeroContent = () => {
         </div>
         <div className="sm:py-34 lg:py-42 mx-auto max-w-2xl py-32">
           <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-            {false ? (
-              <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                Use our extension.{" "}
-                <a href="#" className="font-semibold text-primary">
-                  <span className="absolute inset-0" aria-hidden="true"></span>
-                  Download <span aria-hidden="true">&rarr;</span>
-                </a>
-              </div>
-            ) : null}
+            <div className="relative rounded-full px-3 py-1 text-sm leading-6  ring-1 ring-white ">
+              Extension comming soon.{" "}
+              <a href="#" className="font-semibold text-primary">
+                <span className="absolute inset-0" aria-hidden="true"></span>
+                More info <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
           </div>
           <div className="text-center">
             <div className="my-4 text-center">

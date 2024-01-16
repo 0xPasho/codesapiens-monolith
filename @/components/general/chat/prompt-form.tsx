@@ -35,7 +35,7 @@ export function PromptForm({
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && !isPublicChat) {
       inputRef.current.focus();
     }
   }, []);
