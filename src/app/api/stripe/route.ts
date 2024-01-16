@@ -119,22 +119,13 @@ const buySubscription = async (
       },
       {
         price: nextPlan.questionsPriceId,
-        //price: "price_1NysIRJV4VhelRu80snSjyBS", //price: planMetadata.stripePriceId,
       },
       {
         price: nextPlan.filesPriceId,
-        //price: "price_1Nys2HJV4VhelRu8iMAQDJ6C", //price: planMetadata.stripePriceId,
       },
       {
         price: nextPlan.seatsPriceId,
-        //price: "price_1NysHoJV4VhelRu8Pu0UsHMT", //price: planMetadata.stripePriceId,
       },
-
-      {
-        price: "price_1NyriHJV4VhelRu8rzUkeYBd",
-        quantity: 1,
-      },
-      // ...variableItems,
     ],
     metadata: {
       organizationId: orgId,

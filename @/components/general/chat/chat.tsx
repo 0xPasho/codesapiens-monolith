@@ -260,7 +260,18 @@ export function ChatWithoutProvider({
           {!isPublicChat && <ChatScrollAnchor trackVisibility={isLoading} />}
         </div>
       </div>
-      {createChatAnswer.isLoading && <span>Loading</span>}
+      {createChatAnswer.isLoading && (
+        <div
+          className={cn(
+            isPublicChat
+              ? "flex max-h-[70vh] flex-1 flex-col overflow-y-auto sm:px-8"
+              : "pb-[200px] pt-4 md:pt-10",
+            className,
+          )}
+        >
+          Loading reponse...
+        </div>
+      )}
       <ChatPanel
         error={msgError}
         stop={stop}
