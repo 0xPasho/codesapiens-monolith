@@ -78,7 +78,7 @@ export function EmptyScreen({
     }
     // you can't have procceses without docs, so, that case's avoided
 
-    if (chat.processes?.some((item) => !item.endDate)) {
+    if (chat?.processes?.find((item) => !item.endDate)) {
       return "Your documents are currently being synced. It may take from 1 to 30 min depending on project size and current server usage";
     }
 
