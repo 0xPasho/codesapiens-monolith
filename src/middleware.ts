@@ -58,7 +58,20 @@ async function middleware(request: NextRequest) {
 export default withAuth(
   {
     callbacks: {
-      authorized({ req, token }) {
+      async authorized({ req, token }) {
+        let expectedToken = await getToken({
+          req,
+          secret: process.NEXTAUTH_SECRET!,
+        });
+
+        console.log({ expectedToken });
+        console.log({ expectedToken });
+        console.log({ expectedToken });
+
+        expectedToken = await getToken({
+          req,
+          secret: "5w7LkPh6uU5mpj4t",
+        });
         console.log("cookies");
         console.log(req.cookies);
         console.log(req.cookies);
