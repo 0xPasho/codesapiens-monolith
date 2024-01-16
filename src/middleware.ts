@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "./env.mjs";
-import { getServerSession } from "next-auth";
-import { NextApiResponse } from "next";
+import { withAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
 
-async function middleware(request: NextRequest, res: NextApiResponse) {
+async function middleware(request: NextRequest) {
   // We can't import next-auth here because it's not available in the serverless environment
   // and it was causing issues, so we rely on the cookie directly
   //const sessionToken = request.cookies.get("next-auth.session-token");
@@ -54,7 +53,7 @@ async function middleware(request: NextRequest, res: NextApiResponse) {
   });
 }
 
-export default middleware;
+export default withAuth(middleware);
 
 export const config = {
   matcher: [
