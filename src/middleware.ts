@@ -8,7 +8,10 @@ async function middleware(request: NextRequest) {
   // We can't import next-auth here because it's not available in the serverless environment
   // and it was causing issues, so we rely on the cookie directly
   //const sessionToken = request.cookies.get("next-auth.session-token");
-  const token = await getToken({ req: request });
+  const token = await getToken({
+    req: request,
+    secret: process.NEXTAUTH_SECRET!,
+  });
   console.log({ header: request.headers });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
@@ -56,34 +59,35 @@ async function middleware(request: NextRequest) {
 
 // export default middleware;
 export default withAuth(
+  middleware,
   {
     callbacks: {
       async authorized({ req, token }) {
-        let expectedToken = await getToken({
-          req,
-          secret: process.NEXTAUTH_SECRET!,
-        });
+        // let expectedToken = await getToken({
+        //   req,
+        //   secret: process.NEXTAUTH_SECRET!,
+        // });
 
-        console.log({ expectedToken });
-        console.log({ expectedToken });
-        console.log({ expectedToken });
+        // console.log({ expectedToken });
+        // console.log({ expectedToken });
+        // console.log({ expectedToken });
 
-        expectedToken = await getToken({
-          req,
-          secret: "5w7LkPh6uU5mpj4t",
-        });
-        console.log("cookies");
-        console.log(req.cookies);
-        console.log(req.cookies);
-        console.log(req.cookies);
-        const tokenValue = req.cookies.get("next-auth.session-token")?.value;
-        const tokenInSession: any = tokenValue
-          ? jwtDecode(tokenValue || "{}")
-          : new Object();
-        console.log({ tokenValue, tokenInSession });
-        console.log({ tokenValue, tokenInSession });
-        console.log({ tokenValue, tokenInSession });
-        console.log(tokenInSession);
+        // expectedToken.expectedToken = await getToken({
+        //   req,
+        //   secret: "5w7LkPh6uU5mpj4t",
+        // });
+        // console.log("cookies");
+        // console.log(req.cookies);
+        // console.log(req.cookies);
+        // console.log(req.cookies);
+        // const tokenValue = req.cookies.get("next-auth.session-token")?.value;
+        // const tokenInSession: any = tokenValue
+        //   ? jwtDecode(tokenValue || "{}")
+        //   : new Object();
+        // console.log({ tokenValue, tokenInSession });
+        // console.log({ tokenValue, tokenInSession });
+        // console.log({ tokenValue, tokenInSession });
+        // console.log(tokenInSession);
         return true;
       },
     },
