@@ -9,29 +9,12 @@ export type LandingPageRepositoryInfo = {
 
 const tryReposData: LandingPageRepositoryInfo[] = [
   {
-    title: "shadcn/ui",
-    description:
-      "Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.",
-    image: "https://avatars.githubusercontent.com/u/139895814?s=48&v=4",
-    github_url: "https://github.com/facebook/react",
-    stars: "44000",
-    repositoryId: "clrgiagig0010fmngcfm73bks",
-  },
-  {
     title: "jquense/yup",
     description: "Dead simple Object schema validation",
     image: "https://avatars.githubusercontent.com/u/339286?s=48&v=4",
     github_url: "https://github.com/jquense/yup",
     stars: "21700",
     repositoryId: "clrgjh18n0018fmng4i96xhnr",
-  },
-  {
-    title: "i18next/i18next",
-    description: "i18next: learn once - translate everywhere",
-    image: "https://avatars.githubusercontent.com/u/8546082?s=48&v=4",
-    github_url: "https://github.com/i18next/i18next",
-    stars: "72000",
-    repositoryId: "clrgk4z22001cfmngevrmiqlb",
   },
   {
     title: "D3/D3.js",
