@@ -108,8 +108,7 @@ export function EmptyScreen({
             ))}
           </div>
         ) : null}
-        {(!chat?.processes?.length && !chat?.documents?.length) ||
-        !chat?.processes?.find((item) => !item.endDate) ? (
+        {!chat?.processes?.length && !chat?.documents?.length ? (
           <SyncFilesButton
             projectSlug={projectSlug}
             onSync={() => {
