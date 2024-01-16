@@ -59,6 +59,10 @@ export default withAuth(
   {
     callbacks: {
       authorized({ req, token }) {
+        console.log("cookies");
+        console.log(req.cookies);
+        console.log(req.cookies);
+        console.log(req.cookies);
         const tokenValue = req.cookies.get("next-auth.session-token")?.value;
         const tokenInSession: any = tokenValue
           ? jwt_decode(tokenValue || "{}")
