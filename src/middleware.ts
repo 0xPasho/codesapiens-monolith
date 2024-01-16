@@ -29,7 +29,7 @@ async function middleware(request: NextRequest) {
   console.log({ httpCookie, httpsCookie });
   console.log({ httpCookie, httpsCookie });
   console.log(request.headers?.cookies);
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     let from = request.nextUrl.pathname;
     if (request.nextUrl.search) {
       from += request.nextUrl.search;
@@ -70,38 +70,38 @@ async function middleware(request: NextRequest) {
 // export default middleware;
 export default withAuth(
   middleware,
-  {
-    callbacks: {
-      async authorized({ req, token }) {
-        // let expectedToken = await getToken({
-        //   req,
-        //   secret: process.NEXTAUTH_SECRET!,
-        // });
+  // // {
+  // //   callbacks: {
+  // //     async authorized({ req, token }) {
+  // //       // let expectedToken = await getToken({
+  // //       //   req,
+  // //       //   secret: process.NEXTAUTH_SECRET!,
+  // //       // });
 
-        // console.log({ expectedToken });
-        // console.log({ expectedToken });
-        // console.log({ expectedToken });
+  // //       // console.log({ expectedToken });
+  // //       // console.log({ expectedToken });
+  // //       // console.log({ expectedToken });
 
-        // expectedToken.expectedToken = await getToken({
-        //   req,
-        //   secret: "5w7LkPh6uU5mpj4t",
-        // });
-        // console.log("cookies");
-        // console.log(req.cookies);
-        // console.log(req.cookies);
-        // console.log(req.cookies);
-        // const tokenValue = req.cookies.get("next-auth.session-token")?.value;
-        // const tokenInSession: any = tokenValue
-        //   ? jwtDecode(tokenValue || "{}")
-        //   : new Object();
-        // console.log({ tokenValue, tokenInSession });
-        // console.log({ tokenValue, tokenInSession });
-        // console.log({ tokenValue, tokenInSession });
-        // console.log(tokenInSession);
-        return true;
-      },
-    },
-  },
+  // //       // expectedToken.expectedToken = await getToken({
+  // //       //   req,
+  // //       //   secret: "5w7LkPh6uU5mpj4t",
+  // //       // });
+  // //       // console.log("cookies");
+  // //       // console.log(req.cookies);
+  // //       // console.log(req.cookies);
+  // //       // console.log(req.cookies);
+  // //       // const tokenValue = req.cookies.get("next-auth.session-token")?.value;
+  // //       // const tokenInSession: any = tokenValue
+  // //       //   ? jwtDecode(tokenValue || "{}")
+  // //       //   : new Object();
+  // //       // console.log({ tokenValue, tokenInSession });
+  // //       // console.log({ tokenValue, tokenInSession });
+  // //       // console.log({ tokenValue, tokenInSession });
+  // //       // console.log(tokenInSession);
+  // //       return true;
+  // //     },
+  // //   },
+  // },
   //middleware,
   // {
   //   callbacks: {
