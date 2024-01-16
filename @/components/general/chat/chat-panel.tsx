@@ -13,6 +13,7 @@ export interface ChatPanelProps {
   projectSlug: string;
   isPublicChat?: boolean;
   error: string | null;
+  chat: any;
 }
 
 export function ChatPanel({
@@ -24,6 +25,7 @@ export function ChatPanel({
   projectSlug,
   isPublicChat,
   error,
+  chat,
 }: ChatPanelProps) {
   const { isLoading } = useChatStore();
 
@@ -52,6 +54,7 @@ export function ChatPanel({
           <PromptForm
             error={error}
             orgSlug={orgSlug}
+            chat={chat}
             isPublicChat={isPublicChat}
             projectSlug={projectSlug}
             onSubmit={async (value) => {

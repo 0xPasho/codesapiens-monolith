@@ -320,6 +320,7 @@ export const projectsRouter = createTRPCRouter({
         },
         include: {
           processes: true,
+          documents: true,
         },
       });
     }),

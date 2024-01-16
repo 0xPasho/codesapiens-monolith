@@ -72,7 +72,7 @@ const DocumentationDisplay = ({
     : "# " + markdownInnerText;
 
   return (
-    <div className="px-6 sm:px-2">
+    <div className="px-6 sm:px-2" data-color-mode="dark">
       <MarkdownPreview
         source={`${startsWithHeaders}${markdownInnerText}${markdownInnerText}`}
       />

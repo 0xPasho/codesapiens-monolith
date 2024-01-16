@@ -30,7 +30,11 @@ export async function POST(req: NextRequest) {
       organization: true,
       repositories: {
         include: {
-          repository: true,
+          repository: {
+            include: {
+              processes: true,
+            },
+          },
         },
       },
     },
@@ -40,23 +44,21 @@ export async function POST(req: NextRequest) {
   //   return NextResponse.json({ error: "Needs subscription", status: 403 });
   // }
 
-  const defaultRepo = project.repositories.find(
-    (pr) =>
-      pr.repository.isDefault && pr.repository.repositoryType === "manual",
-  )?.repository;
+  let idRepositoriesToSend = [];
+  for (let pr of project.repositories) {
+    const procceses = pr.repository.processes;
+    const hasIncompleteProcesses = procceses.find((item) => !item.endDate);
+    if (
+      pr.repository.isDefault &&
+      pr.repository.repositoryType === "manual" &&
+      !hasIncompleteProcesses
+    ) {
+      idRepositoriesToSend.push(pr.repository.id);
+    }
 
-  const repositories = project.repositories
-    .filter((pr) => pr.repository.repositoryType !== "manual")
-    .map((pr) => pr.repository);
-
-  const idRepositoriesToSend = [];
-  for (const repo of repositories) {
-    //if (!repo.syncs?.[0]?.id) {
-    idRepositoriesToSend.push(repo.id);
-    //}
-  }
-  if (defaultRepo) {
-    idRepositoriesToSend.push(defaultRepo.id);
+    if (!hasIncompleteProcesses && pr.repository.repositoryType !== "manual") {
+      idRepositoriesToSend.push(pr.repository.id);
+    }
   }
 
   const syncApiUrl = `${env.CONVOS_API_URL}/api/v1/embeed-sync`;
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
     // Re-did this to be able to separate each repo call
     // instead of sending all, causing issues handling
     // the workers from python correctly
-    for (let repo of repositories) {
+    for (let repoId of idRepositoriesToSend) {
       const response = await fetch(syncApiUrl, {
         method: "POST",
         headers: {
@@ -81,7 +83,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           id_user: session.user.id,
-          id_repositories: [repo.id],
+          id_repositories: [repoId],
           id_project: project.id,
         }),
       });

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
-import SyncFilesButton from "~/app/(app)/org/[orgSlug]/[projectSlug]/wiki/_components/sync-files-button";
 import useChatStore from "./chat-context-provider";
 import { LandingPageRepositoryInfo } from "~/app/_components/try-repos-data";
+import { useMemo } from "react";
 
 const exampleMessages = [
   {
@@ -61,19 +61,33 @@ export function EmptyScreen({
     );
   }
 
+  const headerMsg = useMemo(() => {
+    const hasProcesses = !!chat?.processes?.length;
+
+    if (!hasProcesses) {
+      if (!chat?.documents?.length) {
+        return "To be able to chat you will need to have documents in the project.";
+      } else {
+        return `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first`;
+      }
+    }
+    // you can't have procceses without docs, so, that case's avoided
+
+    if (chat.processes?.some((item) => !item.endDate)) {
+      return "Your documents are currently being synced. It may take from 1 to 30 min depending on project size and current server usage";
+    }
+
+    return "You can start a conversation with this smart monkey by asking for example";
+  }, [chat]);
+
   return (
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8">
         <img src="/logo.png" className="mb-2 w-24" />
         <h1 className="mb-2 text-lg font-semibold">Hey, I'm here to help.</h1>
-        <p className="leading-normal text-muted-foreground">
-          {chat?.processes?.length
-            ? chat.processes?.some((item) => !item.endDate)
-              ? "Files are still being synced"
-              : "You can start a conversation with this smart monkey by asking for example"
-            : `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first.`}
-        </p>
-        {chat?.processes?.length &&
+        <p className="leading-normal text-muted-foreground">{headerMsg}</p>
+        {chat?.documents?.length &&
+        chat?.processes?.length &&
         chat?.processes?.every((item) => item.endDate) ? (
           <div className="mt-4 flex flex-col items-start space-y-2">
             {exampleMessages.map((message, index) => (
@@ -88,9 +102,7 @@ export function EmptyScreen({
               </Button>
             ))}
           </div>
-        ) : (
-          <SyncFilesButton projectSlug={projectSlug} className="mt-4" />
-        )}
+        ) : null}
       </div>
     </div>
   );

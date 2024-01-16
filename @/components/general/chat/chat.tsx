@@ -267,6 +267,7 @@ export function ChatWithoutProvider({
               ? "flex max-h-[70vh] flex-1 flex-col overflow-y-auto sm:px-8"
               : "pb-[200px] pt-4 md:pt-10",
             className,
+            "text-center",
           )}
         >
           Loading reponse...
@@ -281,6 +282,7 @@ export function ChatWithoutProvider({
         projectSlug={forcedProjectSlug || projectSlug}
         messages={messages}
         onNewMessage={handleNewMessage}
+        chat={chat}
       />
     </>
   );

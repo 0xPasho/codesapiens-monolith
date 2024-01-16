@@ -20,6 +20,7 @@ export interface PromptProps {
   projectSlug: string;
   isPublicChat?: boolean;
   error: string | null;
+  chat: any;
 }
 
 export function PromptForm({
@@ -29,6 +30,7 @@ export function PromptForm({
   isLoading,
   isPublicChat,
   error,
+  chat,
 }: PromptProps) {
   const { promptInput, setPromptInput } = useChatStore();
   const { formRef, onKeyDown } = useEnterSubmit();
@@ -58,7 +60,12 @@ export function PromptForm({
           tabIndex={0}
           onKeyDown={onKeyDown}
           rows={1}
-          disabled={!!error}
+          disabled={
+            !!error ||
+            (!chat?.processes?.length &&
+              chat?.processes?.some((item) => !item.endDate)) ||
+            !chat?.documents?.length
+          }
           value={promptInput}
           onChange={(e: any) => setPromptInput(e.target.value)}
           placeholder="Ask something"
