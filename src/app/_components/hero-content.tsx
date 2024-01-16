@@ -50,14 +50,13 @@ const HeroContent = () => {
                 👇 Try it now!
               </a>
               <a
-                href="/login"
-                //href="#demo"
+                href="#demo"
                 className=" flex items-center justify-center text-sm font-semibold leading-6"
               >
                 <span aria-hidden="true">
                   <VideoIcon className="mr-2" />
                 </span>
-                Get Started
+                Watch our Demo
               </a>
             </div>
           </div>

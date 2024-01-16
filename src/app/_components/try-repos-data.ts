@@ -9,36 +9,29 @@ export type LandingPageRepositoryInfo = {
 
 const tryReposData: LandingPageRepositoryInfo[] = [
   {
-    title: "facebook/react",
-    description: "The library for web and native user interfaces.",
-    image: "https://avatars.githubusercontent.com/u/69631?s=48&v=4",
+    title: "shadcn/ui",
+    description:
+      "Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.",
+    image: "https://avatars.githubusercontent.com/u/139895814?s=48&v=4",
     github_url: "https://github.com/facebook/react",
-    stars: "217000",
-    repositoryId: "",
+    stars: "44000",
+    repositoryId: "clrgiagig0010fmngcfm73bks",
   },
   {
-    title: "vercel/next.js",
-    description: "The React Framework",
-    image: "https://avatars.githubusercontent.com/u/14985020?s=48&v=4",
-    github_url: "https://github.com/vercel/next.js",
-    stars: "117000",
-    repositoryId: "",
+    title: "jquense/yup",
+    description: "Dead simple Object schema validation",
+    image: "https://avatars.githubusercontent.com/u/339286?s=48&v=4",
+    github_url: "https://github.com/jquense/yup",
+    stars: "21700",
+    repositoryId: "clrgjh18n0018fmng4i96xhnr",
   },
   {
-    title: "webraptor/react-native-deck-swiper",
-    description: "Tinder like react-native deck swiper",
-    image: "https://avatars.githubusercontent.com/u/864054?s=48&v=4",
-    github_url: "https://github.com/webraptor/react-native-deck-swiper",
-    stars: "113",
-    repositoryId: "",
-  },
-  {
-    title: "instapy/instapy",
-    description: "📷 Instagram Bot - Tool for automated Instagram interactions",
-    image: "https://avatars.githubusercontent.com/u/46527469?s=48&v=4",
-    github_url: "https://github.com/InstaPy/InstaPy",
-    stars: "16000",
-    repositoryId: "",
+    title: "i18next/i18next",
+    description: "i18next: learn once - translate everywhere",
+    image: "https://avatars.githubusercontent.com/u/8546082?s=48&v=4",
+    github_url: "https://github.com/i18next/i18next",
+    stars: "72000",
+    repositoryId: "clrgk4z22001cfmngevrmiqlb",
   },
   {
     title: "D3/D3.js",
@@ -46,7 +39,7 @@ const tryReposData: LandingPageRepositoryInfo[] = [
     image: "https://avatars.githubusercontent.com/u/1562726?s=48&v=4",
     github_url: "https://github.com/d3/d3",
     stars: "107000",
-    repositoryId: "",
+    repositoryId: "clrgd00w40002fmngm0fce5g2",
   },
   {
     title: "airbnb/javascript",
@@ -54,7 +47,7 @@ const tryReposData: LandingPageRepositoryInfo[] = [
     image: "https://avatars.githubusercontent.com/u/698437?s=48&v=4",
     github_url: "https://github.com/airbnb/javascript",
     stars: "110000",
-    repositoryId: "",
+    repositoryId: "clrgd1f500006fmngs01q7267",
   },
   {
     title: "fastai/nbdev",
@@ -63,23 +56,6 @@ const tryReposData: LandingPageRepositoryInfo[] = [
     github_url: "https://github.com/fastai/nbdev",
     stars: "4700",
     repositoryId: "clrencveb0009yhcmgw5fi61o",
-  },
-  {
-    title: "tfranzel/drf-spectacular",
-    description:
-      "Sane and flexible OpenAPI 3 schema generation for Django REST framework.",
-    image: "https://avatars.githubusercontent.com/u/13507857?s=48&v=4",
-    github_url: "https://github.com/tfranzel/drf-spectacular",
-    stars: "2000",
-    repositoryId: "clrejopi20009yh4yi0cdmk0o",
-  },
-  {
-    title: "mitmproxy/pdoc",
-    description: "API Documentation for Python Projects",
-    image: "https://avatars.githubusercontent.com/u/4652787?s=48&v=4",
-    github_url: "https://github.com/mitmproxy/pdoc",
-    stars: "15000",
-    repositoryId: "",
   },
 ];
 
