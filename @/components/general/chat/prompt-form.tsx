@@ -61,10 +61,11 @@ export function PromptForm({
           onKeyDown={onKeyDown}
           rows={1}
           disabled={
-            !!error ||
-            (!chat?.processes?.length &&
-              chat?.processes?.some((item) => !item.endDate)) ||
-            !chat?.documents?.length
+            !isPublicChat &&
+            (!!error ||
+              (!chat?.processes?.length &&
+                chat?.processes?.some((item) => !item.endDate)) ||
+              !chat?.documents?.length)
           }
           value={promptInput}
           onChange={(e: any) => setPromptInput(e.target.value)}
