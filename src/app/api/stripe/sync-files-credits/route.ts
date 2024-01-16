@@ -16,6 +16,22 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  await db.organization.update({
+    where: {
+      id: data.orgId,
+    },
+    data: {
+      currentProcessedFiles: foundOrg.currentProcessedFiles + data.quantity,
+    },
+  });
+
+  if (!foundOrg.stripeSubscriptionId) {
+    return new Response(null, {
+      status: 200,
+      statusText: "SUCCESS",
+    });
+  }
+
   const items = await stripe.subscriptionItems.list({
     subscription: foundOrg.stripeSubscriptionId,
   });
@@ -42,14 +58,6 @@ export async function POST(req: NextRequest) {
       action: "increment",
     });
 
-    await db.organization.update({
-      where: {
-        id: data.orgId,
-      },
-      data: {
-        currentProcessedFiles: foundOrg.currentProcessedFiles + data.quantity,
-      },
-    });
     return new Response(null, {
       status: 200,
       statusText: "SUCCESS",

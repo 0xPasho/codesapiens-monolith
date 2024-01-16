@@ -154,7 +154,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                       >
                         {item.isFolder ? (
                           <FolderIcon
-                            className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50"
+                            className=" mr-2 h-4 w-4 shrink-0 text-accent-foreground/50 text-primary"
                             aria-hidden="true"
                           />
                         ) : (
@@ -221,7 +221,7 @@ const Leaf = React.forwardRef<
     >
       {item.isFolder ? (
         <FolderIcon
-          className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50"
+          className="mr-2 h-4 w-4 shrink-0 text-accent-foreground/50 text-primary"
           aria-hidden="true"
         />
       ) : (

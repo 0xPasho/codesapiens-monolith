@@ -7,14 +7,9 @@ import { PlusIcon } from "lucide-react";
 
 const MobileNavTrigger = ({
   orgSlug,
-  items,
   hasAuth = true,
 }: {
   orgSlug: string;
-  items: {
-    title: string;
-    href: string;
-  }[];
   hasAuth?: boolean;
 }) => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -35,7 +30,7 @@ const MobileNavTrigger = ({
         <span className="ml-1 text-lg font-semibold">Menu</span>
       </Button>
       {isMobileNavOpen ? (
-        <MobileNav orgSlug={orgSlug} items={items} hasAuth={hasAuth} />
+        <MobileNav orgSlug={orgSlug} hasAuth={hasAuth} />
       ) : null}
     </>
   );

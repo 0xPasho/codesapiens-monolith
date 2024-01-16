@@ -67,23 +67,31 @@ export async function POST(req: NextRequest) {
   });
 
   try {
-    const response = await fetch(syncApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-codesapiens-auth": env.CONVOS_CROSS_ORIGIN_SERVICE_SECRET,
-      },
-      body: JSON.stringify({
-        id_user: session.user.id,
-        id_repositories: repositories.map((r) => r.id),
-        id_project: project.id,
-      }),
-    });
-
-    const json = (await response.json()) as any;
+    const processes = [];
+    let json: string;
+    // Re-did this to be able to separate each repo call
+    // instead of sending all, causing issues handling
+    // the workers from python correctly
+    for (let repo of repositories) {
+      const response = await fetch(syncApiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-codesapiens-auth": env.CONVOS_CROSS_ORIGIN_SERVICE_SECRET,
+        },
+        body: JSON.stringify({
+          id_user: session.user.id,
+          id_repositories: [repo.id],
+          id_project: project.id,
+        }),
+      });
+      const json = (await response.json()) as any;
+      processes.push(json);
+    }
 
     return NextResponse.json({
       processId: json,
+      processes,
     });
   } catch (error) {
     console.log({ error });

@@ -4,6 +4,7 @@ import HeroContent from "./hero-content";
 import TryItComponent from "./try-it-component";
 import FooterComponent from "./footer-component";
 import PlatformFeatures from "./platform-features";
+import LandingExtension from "./landing-extension-content";
 
 export default async function IndexPage() {
   return (
@@ -12,6 +13,7 @@ export default async function IndexPage() {
       <HeroContent />
       <TryItComponent />
       <PlatformFeatures />
+      <LandingExtension />
       <section
         className="space-y-6 pb-8 pt-4 md:pb-12 md:pt-12 lg:py-14"
         id="pricing"

@@ -150,7 +150,7 @@ const GithubOrgRepositories = ({
       org: repo.owner.login,
       created_at: repo.created_at,
       repoGithubIsPublic: !repo.private,
-      repoDescription: repo.description,
+      repoDescription: repo.description || "",
     };
   };
 

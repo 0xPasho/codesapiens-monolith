@@ -36,7 +36,7 @@ const tryReposData: LandingPageRepositoryInfo[] = [
     title: "instapy/instapy",
     description: "📷 Instagram Bot - Tool for automated Instagram interactions",
     image: "https://avatars.githubusercontent.com/u/46527469?s=48&v=4",
-    github_url: "https://github.com/webraptor/react-native-deck-swiper",
+    github_url: "https://github.com/InstaPy/InstaPy",
     stars: "16000",
     repositoryId: "",
   },

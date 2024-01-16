@@ -35,7 +35,7 @@ const GithubConnectButton = ({
 
   const openGithubAppInstall = () => {
     setIsGithubAppLoading(true);
-    const url = `https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_SLUG}/installations/new`;
+    const url = `https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_SLUG}/installations/select_target?state=AB12t`;
     const name = "Install GitHub App";
     const specs = "width=800,height=800";
     const _popup = window.open(url, name, specs);

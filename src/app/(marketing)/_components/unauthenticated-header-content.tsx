@@ -1,21 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { LayersIcon, ListBulletIcon } from "@radix-ui/react-icons";
+
+import Link from "next/link";
+import MobileNavTrigger from "~/app/(app)/_components/mobile-nav-trigger";
+import { siteConfig } from "~/config/site";
 import {
   BadgeHelpIcon,
   CalendarCheck2Icon,
   Globe2Icon,
+  LayersIcon,
   ScanFaceIcon,
 } from "lucide-react";
-import Link from "next/link";
-import MobileNavTrigger from "~/app/(app)/_components/mobile-nav-trigger";
-import { siteConfig } from "~/config/site";
-
-const items = [
-  {
-    title: "Pricing",
-    href: "/pricing",
-  },
-];
+import LinkItemsMenuDisplayer from "./link-items-menu-displayer";
 
 export async function UnauthenticatedHeaderContent() {
   return (
@@ -24,7 +19,7 @@ export async function UnauthenticatedHeaderContent() {
         aria-label="Global"
         className="flex w-full flex-row justify-between py-2 md:mt-4 md:px-4 lg:px-24"
       >
-        <MobileNavTrigger orgSlug={""} items={items} hasAuth={false} />
+        <MobileNavTrigger orgSlug={""} hasAuth={false} />
 
         <div className="flex hidden flex-row items-center md:flex">
           <Link href={"/"} className="flex flex-row pr-3">
@@ -32,38 +27,7 @@ export async function UnauthenticatedHeaderContent() {
 
             <span className="font-bold">{siteConfig.name}</span>
           </Link>
-          <Link href="#try">
-            <Button
-              className="text-md mx-4 hidden p-1 dark:text-white md:flex"
-              variant="link"
-            >
-              <Globe2Icon className="mr-1.5 h-4 w-4" /> Explore
-            </Button>
-          </Link>
-          <Link href="#pricing">
-            <Button
-              className="text-md mx-4 hidden p-1 dark:text-white md:flex"
-              variant="link"
-            >
-              <LayersIcon className="mr-1.5 h-4 w-4" /> Pricing
-            </Button>
-          </Link>
-          <Link href="https://twitter.com/codesapiens.ai" target="_blank">
-            <Button
-              className="text-md mx-4 hidden p-1 dark:text-white md:flex"
-              variant="link"
-            >
-              <BadgeHelpIcon className="mr-1.5 h-4 w-4" /> Support
-            </Button>
-          </Link>
-          <Link href="https://calendly.com/codesapiens/30min" target="_blank">
-            <Button
-              className="text-md ml-2 hidden p-1 dark:text-white md:flex"
-              variant="link"
-            >
-              <CalendarCheck2Icon className="mr-1.5 h-4 w-4" /> Schedule a Demo
-            </Button>
-          </Link>
+          <LinkItemsMenuDisplayer mobile={false} />
         </div>
         <div className="flex flex-row">
           <Link href="/login" className="flex flex-row pr-3">

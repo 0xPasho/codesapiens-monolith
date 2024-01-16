@@ -16,7 +16,8 @@ const ListItem = ({
   onSelect: () => void;
   isSelected: boolean;
 }) => {
-  const thousandStars = Math.floor((parseInt(item.stars, 16) || 0) / 1000);
+  const convertedNumber = Math.floor(parseInt(item.stars, 16) || 0);
+  let formattedNumber = parseFloat((convertedNumber / 1000).toFixed(1));
   return (
     <div
       className={clsx(
@@ -45,7 +46,7 @@ const ListItem = ({
       <div className="flex flex-col">
         <Badge variant="secondary" className="px-2 text-yellow-500">
           <StarIcon className="mr-1 h-3 w-3 fill-yellow-500 text-yellow-500" />
-          {thousandStars}k
+          {formattedNumber.toLocaleString()}k
         </Badge>
         <Link target="blank" href={item.github_url}>
           <Badge

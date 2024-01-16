@@ -20,7 +20,7 @@ const HeroContent = () => {
           <div className="hidden sm:mb-8 sm:flex sm:justify-center">
             <div className="relative rounded-full px-3 py-1 text-sm leading-6  ring-1 ring-white ">
               Extension comming soon.{" "}
-              <a href="#" className="font-semibold text-primary">
+              <a href="#extension" className="font-semibold text-primary">
                 <span className="absolute inset-0" aria-hidden="true"></span>
                 More info <span aria-hidden="true">&rarr;</span>
               </a>
