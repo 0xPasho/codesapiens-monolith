@@ -83,7 +83,6 @@
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
     "stripe": "^13.9.0",
-    "supabase": "link:@langchain/community/vectorstores/supabase",
     "superjson": "^1.13.1",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
