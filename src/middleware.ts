@@ -53,16 +53,17 @@ async function middleware(request: NextRequest) {
   });
 }
 
-export default withAuth(middleware, {
-  callbacks: {
-    async authorized() {
-      // This is a work-around for handling redirect on auth pages.
-      // We return true here so that the middleware function above
-      // is always called.
-      return true;
-    },
-  },
-});
+export default middleware;
+// export default withAuth(middleware, {
+//   callbacks: {
+//     async authorized() {
+//       // This is a work-around for handling redirect on auth pages.
+//       // We return true here so that the middleware function above
+//       // is always called.
+//       return true;
+//     },
+//   },
+// });
 
 export const config = {
   matcher: [
