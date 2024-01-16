@@ -16,9 +16,11 @@ import { env } from "~/env.mjs";
 const SyncFilesButton = ({
   projectSlug,
   className,
+  onSync,
 }: {
   projectSlug: string;
   className?: string;
+  onSync?: () => void;
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [isSyncing, setIsSyncing] = React.useState(false);
@@ -44,6 +46,7 @@ const SyncFilesButton = ({
           description:
             "For more information go to Settings => Documents Sync History",
         });
+        onSync?.();
       }
     } catch (err) {
       toast({

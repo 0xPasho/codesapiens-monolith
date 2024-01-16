@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import useChatStore from "./chat-context-provider";
 import { LandingPageRepositoryInfo } from "~/app/_components/try-repos-data";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import SyncFilesButton from "~/app/(app)/org/[orgSlug]/[projectSlug]/wiki/_components/sync-files-button";
 
 const exampleMessages = [
   {
@@ -30,6 +31,7 @@ export function EmptyScreen({
   isPublicChat?: boolean;
   selectedPublicItem?: LandingPageRepositoryInfo;
 }) {
+  const [isSyncing, setIsSyncing] = useState(false);
   const { setPromptInput } = useChatStore();
   if (isPublicChat) {
     return (
@@ -64,9 +66,12 @@ export function EmptyScreen({
   const headerMsg = useMemo(() => {
     const hasProcesses = !!chat?.processes?.length;
 
+    if (isSyncing) {
+      return "Your files are currently being synced, please wait until this process is finished. The current status of the process is under Settings => Documents Sync History";
+    }
     if (!hasProcesses) {
       if (!chat?.documents?.length) {
-        return "To be able to chat you will need to have documents in the project.";
+        return "To be able to chat you will need to have your repository synced correctly, please click the button below.";
       } else {
         return `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first`;
       }
@@ -102,6 +107,15 @@ export function EmptyScreen({
               </Button>
             ))}
           </div>
+        ) : null}
+        {(!chat?.processes?.length && !chat?.documents?.length) ||
+        !chat?.processes?.find((item) => !item.endDate) ? (
+          <SyncFilesButton
+            projectSlug={projectSlug}
+            onSync={() => {
+              setIsSyncing(true);
+            }}
+          />
         ) : null}
       </div>
     </div>
