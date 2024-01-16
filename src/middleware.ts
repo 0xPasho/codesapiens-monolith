@@ -2,23 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { env } from "./env.mjs";
 import { getServerSession } from "next-auth";
 import { NextApiResponse } from "next";
+import { getToken } from "next-auth/jwt";
 
 async function middleware(request: NextRequest, res: NextApiResponse) {
   // We can't import next-auth here because it's not available in the serverless environment
   // and it was causing issues, so we rely on the cookie directly
   //const sessionToken = request.cookies.get("next-auth.session-token");
-  const session = await getServerSession();
+  const token = await getToken({ req: request });
 
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
 
-  console.log({ isAuthPage, session, user: session?.user });
-  console.log({ isAuthPage, session, user: session?.user });
-  console.log({ isAuthPage, session, user: session?.user });
-  console.log({ isAuthPage, session, user: session?.user });
-  console.log(session?.user);
-  if (!session?.user?.id) {
+  console.log({ token });
+  console.log({ token });
+  if (!token) {
     let from = request.nextUrl.pathname;
     if (request.nextUrl.search) {
       from += request.nextUrl.search;
