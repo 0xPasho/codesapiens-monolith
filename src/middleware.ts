@@ -14,16 +14,23 @@ async function middleware(request: NextRequest) {
   });
   console.log({ token });
   console.log({ token });
+  const keyWeWant = "next-auth.session-token";
   const httpsCookie = request.headers.cookies?.get?.(
     "__Secure-next-auth.session-token",
   )?.value;
   const httpCookie = request.headers.cookies?.get?.("next-auth.session-token")
     ?.value;
+  let isAuthenticated = false;
+  await request.headers.forEach((value, key) => {
+    console.log({ value, key });
+    if (value.includes(keyWeWant) || key.includes(keyWeWant)) {
+      isAuthenticated = true;
+    }
+  });
   console.log({ header: request.headers });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
-  const isAuthenticated = httpCookie || httpsCookie;
   console.log({ token });
   console.log({ httpCookie, httpsCookie });
   console.log({ httpCookie, httpsCookie });
@@ -70,49 +77,54 @@ async function middleware(request: NextRequest) {
 // export default middleware;
 export default withAuth(
   middleware,
-  // // {
-  // //   callbacks: {
-  // //     async authorized({ req, token }) {
-  // //       // let expectedToken = await getToken({
-  // //       //   req,
-  // //       //   secret: process.NEXTAUTH_SECRET!,
-  // //       // });
-
-  // //       // console.log({ expectedToken });
-  // //       // console.log({ expectedToken });
-  // //       // console.log({ expectedToken });
-
-  // //       // expectedToken.expectedToken = await getToken({
-  // //       //   req,
-  // //       //   secret: "5w7LkPh6uU5mpj4t",
-  // //       // });
-  // //       // console.log("cookies");
-  // //       // console.log(req.cookies);
-  // //       // console.log(req.cookies);
-  // //       // console.log(req.cookies);
-  // //       // const tokenValue = req.cookies.get("next-auth.session-token")?.value;
-  // //       // const tokenInSession: any = tokenValue
-  // //       //   ? jwtDecode(tokenValue || "{}")
-  // //       //   : new Object();
-  // //       // console.log({ tokenValue, tokenInSession });
-  // //       // console.log({ tokenValue, tokenInSession });
-  // //       // console.log({ tokenValue, tokenInSession });
-  // //       // console.log(tokenInSession);
-  // //       return true;
-  // //     },
-  // //   },
-  // },
-  //middleware,
   // {
   //   callbacks: {
-  //     async authorized() {
-  //       // This is a work-around for handling redirect on auth pages.
-  //       // We return true here so that the middleware function above
-  //       // is always called.
+  //     async authorized({ req, token }) {
+  //       // let expectedToken = await getToken({
+  //       //   req,
+  //       //   secret: process.NEXTAUTH_SECRET!,
+  //       // });
+
+  //       // console.log({ expectedToken });
+  //       // console.log({ expectedToken });
+  //       // console.log({ expectedToken });
+
+  //       // expectedToken.expectedToken = await getToken({
+  //       //   req,
+  //       //   secret: "5w7LkPh6uU5mpj4t",
+  //       // });
+  //       // console.log("cookies");
+  //       // console.log(req.cookies);
+  //       // console.log(req.cookies);
+  //       // console.log(req.cookies);
+  //       // const tokenValue = req.cookies.get("next-auth.session-token")?.value;
+  //       // const tokenInSession: any = tokenValue
+  //       //   ? jwtDecode(tokenValue || "{}")
+  //       //   : new Object();
+  //       // console.log({ tokenValue, tokenInSession });
+  //       // console.log({ tokenValue, tokenInSession });
+  //       // console.log({ tokenValue, tokenInSession });
+  //       // console.log(tokenInSession);
   //       return true;
   //     },
   //   },
-  // }
+
+  {
+    callbacks: {
+      async authorized() {
+        // This is a work-around for handling redirect on auth pages.
+        // We return true here so that the middleware function above
+        // is always called.
+        return true;
+      },
+    },
+    secret: process.env.NEXTAUTH_SECRET!,
+    // pages: {
+    //   signIn: '/login',
+    //   signOut: '/',
+    //   error: '/'
+    // }
+  },
 );
 
 export const config = {
