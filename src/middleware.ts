@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { env } from "./env.mjs";
 import { withAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
+import jwt_decode from "jwt-decode";
 
 async function middleware(request: NextRequest) {
   // We can't import next-auth here because it's not available in the serverless environment
@@ -53,17 +54,35 @@ async function middleware(request: NextRequest) {
   });
 }
 
-export default middleware;
-// export default withAuth(middleware, {
-//   callbacks: {
-//     async authorized() {
-//       // This is a work-around for handling redirect on auth pages.
-//       // We return true here so that the middleware function above
-//       // is always called.
-//       return true;
-//     },
-//   },
-// });
+// export default middleware;
+export default withAuth(
+  {
+    callbacks: {
+      authorized({ req, token }) {
+        const tokenValue = req.cookies.get("next-auth.session-token")?.value;
+        const tokenInSession: any = tokenValue
+          ? jwt_decode(tokenValue || "{}")
+          : new Object();
+        console.log({ tokenValue, tokenInSession });
+        console.log({ tokenValue, tokenInSession });
+        console.log({ tokenValue, tokenInSession });
+        console.log(tokenInSession);
+        return true;
+      },
+    },
+  },
+  //middleware,
+  // {
+  //   callbacks: {
+  //     async authorized() {
+  //       // This is a work-around for handling redirect on auth pages.
+  //       // We return true here so that the middleware function above
+  //       // is always called.
+  //       return true;
+  //     },
+  //   },
+  // }
+);
 
 export const config = {
   matcher: [
