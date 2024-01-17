@@ -1,6 +1,7 @@
 "use client";
 
 import WikiLayout from "./_components/document-slug-screen-components/document-layout";
+import { useWikiContext } from "./_components/wiki-context";
 
 interface DocPageProps {
   params: {
@@ -16,5 +17,13 @@ export default async function DocsPageLayoutComponent({
   params,
   children,
 }: DocPageProps) {
-  return <WikiLayout params={params}>{children}</WikiLayout>;
+  const { menuItems, initialLoadDone } = useWikiContext();
+  if (
+    (!initialLoadDone && menuItems.length > 0) ||
+    menuItems.length > 0 ||
+    !initialLoadDone
+  ) {
+    return <WikiLayout params={params}>{children}</WikiLayout>;
+  }
+  return <>{children}</>;
 }

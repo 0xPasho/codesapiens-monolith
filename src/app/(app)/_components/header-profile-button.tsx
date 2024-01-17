@@ -74,7 +74,7 @@ export default function HeaderProfileButton() {
             </Link>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <Link href="https://twitter.com/codesapiens.ai">
+          <Link href="https://twitter.com/codesapiens_ai">
             <DropdownMenuItem>
               Support
               <DropdownMenuShortcut>

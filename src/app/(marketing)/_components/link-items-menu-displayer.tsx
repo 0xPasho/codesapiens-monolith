@@ -23,7 +23,7 @@ const LinkItemsMenuDisplayer = ({ mobile }: { mobile: boolean }) => {
     },
     {
       title: "Support",
-      href: "https://twitter.com/codesapiens.ai",
+      href: "https://twitter.com/codesapiens_ai",
       icon: BadgeHelpIcon,
     },
     {

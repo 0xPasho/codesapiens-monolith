@@ -13,12 +13,12 @@ export type SiteConfig = {
   };
 };
 
-const twitterUsername = "olyvialabs";
+const twitterUsername = "codesapiens_ai";
 export const siteConfig: SiteConfig = {
   name: "codesapiens.ai",
-  description: "We understand the code for you with AI.",
+  description: "We understand your code.  We document it. You ask questions.",
   url: env.NEXT_PUBLIC_APP_URL,
-  ogImage: `${env.NEXT_PUBLIC_APP_URL}/og.jpg`,
+  ogImage: `${env.NEXT_PUBLIC_APP_URL}/logo.png`,
   username: {
     twitter: twitterUsername,
   },

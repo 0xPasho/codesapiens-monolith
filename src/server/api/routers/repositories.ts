@@ -10,6 +10,10 @@ const GetRepositoriesByProjectSlug = z.object({
   projectSlug: z.string(),
 });
 
+const GetRepositoryInput = z.object({
+  repositoryId: z.string(),
+});
+
 const GetRepositoryDocumentsCountInput = z.object({
   repositoryId: z.string(),
 });
@@ -37,6 +41,15 @@ export const repositoriesRouter = createTRPCRouter({
       return project.repositories.filter((repo) => {
         return repo.repository.repositoryType === "manual";
       });
+    }),
+  getRepository: protectedProcedure
+    .input(GetRepositoryInput)
+    .query(async ({ ctx, input }) => {
+      const repo = await ctx.db.repository.findFirstOrThrow({
+        where: { id: input.repositoryId },
+      });
+
+      return repo;
     }),
   getRepositoriesByProjectSlug: protectedProcedure
     .input(GetRepositoriesByProjectSlug)
