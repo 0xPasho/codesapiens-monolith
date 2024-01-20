@@ -25,6 +25,10 @@ export async function POST(req: NextRequest) {
   const project = await db.project.findFirst({
     where: {
       slug: projectSlug,
+      // @TODO!
+      // organization: {
+      //   slug: input.orgSlug
+      // },
     },
     include: {
       organization: true,
@@ -40,9 +44,9 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // if (!project?.organization?.stripeCustomerId) {
-  //   return NextResponse.json({ error: "Needs subscription", status: 403 });
-  // }
+  if (!project?.organization?.stripeCustomerId) {
+    return NextResponse.json({ error: "Needs subscription", status: 403 });
+  }
 
   let idRepositoriesToSend = [];
   for (let pr of project.repositories) {
