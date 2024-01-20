@@ -18,7 +18,7 @@ const LinkItemsMenuDisplayer = ({ mobile }: { mobile: boolean }) => {
     },
     {
       title: "Pricing",
-      href: "/pricing",
+      href: "#pricing",
       icon: LayersIcon,
     },
     {

@@ -1,6 +1,15 @@
 import create from "zustand";
 import { ChatHistory } from "@prisma/client";
 
+export type ChatRepositoriesItems = {
+  value: string;
+  label: string;
+  metadata?: {
+    isSynced: boolean;
+    hasDocuments: boolean;
+  };
+};
+
 // Defining the Chat State Types
 type ChatState = {
   messages: ChatHistory[];
@@ -8,6 +17,8 @@ type ChatState = {
   promptInput: string;
   currentStatus: "new" | "stale" | "error";
   isLoading: boolean;
+  selectedRepositoriesItem: string;
+  repositoriesItems: ChatRepositoriesItems[];
 };
 
 // Defining the Chat Store Actions and State
@@ -21,7 +32,10 @@ const useChatStore = create<
     setChatId: (id: string) => void;
     setPromptInput: (input: string) => void;
     setChatIsLoading: (isLoading: boolean) => void;
+    setChatRepositories: (items: ChatRepositoriesItems[]) => void;
+    setSelectedRepositoriesItem: (id: string) => void;
     reset: () => void;
+    resetExceptRepositoryItems: () => void;
   }
 >((set) => ({
   // Initial State
@@ -30,6 +44,8 @@ const useChatStore = create<
   promptInput: "",
   currentStatus: "new",
   isLoading: false,
+  selectedRepositoriesItem: "all",
+  repositoriesItems: [{ value: "all", label: "All documents" }],
 
   // Actions
   addMessage: (message) =>
@@ -40,7 +56,24 @@ const useChatStore = create<
   setChatId: (id) => set(() => ({ chatId: id })),
   setPromptInput: (input) => set(() => ({ promptInput: input })),
   setChatIsLoading: (isLoading) => set(() => ({ isLoading })),
+  setSelectedRepositoriesItem: (id) => {
+    set({ selectedRepositoriesItem: id });
+  },
+  setChatRepositories: (repositoriesItems) =>
+    set(() => ({
+      repositoriesItems,
+    })),
   reset: () =>
+    set(() => ({
+      messages: [],
+      chatId: "",
+      currentStatus: "new",
+      promptInput: "",
+      isLoading: false,
+      repositoriesItems: [{ value: "all", label: "All documents" }],
+      selectedRepositoriesItem: "all",
+    })),
+  resetExceptRepositoryItems: () =>
     set(() => ({
       messages: [],
       chatId: "",

@@ -26,6 +26,7 @@ export interface ChatProps extends React.ComponentProps<"div"> {
 
 const ErrorMessagesContext = ({ error }: { error: string | null }) => {
   if (!error) return null;
+
   if (error === "UNAUTHORIZED") {
     return (
       <div>
@@ -52,6 +53,7 @@ const ErrorMessagesContext = ({ error }: { error: string | null }) => {
       </div>
     );
   }
+
   if (error === "NO_MORE_CREDITS") {
     return (
       <div className="relative mx-auto max-w-2xl rounded-lg border p-5 px-4 text-red-500">
@@ -60,6 +62,7 @@ const ErrorMessagesContext = ({ error }: { error: string | null }) => {
       </div>
     );
   }
+
   if (error === "INTERNAL_ERROR") {
     return (
       <div className="relative mx-auto max-w-2xl rounded-lg border p-5 px-4 text-red-500">
@@ -69,6 +72,8 @@ const ErrorMessagesContext = ({ error }: { error: string | null }) => {
       </div>
     );
   }
+
+  return null;
 };
 
 const ChatHeaderContext = ({
@@ -120,6 +125,8 @@ export function ChatWithoutProvider({
     chatId,
     isLoading,
     messages,
+    selectedRepositoriesItem,
+    repositoriesItems,
   } = useChatStore();
   // Forced is ONLY for free chat on home screen, as they won't
   // have a project related to this repository they want to ask
@@ -128,6 +135,7 @@ export function ChatWithoutProvider({
   const { data: sessionData } = useSession();
   const storeCleared = useRef(false);
   const [msgError, setMsgError] = useState<string>(null);
+
   useEffect(() => {
     if (propsMsgs?.length) {
       setConversationHistory((msgs) => [...msgs, ...propsMsgs]);
@@ -140,12 +148,14 @@ export function ChatWithoutProvider({
     reset();
   }, []);
 
+  useEffect(() => {
+    if (orgSlug && projectSlug) {
+    }
+  }, [orgSlug, projectSlug]);
+
   const createChatAnswer = api.chat.createChatAnswer.useMutation({
     onSuccess(data) {
       try {
-        console.log({ data });
-        console.log({ data });
-        console.log({ data });
         if (data.error) {
           if (messages.length > 0) {
             toast({ title: "You reached the limit of FREE daily questions" });
@@ -170,20 +180,13 @@ export function ChatWithoutProvider({
         }
         setConversationHistory((providedMsgs) => {
           const newMessages = [...providedMsgs];
-          console.log({ newMessages });
-          console.log({ newMessages });
           const fakeMsgIndex = newMessages.findIndex(
             (msg) => msg.id === "the-new-msg",
           );
-          console.log({ fakeMsgIndex });
-          console.log({ fakeMsgIndex });
-
           if (fakeMsgIndex !== -1) {
             newMessages[fakeMsgIndex] = data.userMessage as ChatHistory;
           }
           newMessages.push(data.assistanceMessage as ChatHistory);
-          console.log({ newMessages });
-          console.log({ newMessages });
           return newMessages;
         });
         setChatIsLoading(false);
@@ -217,12 +220,16 @@ export function ChatWithoutProvider({
       ];
     });
 
+    let repositoryIdToAsk = repositoryId;
+    if (!repositoryId && selectedRepositoriesItem !== "all") {
+      repositoryIdToAsk = selectedRepositoriesItem;
+    }
     createChatAnswer.mutate({
       project_slug: forcedProjectSlug || projectSlug,
       prompt: data.prompt,
       chatId: chatId,
       orgSlug: forcedOrgSlug || orgSlug,
-      repositoryId,
+      repositoryId: repositoryIdToAsk,
     });
   };
 

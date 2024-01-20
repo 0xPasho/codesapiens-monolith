@@ -12,6 +12,7 @@ import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import Link from "next/link";
 import { ArrowUp, SearchCodeIcon } from "lucide-react";
 import useChatStore from "./chat-context-provider";
+import { PromptRepositoryPicker } from "./prompt-repository-picker";
 
 export interface PromptProps {
   onSubmit: (value: string) => Promise<void>;
@@ -42,6 +43,19 @@ export function PromptForm({
     }
   }, []);
 
+  const isTextAreaDisabled = React.useMemo(() => {
+    if (
+      !isPublicChat &&
+      (!!error ||
+        (!chat?.processes?.length &&
+          chat?.processes?.some((item) => !item.endDate)) ||
+        !chat?.documents?.length)
+    ) {
+      return true;
+    }
+    return false;
+  }, [isPublicChat, error, chat]);
+
   return (
     <form
       onSubmit={async (e) => {
@@ -55,24 +69,28 @@ export function PromptForm({
       ref={formRef}
     >
       <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background pl-2 pr-8 sm:rounded-md sm:border sm:pr-12">
-        <Textarea
-          ref={inputRef}
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          rows={1}
-          disabled={
-            !isPublicChat &&
-            (!!error ||
-              (!chat?.processes?.length &&
-                chat?.processes?.some((item) => !item.endDate)) ||
-              !chat?.documents?.length)
-          }
-          value={promptInput}
-          onChange={(e: any) => setPromptInput(e.target.value)}
-          placeholder="Ask something"
-          spellCheck={false}
-          className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
-        />
+        <div className="flex flex-col md:flex-row">
+          {!isPublicChat ? (
+            <div className="align-center flex items-center justify-center">
+              <PromptRepositoryPicker
+                orgSlug={orgSlug}
+                projectSlug={projectSlug}
+              />
+            </div>
+          ) : null}
+          <Textarea
+            ref={inputRef}
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            rows={1}
+            disabled={isTextAreaDisabled}
+            value={promptInput}
+            onChange={(e: any) => setPromptInput(e.target.value)}
+            placeholder="Ask something"
+            spellCheck={false}
+            className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
+          />
+        </div>
         <div className="absolute right-0 top-4 sm:right-4">
           <TooltipProvider>
             <Tooltip>

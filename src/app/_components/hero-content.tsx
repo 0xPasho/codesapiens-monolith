@@ -17,15 +17,20 @@ const HeroContent = () => {
           ></div>
         </div>
         <div className="sm:py-34 lg:py-42 mx-auto max-w-2xl py-32">
-          <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-            <div className="relative rounded-full px-3 py-1 text-sm leading-6  ring-1 ring-white ">
-              Extension comming soon.{" "}
-              <a href="#extension" className="font-semibold text-primary">
-                <span className="absolute inset-0" aria-hidden="true"></span>
-                More info <span aria-hidden="true">&rarr;</span>
-              </a>
+          <a
+            href="#demo"
+            className="mb-2 flex cursor-pointer justify-center sm:mb-8"
+          >
+            <div className="relative flex flex-row rounded-full px-3 py-1 text-sm leading-6  ring-1 ring-white ">
+              <span
+                aria-hidden="true"
+                className="align-center flex items-center justify-center"
+              >
+                <VideoIcon className="mr-2" />
+              </span>
+              <span>Watch our Demo</span>
             </div>
-          </div>
+          </a>
           <div className="text-center">
             <div className="my-4 text-center">
               <h1 className="text-5xl font-bold tracking-tight">
@@ -50,13 +55,19 @@ const HeroContent = () => {
                 👇 Try it now!
               </a>
               <a
-                href="#demo"
+                href="#extension"
                 className=" flex items-center justify-center text-sm font-semibold leading-6"
               >
-                <span aria-hidden="true">
-                  <VideoIcon className="mr-2" />
-                </span>
-                Watch our Demo
+                <div className="relative flex-col rounded-sm px-2 py-2 text-xs ring-1 ring-white ">
+                  <p>CodeSapiens Extension.</p>
+                  <a href="#extension" className="font-semibold text-primary">
+                    <span
+                      className="absolute inset-0"
+                      aria-hidden="true"
+                    ></span>
+                    More info <span aria-hidden="true">&rarr;</span>
+                  </a>
+                </div>
               </a>
             </div>
           </div>

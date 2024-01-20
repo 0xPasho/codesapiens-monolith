@@ -13,6 +13,11 @@ const CreateChatAnswerInput = z.object({
   repositoryId: z.string().optional(),
 });
 
+const GetRepositoriesInChatInput = z.object({
+  project_slug: z.string(),
+  orgSlug: z.string(),
+});
+
 type CreateChatAnswerResponse = {
   answer: string;
   user_message: string;
@@ -141,7 +146,6 @@ const getOrgByFreeUser = async (
       },
     },
   });
-  console.log({ deepFinding });
   if (!deepFinding?.id) {
     const baseSlug = repositoryInformation.repoProjectName
       .trim()
@@ -284,6 +288,7 @@ export const chatRouter = createTRPCRouter({
         project = theChat.project;
         currentOrg = theChat.project.organization;
       } else {
+        // For the case of chatting on Landing page and NOT havingt his repo connected
         if (input.repositoryId && !input.orgSlug) {
           const freshUserInformation = await getOrgByFreeUser(ctx, input);
           project = freshUserInformation.project;
@@ -312,6 +317,8 @@ export const chatRouter = createTRPCRouter({
       const remainingCredits =
         (currentOrg.planMaxQuestions || 0) - (currentOrg.currentQuestions || 0);
 
+      // @TODO: In the future, we'll have a checkbox to avoid users reach the maxinum of a repo
+      // this condition is what we need to change
       if (remainingCredits <= 0 && currentOrg.currentPlan === "free") {
         return { error: "NO_MORE_CREDITS", status: 403 };
       }
@@ -424,5 +431,31 @@ export const chatRouter = createTRPCRouter({
       // });
 
       // return {chat, chatHistory: };
+    }),
+  getRepositoriesByChat: protectedProcedure
+    .input(GetRepositoriesInChatInput)
+    .query(async ({ ctx, input }) => {
+      const repositories = await ctx.db.repository.findMany({
+        where: {
+          projects: {
+            some: {
+              project: {
+                slug: input.project_slug,
+                organization: {
+                  slug: input.orgSlug,
+                },
+              },
+            },
+          },
+        },
+        include: {
+          processes: {
+            where: {
+              OR: [{ endDate: null }],
+            },
+          },
+        },
+      });
+      return repositories;
     }),
 });

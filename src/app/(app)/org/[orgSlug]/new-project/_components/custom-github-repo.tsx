@@ -43,7 +43,7 @@ const CustomGithubRepo = ({
         }}
       />
       {inputValue ? (
-        <Button className="min-w-[18rem] max-w-full" onClick={() => onSubmit()}>
+        <Button className="min-w-[8rem] max-w-full" onClick={() => onSubmit()}>
           Add repo
         </Button>
       ) : null}

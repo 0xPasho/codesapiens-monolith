@@ -54,41 +54,42 @@ export default async function RepositoriesByProjectPage({
   return (
     <div className="mt-14  flex w-full justify-center px-4">
       <div className="flex w-[1200px] max-w-full flex-col px-4 sm:px-8 md:px-0">
-        <div className="flex flex-col justify-between md:flex-row">
-          <h2 className="mr-2 text-4xl font-bold tracking-tight">
-            Documentation Hub
-          </h2>
+        <div className="flex flex-col justify-between lg:flex-row">
           <div>
-            <SyncFilesButton projectSlug={projectSlug} />
+            <h1 className="text-2xl font-bold">Documentation Hub</h1>
+            <span>
+              This is where all you documentation seats. Your manually added
+              documentation and github repositories of this project
+            </span>
+          </div>
+          <div>
+            <div>
+              <SyncFilesButton
+                className="mt-2 w-full md:mt-0"
+                projectSlug={projectSlug}
+              />
+            </div>
+            <div className="mt-2">
+              <AddMoreGithubReposModal
+                installationId={currUser.githubInstallationId}
+                projectSlug={projectSlug}
+                orgSlug={orgSlug}
+              />
+            </div>
           </div>
         </div>
-        <div>
+        <div className="grid gap-4 pb-12 md:grid-cols-2 lg:grid-cols-3">
           <RepositoryGridItem
             key={`repo-item-${defaultRepo.id}`}
             orgSlug={orgSlug}
             projectSlug={projectSlug}
             repository={{
               ...defaultRepo,
-              repoProjectName: "Project Documentation",
+              repoProjectName: "Manually added documentation",
+              title: "Manually added documentation",
             }}
             description="Manage all your project-related documents here, including onboarding guides, platform usage manuals, feature explanations, and more."
           />
-        </div>
-        <Separator className="my-8" />
-        <div className="flex flex-col justify-between md:flex-row">
-          <div>
-            <h1 className="text-2xl font-bold">Synced Github Repos</h1>
-            <span>Github repositories to this project</span>
-          </div>
-          <div>
-            <AddMoreGithubReposModal
-              installationId={currUser.githubInstallationId}
-              projectSlug={projectSlug}
-              orgSlug={orgSlug}
-            />
-          </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {repositoriesWithoutDefault.map(
             (repository: Repository, index: number) => (
               <RepositoryGridItem

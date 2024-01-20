@@ -61,7 +61,7 @@ const AddMoreGithubReposModal = ({
   return (
     <Dialog open={isVisible} onOpenChange={setIsVisible}>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant="secondary" className="w-full">
           <GithubIcon className="mr-2 h-4 w-4" /> Add More Github repositories
         </Button>
       </DialogTrigger>
@@ -70,17 +70,19 @@ const AddMoreGithubReposModal = ({
         <DialogHeader>
           <DialogTitle>Sync Github Repositories</DialogTitle>
         </DialogHeader>
-        <NewProjectContent
-          orgSlug={orgSlug}
-          withRedirect={false}
-          onContinueSelectingRepos={(repositories) => {
-            addMoreRepositories.mutate({
-              repositories,
-              projectSlug,
-            });
-          }}
-          installationId={installationId}
-        />
+        <div className="max-h-[65vh] overflow-y-auto">
+          <NewProjectContent
+            orgSlug={orgSlug}
+            withRedirect={false}
+            onContinueSelectingRepos={(repositories) => {
+              addMoreRepositories.mutate({
+                repositories,
+                projectSlug,
+              });
+            }}
+            installationId={installationId}
+          />
+        </div>
         <p className="text-center">
           Note: If repo is already added, it will be ignored
         </p>

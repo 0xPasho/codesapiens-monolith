@@ -25,10 +25,6 @@ const DisplayItem = ({
   isSelected: boolean;
   onToggleSelect: (repo: any) => void;
 }) => {
-  console.log({ repo });
-  console.log({ repo, repoNAme: repo.name });
-  console.log({ repo, repoNAme: repo.name });
-  console.log({ repo, repoNAme: repo.name });
   return (
     <div
       className="mb-4 flex w-full flex-col px-2 sm:flex-row"
@@ -150,7 +146,7 @@ const GithubOrgRepositories = ({
       org: repo.owner.login,
       created_at: repo.created_at,
       repoGithubIsPublic: !repo.private,
-      repoDescription: repo.description || "",
+      repoDescription: "", //repo.description || "",
     };
   };
 

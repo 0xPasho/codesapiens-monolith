@@ -32,7 +32,9 @@ export function EmptyScreen({
   selectedPublicItem?: LandingPageRepositoryInfo;
 }) {
   const [isSyncing, setIsSyncing] = useState(false);
-  const { setPromptInput } = useChatStore();
+  const { setPromptInput, selectedRepositoriesItem, repositoriesItems } =
+    useChatStore();
+
   if (isPublicChat) {
     return (
       <div className="mx-auto max-w-2xl">
@@ -66,24 +68,67 @@ export function EmptyScreen({
   const headerMsg = useMemo(() => {
     const hasProcesses = !!chat?.processes?.length;
 
-    if (isSyncing) {
-      return "Your files are currently being synced, please wait until this process is finished. The current status of the process is under Settings => Documents Sync History";
-    }
-    if (!hasProcesses) {
-      if (!chat?.documents?.length) {
-        return "To be able to chat you will need to have your repository synced correctly, please click the button below.";
+    const currentSelectedItem = repositoriesItems?.find(
+      (item) => item.value === selectedRepositoriesItem,
+    );
+    if (selectedRepositoriesItem !== "all") {
+      if (!currentSelectedItem?.metadata?.isSynced) {
+        return `The files from ${currentSelectedItem?.label} are currently being synced, it may take up to 10 minutes, depending on project size and current server usag. Please wait a bit while it finishes. The current status of the process is under Settings => Documents Sync History.`;
       } else {
-        return `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first`;
+        return "You can start a conversation with this smart monkey by asking for example";
+      }
+    } else {
+      if (isSyncing) {
+        return "Some of your files are currently being synced, please wait until this process is finished. The current status of the process is under Settings => Documents Sync History. You can still ask questions to the already processed files.";
+      }
+      if (!hasProcesses) {
+        if (!chat?.documents?.length) {
+          return "To be able to chat you will need to have your repository synced correctly, please click the button below.";
+        } else {
+          return `This project don't have any synced file, you can ask questions but for results related to the project you need to sync files first`;
+        }
+      }
+      // you can't have procceses without docs, so, that case's avoided
+
+      if (chat?.processes?.find((item) => !item.endDate)) {
+        return "Some of your documents are currently being synced. It may take up to 10 minutes, depending on project size and current server usage";
       }
     }
-    // you can't have procceses without docs, so, that case's avoided
 
-    if (chat?.processes?.find((item) => !item.endDate)) {
-      return "Your documents are currently being synced. It may take from 1 to 30 min depending on project size and current server usage";
+    return "You can start a conversation with this smart monkey to all your documents by asking for example";
+  }, [chat, selectedRepositoriesItem, repositoriesItems]);
+
+  const shouldShowExamples = useMemo(() => {
+    if (selectedRepositoriesItem !== "all") {
+      const currentSelectedItem = repositoriesItems?.find(
+        (item) => item.value === selectedRepositoriesItem,
+      );
+      return currentSelectedItem?.metadata?.isSynced;
     }
 
-    return "You can start a conversation with this smart monkey by asking for example";
-  }, [chat]);
+    if (
+      chat?.documents?.length &&
+      chat?.processes?.length &&
+      chat?.processes?.every((item) => item.endDate)
+    ) {
+      return true;
+    }
+
+    return false;
+  }, [chat, selectedRepositoriesItem, repositoriesItems]);
+
+  const shouldShowSyncButton = useMemo(() => {
+    if (selectedRepositoriesItem !== "all") {
+      const currentSelectedItem = repositoriesItems?.find(
+        (item) => item.value === selectedRepositoriesItem,
+      );
+      return !currentSelectedItem?.metadata?.isSynced;
+    }
+    if (!chat?.processes?.length && !chat?.documents?.length) {
+      return true;
+    }
+    return false;
+  }, [chat, selectedRepositoriesItem, repositoriesItems]);
 
   return (
     <div className="mx-auto max-w-2xl px-4">
@@ -91,9 +136,7 @@ export function EmptyScreen({
         <img src="/logo.png" className="mb-2 w-24" />
         <h1 className="mb-2 text-lg font-semibold">Hey, I'm here to help.</h1>
         <p className="leading-normal text-muted-foreground">{headerMsg}</p>
-        {chat?.documents?.length &&
-        chat?.processes?.length &&
-        chat?.processes?.every((item) => item.endDate) ? (
+        {shouldShowExamples ? (
           <div className="mt-4 flex flex-col items-start space-y-2">
             {exampleMessages.map((message, index) => (
               <Button
@@ -108,7 +151,7 @@ export function EmptyScreen({
             ))}
           </div>
         ) : null}
-        {!chat?.processes?.length && !chat?.documents?.length ? (
+        {shouldShowSyncButton ? (
           <SyncFilesButton
             projectSlug={projectSlug}
             onSync={() => {
