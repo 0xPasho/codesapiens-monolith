@@ -141,7 +141,7 @@ export function UserAuthForm({
             </span>
           </div>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {/* <form onSubmit={handleSubmit(onSubmit)}>
           <Label className="sr-only" htmlFor="email">
             Email
           </Label>
@@ -165,7 +165,7 @@ export function UserAuthForm({
           >
             Sign In with Email
           </Button>
-        </form>
+        </form> */}
       </CardContent>
     </Card>
   );

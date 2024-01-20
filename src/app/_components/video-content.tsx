@@ -17,7 +17,7 @@ const VideoContent = () => {
           style={{ maxWidth: "100%" }}
           width="1000"
           height="563"
-          src="https://www.loom.com/embed/9f3490eb97304f8aacb5caed244aa353?sid=efb36ed0-2c39-49c3-a46c-c398b4a5053d"
+          src="https://www.loom.com/embed/435ae723555e469b9569dd58b2542db9?sid=117d5371-220f-4efd-b036-6f87c6fb7216"
           frameborder="0"
           webkitallowfullscreen
           mozallowfullscreen
@@ -27,5 +27,3 @@ const VideoContent = () => {
     </section>
   );
 };
-
-export default VideoContent;
