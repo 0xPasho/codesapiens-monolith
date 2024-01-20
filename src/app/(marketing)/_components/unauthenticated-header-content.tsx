@@ -3,14 +3,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import MobileNavTrigger from "~/app/(app)/_components/mobile-nav-trigger";
 import { siteConfig } from "~/config/site";
-import {
-  BadgeHelpIcon,
-  CalendarCheck2Icon,
-  Globe2Icon,
-  LayersIcon,
-  ScanFaceIcon,
-} from "lucide-react";
+import { ScanFaceIcon } from "lucide-react";
 import LinkItemsMenuDisplayer from "./link-items-menu-displayer";
+import { Badge } from "@/components/ui/badge";
 
 export async function UnauthenticatedHeaderContent() {
   return (
@@ -26,6 +21,12 @@ export async function UnauthenticatedHeaderContent() {
             <img src="/logo.png" className="mr-2 w-7" />
 
             <span className="font-bold">{siteConfig.name}</span>
+            <Badge
+              variant="ghost"
+              className="ml-1 mt-0 px-0.5 py-0.5 text-[8px]"
+            >
+              <span className="text-[8px]">BETA</span>
+            </Badge>
           </Link>
           <LinkItemsMenuDisplayer mobile={false} />
         </div>

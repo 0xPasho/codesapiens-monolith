@@ -120,11 +120,6 @@ export function WikiSidebarNav({
       <h1 className="mt-4 text-center text-lg font-bold sm:pt-0 sm:text-start">
         File list
       </h1>
-      <Link href={`/org/${orgSlug}/${projectSlug}/wiki`}>
-        <Button variant="ghost" className="mt-4 px-1">
-          <ArrowLeftIcon /> Go to Repositories
-        </Button>
-      </Link>
       <Separator className="mb-1 mt-2" />
       <Tree
         data={menuItems}

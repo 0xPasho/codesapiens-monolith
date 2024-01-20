@@ -1,7 +1,6 @@
 import { HeaderContent } from "~/app/(app)/_components/header-content";
 import { headers } from "next/headers";
 import { getServerAuthSession } from "~/server/auth";
-import FooterComponent from "../_components/footer-component";
 
 interface AuthLayoutProps {
   children: React.ReactNode;

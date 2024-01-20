@@ -20,12 +20,6 @@ export default async function DocsPageMainComponent({ params }: DocPageProps) {
   return (
     <main className="relative lg:gap-10 xl:grid xl:grid-cols-[1fr_300px]">
       <div className="mx-auto w-full min-w-0">
-        <Link href={`/org/${params.orgSlug}/${params.projectSlug}/wiki`}>
-          <Button variant="ghost" className="mt-4 px-1">
-            <ArrowLeftIcon /> Go Back to Repositories
-          </Button>
-        </Link>
-
         <React.Suspense
           fallback={
             <>

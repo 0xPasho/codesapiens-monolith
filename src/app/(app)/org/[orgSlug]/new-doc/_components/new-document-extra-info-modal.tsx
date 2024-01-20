@@ -38,9 +38,6 @@ const FormSchema = z.object({
   projectId: z.string({
     required_error: "Please select a project",
   }),
-  repositoryId: z.string({
-    required_error: "Please select a repository",
-  }),
 });
 
 export default function NewDocumentExtraInfoModal({
@@ -68,8 +65,6 @@ export default function NewDocumentExtraInfoModal({
           "Your document was created successfully. You can now start editing it.",
       });
       const project = projects?.find((project) => project.id === projectId);
-      console.log({ data });
-      console.log({ data });
       router.push(`/org/${orgSlug}/${project!.slug!}/wiki/edit/${data.id}`);
     },
     onError(e) {
@@ -92,16 +87,16 @@ export default function NewDocumentExtraInfoModal({
   const { data: repositories, isLoading: areReposLoading } =
     api.repositories.getManualRepositoriesByProject.useQuery({ projectId });
 
-  console.log({ repositories });
-  console.log({ repositories });
-  console.log({ repositories });
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setDocSaving(true);
+    const repositoryFound = repositories.find(
+      (item) => item.repository.isDefault,
+    );
     createDocumentMutation.mutate({
       title,
       content: blocks,
       folderPath: "",
-      repositoryId: data.repositoryId,
+      repositoryId: repositoryFound.repositoryId,
       projectId: data.projectId,
     });
   }
@@ -141,7 +136,7 @@ export default function NewDocumentExtraInfoModal({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a project " />
+                          <SelectValue placeholder="Select a project" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -170,7 +165,7 @@ export default function NewDocumentExtraInfoModal({
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="repositoryId"
                 render={({ field }) => (
@@ -209,12 +204,12 @@ export default function NewDocumentExtraInfoModal({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={createDocumentMutation.isLoading}
+                isLoading={createDocumentMutation.isLoading || areReposLoading}
               >
                 Create
               </Button>

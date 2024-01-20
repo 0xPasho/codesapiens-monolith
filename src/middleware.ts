@@ -16,6 +16,11 @@ async function middleware(request: NextRequest) {
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
+
+  // Layouts need this to work
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+
   if (!isAuthenticated) {
     let from = request.nextUrl.pathname;
     if (request.nextUrl.search) {
@@ -33,13 +38,14 @@ async function middleware(request: NextRequest) {
     const urlSearchParams = new URLSearchParams(request.nextUrl.search);
     const fromParam = urlSearchParams.get("from");
     if (fromParam) {
-      return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}${fromParam}`);
+      return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}${fromParam}`, {
+        headers: requestHeaders,
+      });
     }
-    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/dashboard`);
+    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/dashboard`, {
+      headers: requestHeaders,
+    });
   }
-
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
   return NextResponse.next({
     request: {

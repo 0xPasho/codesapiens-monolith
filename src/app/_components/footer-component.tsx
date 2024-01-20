@@ -55,7 +55,10 @@ const FooterComponent = () => {
           <a href={env.NEXT_PUBLIC_APP_URL} className="hover:underline">
             {siteConfig.name}™
           </a>
-          . All Rights Reserved.
+          . All Rights Reserved.{"  "}. Soporte en{" "}
+          <a className="hover:underline" href="emailto:support@codesapiens.ai">
+            support@codesapiens.ai
+          </a>
         </span>
       </div>
     </footer>

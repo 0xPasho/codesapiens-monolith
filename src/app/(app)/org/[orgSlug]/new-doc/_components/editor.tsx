@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import EditorJS, { OutputBlockData } from "@editorjs/editorjs";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +17,7 @@ import NewDocumentExtraInfoModal from "./new-document-extra-info-modal";
 import { api } from "~/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "~/env.mjs";
+import { Router } from "next/router";
 
 interface EditorProps {
   documentId?: string;
@@ -170,15 +170,15 @@ export function Editor({
             {!readOnly ? (
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center space-x-10">
-                  <Link
-                    href=".."
-                    className={cn(buttonVariants({ variant: "ghost" }))}
+                  <Button
+                    onClick={() => {
+                      router.back();
+                    }}
+                    variant="ghost"
                   >
-                    <>
-                      <Icons.chevronLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </>
-                  </Link>
+                    <Icons.chevronLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
                 </div>
                 <Button
                   isLoading={isSaving}

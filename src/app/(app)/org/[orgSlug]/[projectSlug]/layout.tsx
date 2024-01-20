@@ -17,7 +17,6 @@ import {
   HistoryIcon,
   SearchCodeIcon,
   Settings2Icon,
-  WholeWordIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WikiProvider } from "./wiki/[repositorySlug]/_components/wiki-context";
@@ -30,6 +29,7 @@ export default function ProjectLayout({
   params: { projectSlug: string; orgSlug: string };
 }) {
   const pathname = usePathname();
+
   const getRoute = () => {
     const pathnameSplit = pathname?.split("/");
     const currentSelectedTabByPath = pathnameSplit?.[4];
@@ -43,6 +43,15 @@ export default function ProjectLayout({
     }
     return "overview";
   };
+
+  const goBackRoute = () => {
+    const pathnameSplit = pathname?.split("/");
+    if (pathnameSplit.length > 4) {
+      return `/org/${orgSlug}/${projectSlug}/wiki`;
+    }
+    return `/org/${orgSlug}`;
+  };
+
   const [currentSelectedTab, setCurrentSelectedTab] = useState(getRoute());
 
   const menuItems = [
@@ -87,7 +96,7 @@ export default function ProjectLayout({
           <NavigationMenu className="flex">
             <NavigationMenuList>
               <Link
-                href={`/org/${orgSlug}`}
+                href={goBackRoute()}
                 legacyBehavior
                 passHref
                 className="p-0"
@@ -101,8 +110,9 @@ export default function ProjectLayout({
                   <ArrowLeftIcon />
                 </NavigationMenuLink>
               </Link>
-              {menuItems.map((item) => (
+              {menuItems.map((item, index) => (
                 <div
+                  key={`menu-items-${index}`}
                   className={`border-b border-b-2 ${
                     currentSelectedTab === item.id
                       ? "border-b-black dark:border-b-white"

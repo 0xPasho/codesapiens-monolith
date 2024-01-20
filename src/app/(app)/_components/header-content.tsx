@@ -4,6 +4,7 @@ import OrgSwitcherWrapper from "./org-switcher-wrapper";
 import HeaderProfileButton from "./header-profile-button";
 import QuickActionsButton from "./quick-actions-button";
 import MobileNavTrigger from "./mobile-nav-trigger";
+import { Badge } from "@/components/ui/badge";
 
 const items = [
   {
@@ -41,6 +42,12 @@ export async function HeaderContent({
           >
             <img src="/logo.png" className="mr-2  w-7" />
             <span className="font-bold">{siteConfig.name}</span>
+            <Badge
+              variant="ghost"
+              className="ml-1 mt-0 px-0.5 py-0.5 text-[8px]"
+            >
+              <span className="text-[8px]">BETA</span>
+            </Badge>
           </Link>
           <span className="hidden pr-3 font-bold sm:inline-block">/</span>
           <OrgSwitcherWrapper orgSlug={orgSlug || session?.user.orgSlug} />

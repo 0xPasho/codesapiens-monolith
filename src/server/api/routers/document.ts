@@ -61,7 +61,6 @@ type BlockType = {
 const processBlocksToText = (blocks: BlockType[]) => {
   let text = "";
   for (const block of blocks) {
-    console.log({ block });
     switch (block.type) {
       case "header":
       case "paragraph":
