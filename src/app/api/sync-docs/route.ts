@@ -44,9 +44,14 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  if (!project?.organization?.stripeCustomerId) {
-    return NextResponse.json({ error: "Needs subscription", status: 403 });
-  }
+  console.log({ project });
+  console.log({ project });
+  console.log({ project });
+  console.log({ project });
+
+  // if (!project?.organization?.stripeCustomerId) {
+  //   return NextResponse.json({ error: "Needs subscription", status: 403 });
+  // }
 
   let idRepositoriesToSend = [];
   for (let pr of project.repositories) {

@@ -27,3 +27,5 @@ const VideoContent = () => {
     </section>
   );
 };
+
+export { VideoContent };

@@ -5,7 +5,7 @@ import TryItComponent from "./try-it-component";
 import FooterComponent from "./footer-component";
 import PlatformFeatures from "./platform-features";
 import LandingExtension from "./landing-extension-content";
-import VideoContent from "./video-content";
+import { VideoContent } from "./video-content";
 
 export default async function IndexPage() {
   return (

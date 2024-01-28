@@ -63,9 +63,9 @@ export default async function OrgsSlugPage({
 
   const getDescription = () => {
     if (org?.isPersonal) {
-      return "Your dashboard";
+      return "Your dashboard. This is the whole list of projects you have.";
     }
-    return `Organization dashboard`;
+    return `Organization dashboard. This is the whole list of projects this organization has.`;
   };
 
   return (

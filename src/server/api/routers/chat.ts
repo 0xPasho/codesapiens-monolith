@@ -332,6 +332,42 @@ export const chatRouter = createTRPCRouter({
         },
       });
       try {
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+          // NOTE:
+          id_repository: input.repositoryId,
+          // sending id_repository means it will ONLY take in consideration that for
+          // the searching
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+          // NOTE:
+          id_repository: input.repositoryId,
+          // sending id_repository means it will ONLY take in consideration that for
+          // the searching
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+          // NOTE:
+          id_repository: input.repositoryId,
+          // sending id_repository means it will ONLY take in consideration that for
+          // the searching
+        });
+        console.log({
+          id_user: ctx.session.user.id,
+          id_chat: chatId,
+          prompt: input.prompt,
+          // NOTE:
+          id_repository: input.repositoryId,
+          // sending id_repository means it will ONLY take in consideration that for
+          // the searching
+        });
         const response = await fetch(answerApiUrl, {
           method: "POST",
           headers: {
